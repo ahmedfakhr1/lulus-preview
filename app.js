@@ -17,6 +17,8 @@
     var pm = $('#mp-morning'), pe = $('#mp-evening');
     if (pm) pm.hidden = m !== 'morning';
     if (pe) pe.hidden = m !== 'evening';
+    var sp = m === 'evening' ? pe : pm;
+    if (sp) { var cs = $$('.chip', sp); cs.forEach(function (x, i) { x.classList.toggle('on', i === 0); if (i) x.removeAttribute('aria-current'); }); if (cs[0]) cs[0].parentNode.scrollLeft = 0; }
     try { history.replaceState(null, '', m === 'evening' ? '#evening' : location.pathname + location.search); } catch (x) {}
   }
   function syncUI(m) {
@@ -149,9 +151,9 @@
     chips.forEach(function (c) { map[c.getAttribute('href').slice(1)] = c; });
     var so = new IntersectionObserver(function (es) {
       es.forEach(function (en) {
-        if (en.isIntersecting) {
-          chips.forEach(function (c) { c.classList.remove('on'); c.removeAttribute('aria-current'); });
+        if (en.isIntersecting && en.target.offsetParent !== null && en.boundingClientRect.height > 0) {
           var c = map[en.target.id];
+          $$('.chip', c && c.closest('nav')).forEach(function (x) { x.classList.remove('on'); x.removeAttribute('aria-current'); });
           if (c) {
             c.classList.add('on'); c.setAttribute('aria-current', 'true');
             var bar = c.parentNode;
@@ -161,5 +163,6 @@
       });
     }, { rootMargin: '-30% 0px -62% 0px' });
     Object.keys(map).forEach(function (id) { var s = document.getElementById(id); if (s) so.observe(s); });
+    $$('nav').forEach(function (n) { var cs = $$('.chip', n); if (cs.length && !$$('.chip.on', n).length) cs[0].classList.add('on'); });
   }
 })();
