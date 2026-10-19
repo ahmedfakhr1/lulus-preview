@@ -24,7 +24,7 @@
 (function(){var d=document.documentElement;d.classList.add('js');var m=null;
 try{var q=new URLSearchParams(location.search).get('mood');
 if(q==='morning'||q==='evening'){m=q}else if(location.hash==='#evening'){m='evening'}else{m='morning'}}catch(x){}
-if(m!=='morning'&&m!=='evening'){var h=new Date().getHours(),dk=false;try{dk=matchMedia('(prefers-color-scheme: dark)').matches}catch(x){}m=(h>=17||h<5||dk)?'evening':'morning'}
+if(m!=='morning'&&m!=='evening'){var h=new Date().getHours();m=(h>=17||h<5)?'evening':'morning'}
 d.setAttribute('data-mood',m);
 var t=document.querySelector('meta[name=theme-color]');if(t&&m==='evening')t.setAttribute('content','#21150a');})();
 </script>
