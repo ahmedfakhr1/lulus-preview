@@ -165,4 +165,18 @@
     Object.keys(map).forEach(function (id) { var s = document.getElementById(id); if (s) so.observe(s); });
     $$('nav').forEach(function (n) { var cs = $$('.chip', n); if (cs.length && !$$('.chip.on', n).length) cs[0].classList.add('on'); });
   }
+
+  /* menu: the bottom bar steps aside while reading down, returns on scroll up */
+  var dockEl = $('.dock');
+  if (dockEl && $('.chips')) {
+    var lastY = window.scrollY, ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(function () {
+        var y = window.scrollY;
+        if (Math.abs(y - lastY) > 8) { dockEl.classList.toggle('away', y > lastY && y > 400); lastY = y; }
+        ticking = false;
+      });
+    }, { passive: true });
+  }
 })();
