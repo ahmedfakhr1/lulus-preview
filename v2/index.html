@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LÜLU’S | Restaurant, EDNC by SODIC, New Cairo</title>
+<meta name="description" content="Reserve a table at LÜLU’S, EDNC by SODIC, New Cairo. The menu, the season’s specials, nail studio, yoga, workshops and talks.">
+<meta name="theme-color" content="#fdf2d5">
+
+<meta property="og:type" content="restaurant.restaurant">
+<meta property="og:site_name" content="LÜLU’S">
+<meta property="og:title" content="LÜLU’S | Restaurant, EDNC by SODIC, New Cairo">
+<meta property="og:description" content="Reserve a table at LÜLU’S, EDNC by SODIC, New Cairo. The menu, the season’s specials, nail studio, yoga, workshops and talks.">
+<meta property="og:image" content="img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<script>/* Season picker. Inlined in <head> by the build so the right palette is on screen
+   before first paint. Seasons are data (data/seasons.json); every season ships with
+   the page and the browser picks by today's date in Africa/Cairo.
+   ?season=<id> previews any season (a short form such as ?season=winter also works). */
+(function () {
+  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"}]};
+  var doc = document.documentElement;
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function cairoToday() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(new Date());
+      var o = {};
+      for (var i = 0; i < parts.length; i++) o[parts[i].type] = parts[i].value;
+      return o.year + '-' + o.month + '-' + o.day;
+    } catch (e) {
+      var d = new Date(Date.now() + 2 * 3600 * 1000);
+      return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+    }
+  }
+
+  function rgb(h) {
+    h = h.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  function mix(a, b, p) {
+    return [a[0] * p + b[0] * (1 - p), a[1] * p + b[1] * (1 - p), a[2] * p + b[2] * (1 - p)];
+  }
+  function hex(c) {
+    var s = '#';
+    for (var i = 0; i < 3; i++) { var v = Math.round(Math.max(0, Math.min(255, c[i]))).toString(16); s += v.length < 2 ? '0' + v : v; }
+    return s;
+  }
+
+  var today = cairoToday();
+  var query = '';
+  try { query = (new URLSearchParams(location.search).get('season') || '').toLowerCase(); } catch (e) {}
+
+  var season = null, preview = '';
+  if (query) {
+    var all = DATA.seasons.concat([DATA.def]);
+    for (var i = 0; i < all.length && !season; i++) if (all[i].id === query) season = all[i];
+    for (var j = 0; j < all.length && !season; j++) if (all[j].id.indexOf(query + '-') === 0) season = all[j];
+    if (season) preview = query;
+  }
+  if (!season) {
+    for (var k = 0; k < DATA.seasons.length; k++) {
+      var s = DATA.seasons[k];
+      if (s.start <= today && today <= s.end) { season = s; break; }
+    }
+  }
+  if (!season) season = DATA.def;
+
+  var c = season.colours;
+  var bg = rgb(c.bg), ink = rgb(c.ink), paper = rgb(c.paper || c.bg);
+  var acc = rgb(c.accent), acc2 = rgb(c.accent2);
+  var scrim = mix(ink, [0, 0, 0], 0.55);
+  var vars = {
+    '--bg': c.bg, '--ink': c.ink, '--accent': c.accent, '--accent2': c.accent2,
+    '--paper': c.paper || c.bg,
+    '--muted': hex(mix(ink, bg, 0.80)),
+    '--muted-paper': hex(mix(ink, paper, 0.80)),
+    '--hair': hex(mix(ink, bg, 0.22)),
+    '--hair-paper': hex(mix(ink, paper, 0.24)),
+    '--tint': hex(mix(acc, bg, 0.24)),
+    '--tint2': hex(mix(acc2, bg, 0.26)),
+    '--desk': hex(mix(ink, [0, 0, 0], 0.80)),
+    '--scrim': Math.round(scrim[0]) + ',' + Math.round(scrim[1]) + ',' + Math.round(scrim[2])
+  };
+  for (var key in vars) doc.style.setProperty(key, vars[key]);
+  doc.setAttribute('data-season', season.id);
+  doc.className += ' js';
+
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', c.bg);
+
+  function heroHTML() {
+    var tall = season.heroImageTall || season.heroImage;
+    var wide = season.heroImageWide;
+    var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
+    var h = '<picture>';
+    if (wide) h += '<source media="(orientation: landscape)" srcset="img/' + wide + '">';
+    h += '<img src="img/' + tall + '" alt="' + alt + '" fetchpriority="high" decoding="async"></picture>';
+    return h;
+  }
+
+  window.LULUS = {
+    season: season,
+    today: today,
+    preview: preview,
+    seasons: DATA,
+    heroHTML: heroHTML
+  };
+})();
+</script>
+<style>html[data-season="fall-2026"] .season{display:block}html[data-season="fall-2026"] .season-pane[data-for="fall-2026"]{display:block}</style>
+<link rel="stylesheet" href="css/home.css?v=8db69efd">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"LÜLU’S","image":"img/og.jpg","telephone":"+201210514222","address":{"@type":"PostalAddress","streetAddress":"EDNC by SODIC","addressLocality":"New Cairo","addressCountry":"EG"},"hasMenu":"menu.html","sameAs":["https://www.instagram.com/lulusinmotion/","https://www.tiktok.com/@lulusinmotion"]}</script>
+</head>
+<body class="home" data-wa="201210514222" data-appstore="https://apps.apple.com/app/id6757676939" data-play="https://play.google.com/store/apps/details?id=com.seamlabs.lulus">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar" id="bar">
+  <a class="bar-logo" href="index.html" aria-label="LÜLU’S, home"><img src="img/logo.png" width="44" height="44" alt=""></a>
+  <nav class="bar-nav" aria-label="Main">
+    <a class="bar-link" href="menu.html">Menu</a>
+    <a class="btn btn-sm" href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table." data-reserve>Reserve</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="hero-media" id="hero-media"></div>
+    <script>document.getElementById('hero-media').innerHTML = LULUS.heroHTML();</script>
+    <noscript><div class="hero-media"><picture><source media="(orientation: landscape)" srcset="img/terrace-wide.webp"><img src="img/terrace-tall.webp" alt="The LÜLU’S terrace at night"></picture></div></noscript>
+    <div class="hero-top">
+      <h1><img class="hero-logo" src="img/logo.png" width="112" height="112" alt="LÜLU’S"></h1>
+      <p class="place">EDNC by SODIC, New Cairo</p>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-light" href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table." data-reserve>Reserve a table</a>
+      <a class="btn btn-ghost" href="menu.html">Menu</a>
+    </div>
+  </section>
+
+  <section class="dinner wrap" id="dinner" aria-labelledby="dinner-h">
+    <div class="dinner-head rv">
+      <h2 class="big" id="dinner-h">Dinner</h2>
+      <a class="link" href="menu.html#evening">Evening menu</a>
+    </div>
+    <figure class="dn dn-a rv"><img src="img/dinner-table.webp" width="800" height="999" alt="A dinner table with truffle pasta, pasta in tomato sauce and a bread basket" loading="lazy" decoding="async"><figcaption>Truffle pasta at the table</figcaption></figure>
+    <figure class="dn dn-b rv"><img src="img/dinner-souffle.webp" width="800" height="753" alt="A chocolate soufflé served with a scoop of sorbet" loading="lazy" decoding="async"><figcaption>Chocolate soufflé</figcaption></figure>
+  </section>
+
+  <section class="season" id="season" aria-label="This season">
+    <div class="season-pane" data-for="fall-2026"><div class="wrap"><div class="sp-photo rv"><img src="img/fall-matcha.webp" alt="A matcha drink on a table with pumpkins and autumn leaves" width="800" height="903" loading="lazy" decoding="async"></div><div class="sp-body rv"><h2 class="big">This season</h2><p class="sp-sub">Fall 2026</p><ul class="sp-list"><li><span class="n">Pumpkin Trompe L’Oeil</span><span class="d">Pumpkin cream and ganache, almond sponge, chocolate glaze</span></li><li><span class="n">S’mores Latte</span><span class="d">Mocha, biscuit, marshmallow cold foam</span></li><li><span class="n">Pumpkin Spice Matcha</span><span class="d">Spiced pumpkin sauce, pumpkin spice, matcha</span></li><li><span class="n">Apple Pie Matcha</span><span class="d">Cinnamon, apple pie jam, cold foam</span></li></ul><a class="link" href="menu.html#sweet">See them in the menu</a></div></div></div>
+  </section>
+
+  <section class="exp wrap" id="experience" aria-labelledby="exp-h">
+    <h2 class="big rv" id="exp-h">The experience</h2>
+    <div class="exp-grid">
+      <article class="xp rv"><h3>Nail studio</h3><p>Appointments are booked in the LÜLU’S app.</p><a class="link" href="https://apps.apple.com/app/id6757676939" data-app rel="noopener">Open the app</a></article>
+      <article class="xp rv"><h3>Yoga</h3><p>Ask about dates on WhatsApp, or check the events calendar in the app.</p><a class="link" href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20ask%20about%20yoga." rel="noopener">Ask on WhatsApp</a></article>
+      <article class="xp rv"><h3>Workshops and talks</h3><p>Ask about dates on WhatsApp, or check the events calendar in the app.</p><a class="link" href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20ask%20about%20workshops%20and%20talks." rel="noopener">Ask on WhatsApp</a></article>
+    </div>
+  </section>
+
+  <section class="visit wrap" id="visit" aria-labelledby="visit-h">
+    <h2 class="big rv" id="visit-h">Visit</h2>
+    <p class="v-place rv">EDNC by SODIC, New Cairo</p>
+    <p class="v-about rv">LÜLU’S is a restaurant at EDNC by SODIC in New Cairo, with a nail studio, yoga, workshops and talks.</p>
+    <div class="v-links rv">
+      <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&amp;query=L%C3%9CLU%27S+EDNC+SODIC+New+Cairo" rel="noopener">Directions</a>
+      <a class="btn btn-line" href="https://wa.me/201210514222" rel="noopener">WhatsApp</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <img class="foot-logo" src="img/logo.png" width="56" height="56" alt="LÜLU’S" loading="lazy">
+    <div class="foot-cols">
+      <nav class="foot-col" aria-label="Follow and contact">
+        <p class="foot-h">Follow</p>
+        <a href="https://www.instagram.com/lulusinmotion/" rel="noopener">Instagram @lulusinmotion</a>
+        <a href="https://www.tiktok.com/@lulusinmotion" rel="noopener">TikTok @lulusinmotion</a>
+        <a href="https://wa.me/201210514222" rel="noopener">WhatsApp +20 121 051 4222</a>
+      </nav>
+      <nav class="foot-col" aria-label="Get the app">
+        <p class="foot-h">Get the app</p>
+        <a href="https://apps.apple.com/app/id6757676939" rel="noopener">App Store</a>
+        <a href="https://play.google.com/store/apps/details?id=com.seamlabs.lulus" rel="noopener">Google Play</a>
+      </nav>
+    </div>
+    <p class="credit">Website concept by Ahmed Fakhreldin.</p>
+  </div>
+</footer>
+
+<dialog class="sheet" id="reserve" aria-labelledby="reserve-title">
+  <form id="reserve-form" method="dialog" novalidate>
+    <div class="sheet-head">
+      <h2 id="reserve-title">Reserve a table</h2>
+      <button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
+    </div>
+    <div class="field">
+      <label for="r-name">Name</label>
+      <input id="r-name" name="name" type="text" autocomplete="name" required aria-describedby="r-name-e">
+      <p class="err" id="r-name-e" hidden>Add your name.</p>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="r-date">Date</label>
+        <input id="r-date" name="date" type="date" required aria-describedby="r-date-e">
+        <p class="err" id="r-date-e" hidden>Choose a date.</p>
+      </div>
+      <div class="field">
+        <label for="r-time">Time</label>
+        <input id="r-time" name="time" type="time" required aria-describedby="r-time-e">
+        <p class="err" id="r-time-e" hidden>Choose a time.</p>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl" id="r-guests-l">Guests</span>
+      <div class="step" role="group" aria-labelledby="r-guests-l">
+        <button type="button" data-step="-1" aria-label="Fewer guests">&minus;</button>
+        <output id="r-guests" aria-live="polite">2</output>
+        <button type="button" data-step="1" aria-label="More guests">+</button>
+      </div>
+    </div>
+    <button class="btn btn-block" type="submit">Send on WhatsApp</button>
+    <p class="fine">Opens WhatsApp with your details filled in.</p>
+  </form>
+</dialog>
+
+<script src="js/app.js?v=0ca0811c" defer></script>
+</body>
+</html>

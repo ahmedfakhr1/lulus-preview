@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu | LÜLU’S</title>
+<meta name="description" content="The LÜLU’S menu: morning and evening, with the season’s specials.">
+<meta name="theme-color" content="#fdf2d5">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LÜLU’S">
+<meta property="og:title" content="Menu | LÜLU’S">
+<meta property="og:description" content="The LÜLU’S menu: morning and evening, with the season’s specials.">
+<meta property="og:image" content="img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<script>/* Season picker. Inlined in <head> by the build so the right palette is on screen
+   before first paint. Seasons are data (data/seasons.json); every season ships with
+   the page and the browser picks by today's date in Africa/Cairo.
+   ?season=<id> previews any season (a short form such as ?season=winter also works). */
+(function () {
+  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"}]};
+  var doc = document.documentElement;
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function cairoToday() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(new Date());
+      var o = {};
+      for (var i = 0; i < parts.length; i++) o[parts[i].type] = parts[i].value;
+      return o.year + '-' + o.month + '-' + o.day;
+    } catch (e) {
+      var d = new Date(Date.now() + 2 * 3600 * 1000);
+      return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate());
+    }
+  }
+
+  function rgb(h) {
+    h = h.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  function mix(a, b, p) {
+    return [a[0] * p + b[0] * (1 - p), a[1] * p + b[1] * (1 - p), a[2] * p + b[2] * (1 - p)];
+  }
+  function hex(c) {
+    var s = '#';
+    for (var i = 0; i < 3; i++) { var v = Math.round(Math.max(0, Math.min(255, c[i]))).toString(16); s += v.length < 2 ? '0' + v : v; }
+    return s;
+  }
+
+  var today = cairoToday();
+  var query = '';
+  try { query = (new URLSearchParams(location.search).get('season') || '').toLowerCase(); } catch (e) {}
+
+  var season = null, preview = '';
+  if (query) {
+    var all = DATA.seasons.concat([DATA.def]);
+    for (var i = 0; i < all.length && !season; i++) if (all[i].id === query) season = all[i];
+    for (var j = 0; j < all.length && !season; j++) if (all[j].id.indexOf(query + '-') === 0) season = all[j];
+    if (season) preview = query;
+  }
+  if (!season) {
+    for (var k = 0; k < DATA.seasons.length; k++) {
+      var s = DATA.seasons[k];
+      if (s.start <= today && today <= s.end) { season = s; break; }
+    }
+  }
+  if (!season) season = DATA.def;
+
+  var c = season.colours;
+  var bg = rgb(c.bg), ink = rgb(c.ink), paper = rgb(c.paper || c.bg);
+  var acc = rgb(c.accent), acc2 = rgb(c.accent2);
+  var scrim = mix(ink, [0, 0, 0], 0.55);
+  var vars = {
+    '--bg': c.bg, '--ink': c.ink, '--accent': c.accent, '--accent2': c.accent2,
+    '--paper': c.paper || c.bg,
+    '--muted': hex(mix(ink, bg, 0.80)),
+    '--muted-paper': hex(mix(ink, paper, 0.80)),
+    '--hair': hex(mix(ink, bg, 0.22)),
+    '--hair-paper': hex(mix(ink, paper, 0.24)),
+    '--tint': hex(mix(acc, bg, 0.24)),
+    '--tint2': hex(mix(acc2, bg, 0.26)),
+    '--desk': hex(mix(ink, [0, 0, 0], 0.80)),
+    '--scrim': Math.round(scrim[0]) + ',' + Math.round(scrim[1]) + ',' + Math.round(scrim[2])
+  };
+  for (var key in vars) doc.style.setProperty(key, vars[key]);
+  doc.setAttribute('data-season', season.id);
+  doc.className += ' js';
+
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', c.bg);
+
+  function heroHTML() {
+    var tall = season.heroImageTall || season.heroImage;
+    var wide = season.heroImageWide;
+    var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
+    var h = '<picture>';
+    if (wide) h += '<source media="(orientation: landscape)" srcset="img/' + wide + '">';
+    h += '<img src="img/' + tall + '" alt="' + alt + '" fetchpriority="high" decoding="async"></picture>';
+    return h;
+  }
+
+  window.LULUS = {
+    season: season,
+    today: today,
+    preview: preview,
+    seasons: DATA,
+    heroHTML: heroHTML
+  };
+})();
+</script>
+<link rel="stylesheet" href="css/menu.css?v=cc46a960">
+</head>
+<body class="menu" data-wa="201210514222" data-logo="img/logo.png" data-footnote="Prices in EGP, subject to 14% VAT and 12% service charge. Served in-house, for dine-in.">
+<a class="skip" href="#book">Skip to the menu</a>
+
+<header class="mbar">
+  <a class="bar-logo" href="index.html" aria-label="LÜLU’S, home"><img src="img/logo.png" width="44" height="44" alt=""></a>
+  <a class="btn btn-sm" href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table." data-reserve>Reserve</a>
+</header>
+
+<main class="book" id="book" aria-label="Menu book">
+  <h1 class="vh">LÜLU’S menu</h1>
+  <div class="stage" id="stage"></div>
+  <noscript>
+    <div class="plain">
+      <h2>Morning menu</h2>
+      <h3>Savoury</h3><ul>
+        <li>Smoky Turkey Crunch Roll, Brioche, fried smoked turkey, Dijon mayo, emmental, sun-dried tomato, lettuce, 400</li>
+        <li>Avocado Toast, Guacamole, whipped feta, cress, avocado, nuts, on brioche, 350</li>
+        <li>Poached Egg &amp; Hollandaise, Two brioche buns, spinach, poached eggs, lemon-pepper hollandaise, fries, 370</li>
+        <li>Eggs Royale, Poached eggs, hollandaise, smoked salmon, cream cheese, 570</li>
+        <li>Burrata Salad, Whole burrata, cherry tomatoes, nuts, pesto, 575</li>
+        <li>Louka Roll, Garlic-butter prawns in brioche, 420</li>
+        <li>Lox Roll, Smoked salmon, cream cheese, capers, red onion in brioche, 420</li>
+        <li>Crispy Chicken Caesar Roll, Crispy chicken caesar in brioche, 400</li>
+        <li>Caprese Roll, Tomato, buffalo mozzarella, pesto, balsamic in brioche, 350</li>
+        <li>Caesar Salad, Batavia, grilled chicken, parmesan, croutons, 530</li>
+        <li>Les Oeufs Truffle, Truffle scrambled eggs on brioche, cream cheese, parmesan. 300 without truffle, 450</li>
+        <li>Salmon Royale Croissant, Cream cheese, rocket, smoked salmon, two poached eggs, hollandaise, 570</li>
+        <li>Shakshouka, Slow-cooked tomatoes, eggs, chives, poppy-seed baguette, 350</li>
+        <li>Mushroom Scramble Croissant, Scrambled eggs, rocket, mushrooms, emmental. 470 with truffle, 400</li>
+        <li>Add-ons, Avocado +46, smoked salmon +200, poached egg +35</li>
+      </ul>
+      <h3>Sides</h3><ul>
+        <li>Seared Mushrooms, Butter-glazed mushrooms, 150</li>
+        <li>Petite Pomme, Fries with parmesan, 150</li>
+        <li>Truffle Petite Pomme, Fries in truffle sauce, parmesan, 260</li>
+      </ul>
+      <h3>The Sweet Finale</h3><ul>
+        <li>Signature Pancakes, Mixed berries, maple or Nutella, 550</li>
+        <li>Caramelized Pecan French Toast, Brioche, maple sauce, vanilla ice cream, 450</li>
+        <li>Lemon Trompe L’Oeil, Lemon ganache, mojito marmalade, joconde, white-chocolate glaze, 400</li>
+        <li>Cookies Trompe L’Oeil, Vanilla ganache, chocolate mousse, salted caramel, velvet glaze, 450</li>
+        <li>Mango Trompe L’Oeil, Mango ganache and marmalade, joconde, velvet glaze, 450</li>
+        <li>Black Forest, Milk mousse, cherries, flourless sponge, chocolate glaze, 400</li>
+        <li>Sticky Toffee Madeleine, Date toffee syrup, vanilla ice cream, 490</li>
+        <li>Hummingbird Cake, Spiced cake, banana cream, nuts, caramel, 300</li>
+      </ul>
+      <h3>Atelier Bakes</h3><ul>
+        <li>Croissant, Gruau Rouge flour. Add cheese +30, or salmon and cream cheese +230, 160</li>
+        <li>Almond Croissant, 270</li>
+        <li>Pistachio Croissant, 299</li>
+        <li>Choco Bomb Croissant, 270</li>
+        <li>Salted Caramel Brioche, 250</li>
+        <li>Greek Yogurt Bowl, 499</li>
+      </ul>
+      <h3>Coffee</h3><ul>
+        <li>Espresso, 90</li>
+        <li>Macchiato, 110</li>
+        <li>Cortado, 120</li>
+        <li>Flat White, 115</li>
+        <li>Cappuccino, 150</li>
+        <li>Americano, 120</li>
+        <li>Turkish Coffee, 80</li>
+        <li>Latte, 150</li>
+        <li>Mocha, 190</li>
+        <li>White Mocha, 145</li>
+        <li>Hazelnut Mocha, 175</li>
+        <li>Salted Caramel, 180</li>
+        <li>Spanish Latte, 180</li>
+        <li>Pistachio Latte, 190</li>
+        <li>Lulu-Chino, Signature blend, 220</li>
+        <li>Dirty Espresso, 120</li>
+        <li>Lulu’s Special Choco, 280</li>
+        <li>Filter Coffee, 250 ml or 500 ml</li>
+      </ul>
+      <h3>Matcha</h3><ul>
+        <li>Matcha, 190</li>
+        <li>Iced Matcha, 210</li>
+        <li>Spanish Matcha, 220</li>
+        <li>White Matcha, 240</li>
+        <li>Winter Cloud, 220</li>
+        <li>Strawberry Matcha, 220</li>
+        <li>Raspberry Matcha, 220</li>
+        <li>Raffaello Matcha, 200</li>
+      </ul>
+      <h3>Drinks</h3><ul>
+        <li>Choco</li>
+        <li>Lulu Foam, Earl Grey vanilla, peach iced tea, raspberry iced tea</li>
+        <li>Iced Tea, Orange, guava, lemon, lemon mint, watermelon</li>
+        <li>Fresh Juice, Classic, passionfruit, blueberry, raspberry</li>
+        <li>Mojito, Salted caramel, vanilla, choco</li>
+        <li>Soft Drinks, Coke, Sprite, Red Bull and zero versions</li>
+        <li>Water, Mineral, sparkling</li>
+        <li>Extras, Syrups, sauces, plant milks (oat, almond, soya, coconut), lactose-free, extra shot</li>
+      </ul>
+      <h2>Evening menu</h2>
+      <h3>Sides</h3><ul>
+        <li>Seared Mushrooms, Butter-glazed mushrooms, 150</li>
+        <li>Petite Pomme, Fries with parmesan, 150</li>
+        <li>Truffle Petite Pomme, Fries in truffle sauce, parmesan, 260</li>
+        <li>Mashed Potatoes, With chive, 250</li>
+        <li>Steamed Rice, Basmati, 150</li>
+      </ul>
+      <h3>Entrées</h3><ul>
+        <li>Dynamite Shrimp, Crispy jumbo shrimp, creamy spicy sauce, 400</li>
+        <li>Caesar Salad, Batavia, grilled chicken, parmesan, croutons, 530</li>
+        <li>Burrata Salad, Whole burrata, cherry tomatoes, nuts, pesto, 575</li>
+        <li>Creamy Cacio e Pepe, Spaghetti, pecorino, black pepper, 600</li>
+        <li>Pasta Rosa, Rigatoni, mascarpone pink sauce, baby shrimp, 685</li>
+        <li>Teriyaki Glazed Salmon, Homemade teriyaki, mashed potatoes, 900</li>
+      </ul>
+      <h3>From the Dome</h3><ul>
+        <li>Margherita, 360</li>
+        <li>Pesto, 460</li>
+        <li>FOFS Hot Honey Pepperoni, 540</li>
+        <li>Bresaola, Rocket, parmesan, balsamic, 899</li>
+        <li>100% Truffle, Truffle cream, shaved truffle, 990</li>
+      </ul>
+      <h3>Evening Selection</h3><ul>
+        <li>Fried Calamari, Chives, tartar, lemon, 370</li>
+        <li>Crispy Chicken Caesar Roll, In homemade brioche, 400</li>
+        <li>Louka Roll, Garlic-butter prawns in brioche, 420</li>
+        <li>Signature Pesto Ravioli, Ricotta and mozzarella, homemade pesto, 560</li>
+        <li>Beef Carpaccio, Rocket, parmesan, Dijon, 590</li>
+        <li>King Crab Tacos, King crab, spicy mayo, avocado, coriander, chilli, 600</li>
+        <li>Truffle Rigatoni, Truffle sauce and shavings, parmesan, 890</li>
+        <li>Grilled Seabass Fillet, Lemon butter, basmati, 2,100</li>
+        <li>Wagyu Striploin, Australian. Mashed potatoes, herb butter or peppercorn sauce, 2,500</li>
+      </ul>
+      <h3>The Sweet Finale</h3><ul>
+        <li>Caramelized Pecan French Toast, Brioche, maple sauce, vanilla ice cream, 450</li>
+        <li>Cookies Trompe L’Oeil, Vanilla ganache, chocolate mousse, salted caramel, velvet glaze, 450</li>
+        <li>Mango Trompe L’Oeil, Mango ganache and marmalade, joconde, velvet glaze, 450</li>
+        <li>Sticky Toffee Madeleine, Date toffee syrup, vanilla ice cream, 490</li>
+        <li>Hummingbird Cake, Spiced cake, banana cream, nuts, caramel, 300</li>
+        <li>Pumpkin Crème Brûlée, 400</li>
+        <li>Nutella Crunch Pizza, 450</li>
+        <li>Soufflé au Chocolat, Vanilla ice cream, 480</li>
+        <li>Hazelnut Praliné Cookie, Skillet, crème brûlée ice cream, 530</li>
+        <li>Ice Cream, Ask for flavours, 200</li>
+      </ul>
+      <h3>Atelier Bakes</h3><ul>
+        <li>Croissant, Gruau Rouge flour. Add cheese +30, or salmon and cream cheese +230, 160</li>
+        <li>Almond Croissant, 270</li>
+        <li>Pistachio Croissant, 299</li>
+        <li>Choco Bomb Croissant, 270</li>
+        <li>Salted Caramel Brioche, 250</li>
+      </ul>
+      <h3>Coffee</h3><ul>
+        <li>Espresso, 90</li>
+        <li>Macchiato, 110</li>
+        <li>Cortado, 120</li>
+        <li>Flat White, 115</li>
+        <li>Cappuccino, 150</li>
+        <li>Americano, 120</li>
+        <li>Turkish Coffee, 80</li>
+        <li>Latte, 150</li>
+        <li>Mocha, 190</li>
+        <li>White Mocha, 145</li>
+        <li>Hazelnut Mocha, 175</li>
+        <li>Salted Caramel, 180</li>
+        <li>Spanish Latte, 180</li>
+        <li>Pistachio Latte, 190</li>
+        <li>Lulu-Chino, Signature blend, 220</li>
+        <li>Dirty Espresso, 120</li>
+        <li>Lulu’s Special Choco, 280</li>
+        <li>Filter Coffee, 250 ml or 500 ml</li>
+      </ul>
+      <h3>Matcha</h3><ul>
+        <li>Matcha, 190</li>
+        <li>Iced Matcha, 210</li>
+        <li>Spanish Matcha, 220</li>
+        <li>White Matcha, 240</li>
+        <li>Winter Cloud, 220</li>
+        <li>Strawberry Matcha, 220</li>
+        <li>Raspberry Matcha, 220</li>
+        <li>Raffaello Matcha, 200</li>
+      </ul>
+      <h3>Drinks</h3><ul>
+        <li>Choco</li>
+        <li>Lulu Foam, Earl Grey vanilla, peach iced tea, raspberry iced tea</li>
+        <li>Iced Tea, Orange, guava, lemon, lemon mint, watermelon</li>
+        <li>Fresh Juice, Classic, passionfruit, blueberry, raspberry</li>
+        <li>Mojito, Salted caramel, vanilla, choco</li>
+        <li>Soft Drinks, Coke, Sprite, Red Bull and zero versions</li>
+        <li>Water, Mineral, sparkling</li>
+        <li>Extras, Syrups, sauces, plant milks (oat, almond, soya, coconut), lactose-free, extra shot</li>
+      </ul>
+      <p>Prices in EGP, subject to 14% VAT and 12% service charge. Served in-house, for dine-in.</p>
+    </div>
+  </noscript>
+</main>
+
+<nav class="bnav" id="bnav" aria-label="Menu pages">
+  <div class="svc" role="group" aria-label="Choose a menu">
+    <button type="button" data-svc="evening" aria-pressed="true">Evening</button>
+    <button type="button" data-svc="morning" aria-pressed="false">Morning</button>
+  </div>
+  <button class="nb" id="prev" type="button" aria-label="Previous page" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
+  <div class="bn-mid">
+    <button class="bn-toc" id="toc" type="button">Contents</button>
+    <span class="bn-count" id="count"></span>
+  </div>
+  <button class="nb" id="next" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
+</nav>
+<p class="vh" id="live" role="status" aria-live="polite"></p>
+
+<script type="application/json" id="menu-data">{"sections":[{"id":"savoury","title":"Savoury","note":"","items":[{"name":"Smoky Turkey Crunch Roll","desc":"Brioche, fried smoked turkey, Dijon mayo, emmental, sun-dried tomato, lettuce","price":400,"service":"morning","season":""},{"name":"Avocado Toast","desc":"Guacamole, whipped feta, cress, avocado, nuts, on brioche","price":350,"service":"morning","season":""},{"name":"Poached Egg & Hollandaise","desc":"Two brioche buns, spinach, poached eggs, lemon-pepper hollandaise, fries","price":370,"service":"morning","season":""},{"name":"Eggs Royale","desc":"Poached eggs, hollandaise, smoked salmon, cream cheese","price":570,"service":"morning","season":""},{"name":"Burrata Salad","desc":"Whole burrata, cherry tomatoes, nuts, pesto","price":575,"service":"morning","season":""},{"name":"Louka Roll","desc":"Garlic-butter prawns in brioche","price":420,"service":"morning","season":""},{"name":"Lox Roll","desc":"Smoked salmon, cream cheese, capers, red onion in brioche","price":420,"service":"morning","season":""},{"name":"Crispy Chicken Caesar Roll","desc":"Crispy chicken caesar in brioche","price":400,"service":"morning","season":""},{"name":"Caprese Roll","desc":"Tomato, buffalo mozzarella, pesto, balsamic in brioche","price":350,"service":"morning","season":""},{"name":"Caesar Salad","desc":"Batavia, grilled chicken, parmesan, croutons","price":530,"service":"morning","season":""},{"name":"Les Oeufs Truffle","desc":"Truffle scrambled eggs on brioche, cream cheese, parmesan. 300 without truffle","price":450,"service":"morning","season":""},{"name":"Salmon Royale Croissant","desc":"Cream cheese, rocket, smoked salmon, two poached eggs, hollandaise","price":570,"service":"morning","season":""},{"name":"Shakshouka","desc":"Slow-cooked tomatoes, eggs, chives, poppy-seed baguette","price":350,"service":"morning","season":""},{"name":"Mushroom Scramble Croissant","desc":"Scrambled eggs, rocket, mushrooms, emmental. 470 with truffle","price":400,"service":"morning","season":""},{"name":"Add-ons","desc":"Avocado +46, smoked salmon +200, poached egg +35","price":null,"service":"morning","season":""}]},{"id":"sides","title":"Sides","note":"","items":[{"name":"Seared Mushrooms","desc":"Butter-glazed mushrooms","price":150,"service":"both","season":""},{"name":"Petite Pomme","desc":"Fries with parmesan","price":150,"service":"both","season":""},{"name":"Truffle Petite Pomme","desc":"Fries in truffle sauce, parmesan","price":260,"service":"both","season":""},{"name":"Mashed Potatoes","desc":"With chive","price":250,"service":"evening","season":""},{"name":"Steamed Rice","desc":"Basmati","price":150,"service":"evening","season":""}]},{"id":"entrees","title":"Entrées","note":"","items":[{"name":"Dynamite Shrimp","desc":"Crispy jumbo shrimp, creamy spicy sauce","price":400,"service":"evening","season":""},{"name":"Caesar Salad","desc":"Batavia, grilled chicken, parmesan, croutons","price":530,"service":"evening","season":""},{"name":"Burrata Salad","desc":"Whole burrata, cherry tomatoes, nuts, pesto","price":575,"service":"evening","season":""},{"name":"Creamy Cacio e Pepe","desc":"Spaghetti, pecorino, black pepper","price":600,"service":"evening","season":""},{"name":"Pasta Rosa","desc":"Rigatoni, mascarpone pink sauce, baby shrimp","price":685,"service":"evening","season":""},{"name":"Teriyaki Glazed Salmon","desc":"Homemade teriyaki, mashed potatoes","price":900,"service":"evening","season":""}]},{"id":"dome","title":"From the Dome","note":"","items":[{"name":"Margherita","desc":"","price":360,"service":"evening","season":""},{"name":"Pesto","desc":"","price":460,"service":"evening","season":""},{"name":"FOFS Hot Honey Pepperoni","desc":"","price":540,"service":"evening","season":""},{"name":"Bresaola","desc":"Rocket, parmesan, balsamic","price":899,"service":"evening","season":""},{"name":"100% Truffle","desc":"Truffle cream, shaved truffle","price":990,"service":"evening","season":""}]},{"id":"selection","title":"Evening Selection","note":"","items":[{"name":"Fried Calamari","desc":"Chives, tartar, lemon","price":370,"service":"evening","season":""},{"name":"Crispy Chicken Caesar Roll","desc":"In homemade brioche","price":400,"service":"evening","season":""},{"name":"Louka Roll","desc":"Garlic-butter prawns in brioche","price":420,"service":"evening","season":""},{"name":"Signature Pesto Ravioli","desc":"Ricotta and mozzarella, homemade pesto","price":560,"service":"evening","season":""},{"name":"Beef Carpaccio","desc":"Rocket, parmesan, Dijon","price":590,"service":"evening","season":""},{"name":"King Crab Tacos","desc":"King crab, spicy mayo, avocado, coriander, chilli","price":600,"service":"evening","season":""},{"name":"Truffle Rigatoni","desc":"Truffle sauce and shavings, parmesan","price":890,"service":"evening","season":""},{"name":"Grilled Seabass Fillet","desc":"Lemon butter, basmati","price":2100,"service":"evening","season":""},{"name":"Wagyu Striploin","desc":"Australian. Mashed potatoes, herb butter or peppercorn sauce","price":2500,"service":"evening","season":""}]},{"id":"sweet","title":"The Sweet Finale","note":"","items":[{"name":"Signature Pancakes","desc":"Mixed berries, maple or Nutella","price":550,"service":"morning","season":""},{"name":"Caramelized Pecan French Toast","desc":"Brioche, maple sauce, vanilla ice cream","price":450,"service":"both","season":""},{"name":"Lemon Trompe L’Oeil","desc":"Lemon ganache, mojito marmalade, joconde, white-chocolate glaze","price":400,"service":"morning","season":""},{"name":"Cookies Trompe L’Oeil","desc":"Vanilla ganache, chocolate mousse, salted caramel, velvet glaze","price":450,"service":"both","season":""},{"name":"Mango Trompe L’Oeil","desc":"Mango ganache and marmalade, joconde, velvet glaze","price":450,"service":"both","season":""},{"name":"Pumpkin Trompe L’Oeil","desc":"Pumpkin cream and ganache, almond sponge, chocolate glaze","price":300,"service":"both","season":"fall-2026"},{"name":"Black Forest","desc":"Milk mousse, cherries, flourless sponge, chocolate glaze","price":400,"service":"morning","season":""},{"name":"Sticky Toffee Madeleine","desc":"Date toffee syrup, vanilla ice cream","price":490,"service":"both","season":""},{"name":"Hummingbird Cake","desc":"Spiced cake, banana cream, nuts, caramel","price":300,"service":"both","season":""},{"name":"Pumpkin Crème Brûlée","desc":"","price":400,"service":"evening","season":""},{"name":"Nutella Crunch Pizza","desc":"","price":450,"service":"evening","season":""},{"name":"Soufflé au Chocolat","desc":"Vanilla ice cream","price":480,"service":"evening","season":""},{"name":"Hazelnut Praliné Cookie","desc":"Skillet, crème brûlée ice cream","price":530,"service":"evening","season":""},{"name":"Ice Cream","desc":"Ask for flavours","price":200,"service":"evening","season":""}]},{"id":"bakes","title":"Atelier Bakes","note":"","items":[{"name":"Croissant","desc":"Gruau Rouge flour. Add cheese +30, or salmon and cream cheese +230","price":160,"service":"both","season":""},{"name":"Almond Croissant","desc":"","price":270,"service":"both","season":""},{"name":"Pistachio Croissant","desc":"","price":299,"service":"both","season":""},{"name":"Choco Bomb Croissant","desc":"","price":270,"service":"both","season":""},{"name":"Salted Caramel Brioche","desc":"","price":250,"service":"both","season":""},{"name":"Greek Yogurt Bowl","desc":"","price":499,"service":"morning","season":""}]},{"id":"coffee","title":"Coffee","note":"","items":[{"name":"Espresso","desc":"","price":90,"service":"both","season":""},{"name":"Macchiato","desc":"","price":110,"service":"both","season":""},{"name":"Cortado","desc":"","price":120,"service":"both","season":""},{"name":"Flat White","desc":"","price":115,"service":"both","season":""},{"name":"Cappuccino","desc":"","price":150,"service":"both","season":""},{"name":"Americano","desc":"","price":120,"service":"both","season":""},{"name":"Turkish Coffee","desc":"","price":80,"service":"both","season":""},{"name":"Latte","desc":"","price":150,"service":"both","season":""},{"name":"Mocha","desc":"","price":190,"service":"both","season":""},{"name":"White Mocha","desc":"","price":145,"service":"both","season":""},{"name":"Hazelnut Mocha","desc":"","price":175,"service":"both","season":""},{"name":"Salted Caramel","desc":"","price":180,"service":"both","season":""},{"name":"Spanish Latte","desc":"","price":180,"service":"both","season":""},{"name":"Pistachio Latte","desc":"","price":190,"service":"both","season":""},{"name":"Lulu-Chino","desc":"Signature blend","price":220,"service":"both","season":""},{"name":"Dirty Espresso","desc":"","price":120,"service":"both","season":""},{"name":"Lulu’s Special Choco","desc":"","price":280,"service":"both","season":""},{"name":"Filter Coffee","desc":"250 ml or 500 ml","price":null,"service":"both","season":""},{"name":"S’mores Latte","desc":"Mocha, biscuit, marshmallow cold foam","price":null,"service":"both","season":"fall-2026"}]},{"id":"matcha","title":"Matcha","note":"","items":[{"name":"Matcha","desc":"","price":190,"service":"both","season":""},{"name":"Iced Matcha","desc":"","price":210,"service":"both","season":""},{"name":"Spanish Matcha","desc":"","price":220,"service":"both","season":""},{"name":"White Matcha","desc":"","price":240,"service":"both","season":""},{"name":"Winter Cloud","desc":"","price":220,"service":"both","season":""},{"name":"Strawberry Matcha","desc":"","price":220,"service":"both","season":""},{"name":"Raspberry Matcha","desc":"","price":220,"service":"both","season":""},{"name":"Raffaello Matcha","desc":"","price":200,"service":"both","season":""},{"name":"Pumpkin Spice Matcha","desc":"Spiced pumpkin sauce, pumpkin spice, matcha","price":null,"service":"both","season":"fall-2026"},{"name":"Apple Pie Matcha","desc":"Cinnamon, apple pie jam, cold foam","price":null,"service":"both","season":"fall-2026"}]},{"id":"drinks","title":"Drinks","note":"","items":[{"name":"Choco","desc":"","price":null,"service":"both","season":""},{"name":"Lulu Foam","desc":"Earl Grey vanilla, peach iced tea, raspberry iced tea","price":null,"service":"both","season":""},{"name":"Iced Tea","desc":"Orange, guava, lemon, lemon mint, watermelon","price":null,"service":"both","season":""},{"name":"Fresh Juice","desc":"Classic, passionfruit, blueberry, raspberry","price":null,"service":"both","season":""},{"name":"Mojito","desc":"Salted caramel, vanilla, choco","price":null,"service":"both","season":""},{"name":"Soft Drinks","desc":"Coke, Sprite, Red Bull and zero versions","price":null,"service":"both","season":""},{"name":"Water","desc":"Mineral, sparkling","price":null,"service":"both","season":""},{"name":"Extras","desc":"Syrups, sauces, plant milks (oat, almond, soya, coconut), lactose-free, extra shot","price":null,"service":"both","season":""}]}]}</script>
+<dialog class="sheet" id="reserve" aria-labelledby="reserve-title">
+  <form id="reserve-form" method="dialog" novalidate>
+    <div class="sheet-head">
+      <h2 id="reserve-title">Reserve a table</h2>
+      <button class="x" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
+    </div>
+    <div class="field">
+      <label for="r-name">Name</label>
+      <input id="r-name" name="name" type="text" autocomplete="name" required aria-describedby="r-name-e">
+      <p class="err" id="r-name-e" hidden>Add your name.</p>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="r-date">Date</label>
+        <input id="r-date" name="date" type="date" required aria-describedby="r-date-e">
+        <p class="err" id="r-date-e" hidden>Choose a date.</p>
+      </div>
+      <div class="field">
+        <label for="r-time">Time</label>
+        <input id="r-time" name="time" type="time" required aria-describedby="r-time-e">
+        <p class="err" id="r-time-e" hidden>Choose a time.</p>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl" id="r-guests-l">Guests</span>
+      <div class="step" role="group" aria-labelledby="r-guests-l">
+        <button type="button" data-step="-1" aria-label="Fewer guests">&minus;</button>
+        <output id="r-guests" aria-live="polite">2</output>
+        <button type="button" data-step="1" aria-label="More guests">+</button>
+      </div>
+    </div>
+    <button class="btn btn-block" type="submit">Send on WhatsApp</button>
+    <p class="fine">Opens WhatsApp with your details filled in.</p>
+  </form>
+</dialog>
+
+<script src="js/app.js?v=0ca0811c" defer></script>
+<script src="js/book.js?v=6ff5d334" defer></script>
+</body>
+</html>
