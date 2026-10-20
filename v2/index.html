@@ -20,7 +20,7 @@
    the page and the browser picks by today's date in Africa/Cairo.
    ?season=<id> previews any season (a short form such as ?season=winter also works). */
 (function () {
-  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"terrace-tall.webp","heroImageTall":"terrace-tall.webp","heroImageWide":"terrace-wide.webp","heroAlt":"The LÜLU’S terrace at night"}]};
+  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-table.webp","heroAlt":"A dinner table with truffle pasta, pasta in tomato sauce and a bread basket","heroW":1080,"heroH":1100},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-table.webp","heroAlt":"A dinner table with truffle pasta, pasta in tomato sauce and a bread basket","heroW":1080,"heroH":1100},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"hero-table.webp","heroAlt":"A dinner table with truffle pasta, pasta in tomato sauce and a bread basket","heroW":1080,"heroH":1100}]};
   var doc = document.documentElement;
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -75,6 +75,11 @@
   var bg = rgb(c.bg), ink = rgb(c.ink), paper = rgb(c.paper || c.bg);
   var acc = rgb(c.accent), acc2 = rgb(c.accent2);
   var scrim = mix(ink, [0, 0, 0], 0.55);
+  var black = [0, 0, 0];
+  /* the menu page, by time of day: Morning is light, Evening is walnut and night (keep in step with tools/validate.py) */
+  var deskDay = mix(bg, ink, 0.94);
+  var deskNight = mix(ink, black, 0.34);
+  var pageNight = mix(ink, black, 0.56);
   var vars = {
     '--bg': c.bg, '--ink': c.ink, '--accent': c.accent, '--accent2': c.accent2,
     '--paper': c.paper || c.bg,
@@ -84,37 +89,63 @@
     '--hair-paper': hex(mix(ink, paper, 0.24)),
     '--tint': hex(mix(acc, bg, 0.24)),
     '--tint2': hex(mix(acc2, bg, 0.26)),
-    '--desk': hex(mix(ink, [0, 0, 0], 0.80)),
+    '--desk': hex(mix(ink, black, 0.80)),
+    '--desk-day': hex(deskDay),
+    '--desk-night': hex(deskNight),
+    '--page-night': hex(pageNight),
+    '--muted-night': hex(mix(paper, pageNight, 0.78)),
+    '--hair-night': hex(mix(paper, pageNight, 0.24)),
     '--scrim': Math.round(scrim[0]) + ',' + Math.round(scrim[1]) + ',' + Math.round(scrim[2])
   };
   for (var key in vars) doc.style.setProperty(key, vars[key]);
   doc.setAttribute('data-season', season.id);
   doc.className += ' js';
 
-  var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', c.bg);
+  /* Morning or Evening: the menu page follows it. A choice made earlier in this visit wins, then the
+     time in Cairo (Evening from 17:00 to 04:59), and a #morning / #evening link wins over both. */
+  function cairoHour() {
+    try {
+      return parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', hour12: false }).format(new Date()), 10) % 24;
+    } catch (e) { return new Date().getHours(); }
+  }
+  var service = '';
+  try { service = sessionStorage.getItem('lulus-svc') || ''; } catch (e) {}
+  var hashed = (location.hash || '').replace('#', '').toLowerCase();
+  if (hashed === 'morning' || hashed === 'evening') service = hashed;
+  if (service !== 'morning' && service !== 'evening') { var hr = cairoHour(); service = hr >= 5 && hr < 17 ? 'morning' : 'evening'; }
+  doc.setAttribute('data-mood', service);
 
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', /^menu/.test(location.pathname.split('/').pop() || '') ? (service === 'morning' ? hex(deskDay) : hex(deskNight)) : c.bg);
+
+  /* The hero photo: one portrait photo per season, shown at most as wide as its own pixels allow
+     (see .hero-media in home.css). heroW / heroH come from the file itself at build time. */
   function heroHTML() {
-    var tall = season.heroImageTall || season.heroImage;
-    var wide = season.heroImageWide;
     var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
-    var h = '<picture>';
-    if (wide) h += '<source media="(orientation: landscape)" srcset="img/' + wide + '">';
-    h += '<img src="img/' + tall + '" alt="' + alt + '" fetchpriority="high" decoding="async"></picture>';
-    return h;
+    var dims = season.heroW && season.heroH ? ' width="' + season.heroW + '" height="' + season.heroH + '"' : '';
+    var focus = season.heroFocus ? ' style="object-position:' + season.heroFocus.replace(/"/g, '') + '"' : '';
+    return '<img src="img/' + season.heroImage + '" alt="' + alt + '"' + dims + focus + ' fetchpriority="high" decoding="async">';
+  }
+  function heroInto(el) {
+    if (!el) return;
+    el.innerHTML = heroHTML();
+    if (season.heroW && season.heroH) el.style.setProperty('--hero-r', (season.heroW / season.heroH).toFixed(4));
   }
 
   window.LULUS = {
     season: season,
+    service: service,
+    desks: { morning: hex(deskDay), evening: hex(deskNight) },
     today: today,
     preview: preview,
     seasons: DATA,
-    heroHTML: heroHTML
+    heroHTML: heroHTML,
+    heroInto: heroInto
   };
 })();
 </script>
 <style>html[data-season="fall-2026"] .season{display:block}html[data-season="fall-2026"] .season-pane[data-for="fall-2026"]{display:block}</style>
-<link rel="stylesheet" href="css/home.css?v=8db69efd">
+<link rel="stylesheet" href="css/home.css?v=ac61ba08">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"LÜLU’S","image":"img/og.jpg","telephone":"+201210514222","address":{"@type":"PostalAddress","streetAddress":"EDNC by SODIC","addressLocality":"New Cairo","addressCountry":"EG"},"hasMenu":"menu.html","sameAs":["https://www.instagram.com/lulusinmotion/","https://www.tiktok.com/@lulusinmotion"]}</script>
 </head>
 <body class="home" data-wa="201210514222" data-appstore="https://apps.apple.com/app/id6757676939" data-play="https://play.google.com/store/apps/details?id=com.seamlabs.lulus">
@@ -131,8 +162,8 @@
 <main id="main">
   <section class="hero" id="top">
     <div class="hero-media" id="hero-media"></div>
-    <script>document.getElementById('hero-media').innerHTML = LULUS.heroHTML();</script>
-    <noscript><div class="hero-media"><picture><source media="(orientation: landscape)" srcset="img/terrace-wide.webp"><img src="img/terrace-tall.webp" alt="The LÜLU’S terrace at night"></picture></div></noscript>
+    <script>LULUS.heroInto(document.getElementById('hero-media'));</script>
+    <noscript><div class="hero-media" style="--hero-r:0.9818"><img src="img/hero-table.webp" width="1080" height="1100" alt="A dinner table with truffle pasta, pasta in tomato sauce and a bread basket"></div></noscript>
     <div class="hero-top">
       <h1><img class="hero-logo" src="img/logo.png" width="112" height="112" alt="LÜLU’S"></h1>
       <p class="place">EDNC by SODIC, New Cairo</p>
@@ -148,12 +179,12 @@
       <h2 class="big" id="dinner-h">Dinner</h2>
       <a class="link" href="menu.html#evening">Evening menu</a>
     </div>
-    <figure class="dn dn-a rv"><img src="img/dinner-table.webp" width="800" height="999" alt="A dinner table with truffle pasta, pasta in tomato sauce and a bread basket" loading="lazy" decoding="async"><figcaption>Truffle pasta at the table</figcaption></figure>
-    <figure class="dn dn-b rv"><img src="img/dinner-souffle.webp" width="800" height="753" alt="A chocolate soufflé served with a scoop of sorbet" loading="lazy" decoding="async"><figcaption>Chocolate soufflé</figcaption></figure>
+    <figure class="dn dn-a rv"><img src="img/dinner-terrace.webp" width="1080" height="590" alt="The LÜLU’S terrace at night, lit under the canopy" loading="lazy" decoding="async"><figcaption>The terrace at night</figcaption></figure>
+    <figure class="dn dn-b rv"><img src="img/dinner-souffle.webp" width="814" height="1017" alt="A chocolate soufflé served with a scoop of sorbet" loading="lazy" decoding="async"><figcaption>Chocolate soufflé</figcaption></figure>
   </section>
 
   <section class="season" id="season" aria-label="This season">
-    <div class="season-pane" data-for="fall-2026"><div class="wrap"><div class="sp-photo rv"><img src="img/fall-matcha.webp" alt="A matcha drink on a table with pumpkins and autumn leaves" width="800" height="903" loading="lazy" decoding="async"></div><div class="sp-body rv"><h2 class="big">This season</h2><p class="sp-sub">Fall 2026</p><ul class="sp-list"><li><span class="n">Pumpkin Trompe L’Oeil</span><span class="d">Pumpkin cream and ganache, almond sponge, chocolate glaze</span></li><li><span class="n">S’mores Latte</span><span class="d">Mocha, biscuit, marshmallow cold foam</span></li><li><span class="n">Pumpkin Spice Matcha</span><span class="d">Spiced pumpkin sauce, pumpkin spice, matcha</span></li><li><span class="n">Apple Pie Matcha</span><span class="d">Cinnamon, apple pie jam, cold foam</span></li></ul><a class="link" href="menu.html#sweet">See them in the menu</a></div></div></div>
+    <div class="season-pane" data-for="fall-2026"><div class="wrap"><div class="sp-photo rv"><img src="img/fall-matcha.webp" alt="A matcha drink on a table with pumpkins and autumn leaves" width="1080" height="1219" loading="lazy" decoding="async"></div><div class="sp-body rv"><h2 class="big">This season</h2><p class="sp-sub">Fall 2026</p><ul class="sp-list"><li><span class="n">Pumpkin Trompe L’Oeil</span><span class="d">Pumpkin cream and ganache, almond sponge, chocolate glaze</span></li><li><span class="n">S’mores Latte</span><span class="d">Mocha, biscuit, marshmallow cold foam</span></li><li><span class="n">Pumpkin Spice Matcha</span><span class="d">Spiced pumpkin sauce, pumpkin spice, matcha</span></li><li><span class="n">Apple Pie Matcha</span><span class="d">Cinnamon, apple pie jam, cold foam</span></li></ul><a class="link" href="menu.html#sweet">See them in the menu</a></div></div></div>
   </section>
 
   <section class="exp wrap" id="experience" aria-labelledby="exp-h">
@@ -166,12 +197,22 @@
   </section>
 
   <section class="visit wrap" id="visit" aria-labelledby="visit-h">
-    <h2 class="big rv" id="visit-h">Visit</h2>
-    <p class="v-place rv">EDNC by SODIC, New Cairo</p>
-    <p class="v-about rv">LÜLU’S is a restaurant at EDNC by SODIC in New Cairo, with a nail studio, yoga, workshops and talks.</p>
-    <div class="v-links rv">
-      <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&amp;query=L%C3%9CLU%27S+EDNC+SODIC+New+Cairo" rel="noopener">Directions</a>
-      <a class="btn btn-line" href="https://wa.me/201210514222" rel="noopener">WhatsApp</a>
+    <div class="v-text">
+      <h2 class="big rv" id="visit-h">Visit</h2>
+      <p class="v-place rv">EDNC by SODIC, New Cairo</p>
+      <p class="v-about rv">LÜLU’S is a restaurant at EDNC by SODIC in New Cairo, with a nail studio, yoga, workshops and talks.</p>
+    </div>
+    <div class="invite rv">
+      <img class="invite-photo" src="img/visit-terrace.webp" width="592" height="740" alt="The LÜLU’S terrace at night under its lit canopy" loading="lazy" decoding="async" style="--photo-w:296px">
+      <div class="invite-card">
+        <img class="invite-seal" src="img/logo.png" width="56" height="56" alt="">
+        <p class="invite-place">EDNC by SODIC, New Cairo</p>
+        <ul class="invite-acts">
+          <li><a href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table." rel="noopener"><span>Reserve on WhatsApp</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h13M13 7l5 5l-5 5"/></svg></a></li>
+          <li><a href="https://www.google.com/maps/search/?api=1&amp;query=L%C3%9CLU%27S+EDNC+SODIC+New+Cairo" rel="noopener"><span>Find us on Google Maps</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h13M13 7l5 5l-5 5"/></svg></a></li>
+          <li><a href="tel:+201210514222"><span>Call us</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h13M13 7l5 5l-5 5"/></svg></a></li>
+        </ul>
+      </div>
     </div>
   </section>
 </main>

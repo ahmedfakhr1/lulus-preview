@@ -1,10 +1,12 @@
 /* The menu book.
    Pages are real HTML, paginated from the menu data at the current screen size.
-   Phone: one page at a time. Wide screens (900px and up): a two-page spread.
+   Phone held upright: one page at a time. Wide screens (900px and up) and short landscape screens
+   (a phone on its side): a two-page spread. Morning and Evening restyle the whole page.
    While a page turns only transform and opacity change; nothing is measured per frame. */
 (function () {
   'use strict';
 
+  var doc = document.documentElement;
   var root = document.getElementById('book');
   var stage = document.getElementById('stage');
   var prevBtn = document.getElementById('prev');
@@ -23,13 +25,16 @@
 
   var mqReduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   function reduced() { return mqReduce.matches; }
+  /* a phone on its side: short and wide. The same rule drives the compact styles in book.css. */
+  var mqCompact = window.matchMedia ? window.matchMedia('(max-height: 479px) and (orientation: landscape)') : { matches: false };
 
   /* ------------------------------------------------------------ state */
   var S = {
     service: 'evening', mode: 'single', W: 0, H: 0, fs: 16,
-    pages: [], seq: [], pos: 0, secs: []
+    pages: [], seq: [], pos: 0, secs: [],
+    keep: null   /* where the reader was before the screen changed shape, until the next page turn */
   };
-  var turn = null, busy = false, raf = 0, ready = false;
+  var turn = null, busy = false, raf = 0, ready = false, switching = false;
 
   /* ------------------------------------------------------------ DOM scaffold */
   stage.setAttribute('role', 'group');
@@ -38,12 +43,13 @@
   stage.innerHTML =
     '<div class="slot slot-l"><div class="slot-pg"></div><i class="cast"></i></div>' +
     '<div class="slot slot-r"><div class="slot-pg"></div><i class="cast"></i></div>' +
-    '<div class="leaf"><div class="face face-f"><i class="sh"></i></div><div class="face face-b"><i class="sh"></i></div></div>';
+    '<div class="leaf"><div class="face face-f"><i class="sh"></i><i class="cv"></i></div><div class="face face-b"><i class="sh"></i><i class="cv"></i></div></div>';
   var slotL = stage.querySelector('.slot-l'), slotR = stage.querySelector('.slot-r');
   var castL = slotL.querySelector('.cast'), castR = slotR.querySelector('.cast');
   var leaf = stage.querySelector('.leaf');
   var faceF = leaf.querySelector('.face-f'), faceB = leaf.querySelector('.face-b');
   var shF = faceF.querySelector('.sh'), shB = faceB.querySelector('.sh');
+  var cvF = faceF.querySelector('.cv'), cvB = faceB.querySelector('.cv');
 
   var meas = document.createElement('div');
   meas.className = 'measure';
@@ -64,10 +70,12 @@
     } catch (e) { return new Date().getHours(); }
   }
   function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) {} return null; }
-  /* Evening from 17:00 to 04:59 in Cairo, Morning from 05:00 to 16:59; a choice made in this visit is kept */
+  /* Evening from 17:00 to 04:59 in Cairo, Morning from 05:00 to 16:59; a choice made in this visit is kept.
+     season.js (in the head) has already decided this, so the first paint has the right colours. */
   function defaultService() {
     var saved = store('lulus-svc');
     if (saved === 'morning' || saved === 'evening') return saved;
+    if (LU.service === 'morning' || LU.service === 'evening') return LU.service;
     var h = cairoHour();
     return h >= 5 && h < 17 ? 'morning' : 'evening';
   }
@@ -101,20 +109,25 @@
     return '<div class="sec-head"><h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
       (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
   }
-  function runHTML(title) { return '<div class="run">' + esc(title) + ', <i>continued</i></div>'; }
+  /* a page that carries on a section shows only the section's name, small, above the items */
+  function runHTML(title) { return '<div class="run">' + esc(title) + '</div>'; }
 
   /* ------------------------------------------------------------ layout */
   function layout() {
+    var compact = !!mqCompact.matches;
+    root.classList.toggle('compact', compact);
     var cw = root.clientWidth, ch = root.clientHeight;
-    var spread = window.innerWidth >= 900 && window.innerHeight >= 480;
-    var mx = spread ? 28 : 10, my = spread ? 18 : 8;
+    var spread = compact || (window.innerWidth >= 900 && window.innerHeight >= 480);
+    var mx = compact ? 6 : spread ? 28 : 10, my = compact ? 5 : spread ? 18 : 8;
     var H = Math.floor(ch - 2 * my);
     var maxW = spread ? (cw - 2 * mx) / 2 : (cw - 2 * mx);
-    var W = Math.floor(Math.min(maxW, H * 0.74));
+    /* on its side a phone has width to spare, so the pages get a squarer shape and fit more lines across */
+    var W = Math.floor(Math.min(maxW, H * (compact ? 1.04 : 0.74)));
+    S.compact = compact;
     S.mode = spread ? 'spread' : 'single';
     S.W = Math.max(200, W);
     S.H = Math.max(240, H);
-    S.fs = Math.max(12.5, Math.min(20, S.W / 22.5, S.H / 24));
+    S.fs = compact ? 14 : Math.max(12.5, Math.min(20, S.W / 22.5, S.H / 24));
   }
   function applyVars() {
     root.style.setProperty('--pw', S.W + 'px');
@@ -159,11 +172,12 @@
     });
     pages.push(cur);
 
-    /* no lonely last page: borrow from the one before when both stay within the page */
+    /* no lonely last page: a last page of one item, or of two after a page of five or more, borrows from
+       the one before while both stay within the page */
     var n = pages.length;
     if (n > 1) {
       var last = pages[n - 1], prev = pages[n - 2];
-      while (last.items.length < 3 && prev.items.length > 3) {
+      while (prev.items.length > 3 && (last.items.length < 2 || (last.items.length < 3 && prev.items.length > 4))) {
         var mv = prev.items[prev.items.length - 1];
         if (last.h + mv.h > cap) break;
         prev.items.pop(); prev.h -= mv.h;
@@ -244,7 +258,7 @@
       applyVars();
       if (paginate()) return;
       S.fs -= 0.6;
-      if (S.fs < 10.5) break;
+      if (S.fs < (S.compact ? 12.5 : 10.5)) break;
     }
   }
 
@@ -358,22 +372,61 @@
     frame(turn.t);
   }
 
+  /* One frame of the turn, t from 0 (flat on the right) to 1 (flat on the left).
+     Besides the swing the leaf lifts a little towards the reader and sways, a soft band of light
+     travels across it as it curves, and its shadow grows on the page underneath, then falls away.
+     Only transform and opacity are written. */
   function frame(t) {
-    leaf.style.transform = 'rotateY(' + (-180 * t).toFixed(2) + 'deg)';
     var s = Math.sin(Math.PI * t);
     var spread = S.mode === 'spread';
-    shF.style.opacity = t < 0.5 ? (0.85 * s).toFixed(3) : 0;
-    shB.style.opacity = spread && t >= 0.5 ? (0.85 * s).toFixed(3) : 0;
-    castR.style.opacity = t < 0.5 ? Math.sin(Math.PI * 2 * t).toFixed(3) : 0;
-    castL.style.opacity = spread && t > 0.5 ? Math.sin(Math.PI * (2 * t - 1)).toFixed(3) : 0;
+    var lift = S.W * 0.036 * s;
+    var sway = (turn && !turn.fwd ? -1 : 1) * 1.6 * Math.sin(2 * Math.PI * t);
+    leaf.style.transform = 'translateZ(' + lift.toFixed(1) + 'px) rotateY(' + (-180 * t).toFixed(2) + 'deg) skewY(' + sway.toFixed(2) + 'deg)';
+    shF.style.opacity = t < 0.5 ? (0.8 * Math.pow(s, 1.15)).toFixed(3) : 0;
+    shB.style.opacity = spread && t >= 0.5 ? (0.8 * Math.pow(s, 1.15)).toFixed(3) : 0;
+    /* the band of light: from the spine to the free edge while the leaf rises, back across the other face while it lands */
+    var kF = clamp(t * 2, 0, 1), kB = clamp(t * 2 - 1, 0, 1);
+    cvF.style.opacity = t < 0.5 ? (Math.sin(Math.PI * kF)).toFixed(3) : 0;
+    cvF.style.transform = 'translate3d(' + ((-1 + 2 * kF) * 100).toFixed(1) + '%,0,0)';
+    cvB.style.opacity = spread && t >= 0.5 ? (Math.sin(Math.PI * kB)).toFixed(3) : 0;
+    cvB.style.transform = 'translate3d(' + ((-1 + 2 * kB) * 100).toFixed(1) + '%,0,0)';
+    /* shadow thrown on the page underneath: it widens while the leaf climbs, fades as it passes upright */
+    var cR = t < 0.5 ? Math.sin(Math.PI * clamp(t * 2, 0, 1)) : 0;
+    var cL = spread && t > 0.5 ? Math.sin(Math.PI * clamp(t * 2 - 1, 0, 1)) : 0;
+    castR.style.opacity = cR.toFixed(3);
+    castR.style.transform = 'scaleX(' + (0.35 + 0.65 * clamp(t * 2.2, 0, 1)).toFixed(3) + ')';
+    castL.style.opacity = cL.toFixed(3);
+    castL.style.transform = 'scaleX(' + (0.35 + 0.65 * clamp((1 - t) * 2.2, 0, 1)).toFixed(3) + ')';
     if (turn && turn.a !== turn.b) {
       var p = turn.fwd ? t : 1 - t;
       stage.style.transform = 'translate3d(' + (turn.a + (turn.b - turn.a) * p).toFixed(2) + 'px,0,0)';
     }
   }
 
-  function easeInOut(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
-  function easeOut(k) { return 1 - Math.pow(1 - k, 3); }
+  /* cubic-bezier easing, like CSS: x is the share of the time, the result the share of the way */
+  function bezier(x1, y1, x2, y2) {
+    function bx(u) { var v = 1 - u; return 3 * v * v * u * x1 + 3 * v * u * u * x2 + u * u * u; }
+    function by(u) { var v = 1 - u; return 3 * v * v * u * y1 + 3 * v * u * u * y2 + u * u * u; }
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var lo = 0, hi = 1, u = x;
+      for (var i = 0; i < 24; i++) {
+        var d = bx(u) - x;
+        if (Math.abs(d) < 1e-5) break;
+        if (d > 0) hi = u; else lo = u;
+        u = (lo + hi) / 2;
+      }
+      return by(u);
+    };
+  }
+  /* a page is lifted slowly, swings through, and settles: gentle start, brisk middle, long soft landing */
+  var easeTurn = bezier(0.42, 0, 0.24, 1);
+  /* after a drag: carries on from the finger's own speed and eases to rest (never a snap) */
+  function easeRelease(m0) {
+    return function (k) { return (k * k * k - 2 * k * k + k) * m0 + (-2 * k * k * k + 3 * k * k); };
+  }
+  var TURN_MS = 880, FAR_MS = 980;
 
   function runTo(target, ms, ease, onDone) {
     cancelAnimationFrame(raf);
@@ -391,7 +444,7 @@
 
   function finishTurn() {
     var commit = turn.fwd ? turn.target === 1 : turn.target === 0;
-    if (commit) S.pos = turn.to;
+    if (commit) { S.pos = turn.to; S.keep = null; }
     turn = null; busy = false;
     showStatic();
     afterChange();
@@ -399,7 +452,8 @@
 
   function goTo(pos, opts) {
     pos = clamp(pos, 0, lastPos());
-    if (busy) return;
+    if (busy || switching) return;
+    S.keep = null;
     if (pos === S.pos) { afterChange(); return; }
     if (!ready) { S.pos = pos; showStatic(); afterChange(); return; }
     if (reduced() || (opts && opts.instant)) { fadeTo(pos, opts && opts.instant); return; }
@@ -407,7 +461,7 @@
     stage.setAttribute('data-motion', 'turn');
     setupTurn(S.pos, pos);
     var far = Math.abs(pos - S.pos) > 1;
-    runTo(turn.fwd ? 1 : 0, far ? 900 : 760, easeInOut, finishTurn);
+    runTo(turn.fwd ? 1 : 0, far ? FAR_MS : TURN_MS, easeTurn, finishTurn);
   }
   function step(d) { goTo(S.pos + d); }
 
@@ -435,15 +489,17 @@
   }
 
   function onDown(e) {
-    if (busy) return;
+    if (busy || switching) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lastX: e.clientX, lastT: e.timeStamp, vx: 0, active: false };
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lastX: e.clientX, lastT: e.timeStamp, vx: 0, active: false,
+             trail: [[e.timeStamp, e.clientX]] };
   }
   function onMove(e) {
-    if (!drag || e.pointerId !== drag.id) return;
+    if (!drag || e.pointerId !== drag.id || drag.dead) return;
     var dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
     if (!drag.active) {
-      if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) { drag = null; swallowClick(); return; }
+      /* an upright drag is a scroll, never a turn; the click that ends it is ignored too */
+      if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) { drag.dead = true; swallowClick(); return; }
       if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
       var fwd = dx < 0, to = S.pos + (fwd ? 1 : -1);
       if (to < 0 || to > lastPos()) { drag = null; swallowClick(); return; }
@@ -457,6 +513,8 @@
     var dt = e.timeStamp - drag.lastT;
     if (dt > 0) drag.vx = 0.7 * drag.vx + 0.3 * ((e.clientX - drag.lastX) / dt);
     drag.lastX = e.clientX; drag.lastT = e.timeStamp;
+    drag.trail.push([e.timeStamp, e.clientX]);
+    if (drag.trail.length > 12) drag.trail.shift();
     if (drag.soft || !turn) return;
     var span = S.mode === 'single' ? S.W * 0.85 : S.W * 0.95;
     var p = clamp((drag.fwd ? -dx : dx) / span, 0, 1);
@@ -469,7 +527,12 @@
   function onUp(e) {
     if (!drag || (e && e.pointerId !== drag.id)) return;
     var d = drag; drag = null;
+    if (d.dead) { swallowClick(); return; }
     if (!d.active) return;
+    /* the finger's speed over its last 100 ms */
+    var tr = d.trail, tEnd = tr[tr.length - 1][0], k0 = tr.length - 1;
+    while (k0 > 0 && tEnd - tr[k0 - 1][0] <= 100) k0--;
+    if (k0 < tr.length - 1) d.vx = (tr[tr.length - 1][1] - tr[k0][1]) / Math.max(1, tEnd - tr[k0][0]);
     swallowClick();
     if (d.soft) {
       if (Math.abs(d.lastX - d.x0) > 40) step(d.fwd ? 1 : -1);
@@ -477,11 +540,17 @@
     }
     if (!turn) return;
     var progress = turn.fwd ? turn.t : 1 - turn.t;
-    var vdir = turn.fwd ? -d.vx : d.vx;
+    var vdir = turn.fwd ? -d.vx : d.vx;           /* px per ms in the direction of turning */
     var commit = (progress > 0.32 || vdir > 0.45) && vdir > -0.45;
     var target = turn.fwd ? (commit ? 1 : 0) : (commit ? 0 : 1);
     var rest = Math.abs(target - turn.t);
-    runTo(target, 180 + 420 * rest, easeOut, finishTurn);
+    /* the time left is in proportion to the distance left; the finger's own speed sets how briskly it starts */
+    var span = S.mode === 'single' ? S.W * 0.85 : S.W * 0.95;
+    var toward = commit ? vdir : -vdir;
+    var v0 = clamp(toward, 0, 3) / span;           /* turn-units per ms */
+    var ms = clamp(rest * TURN_MS, 240, TURN_MS);
+    var m0 = rest > 0.001 ? clamp(v0 * ms / rest, 0, 2.2) : 0;
+    runTo(target, ms, easeRelease(m0), finishTurn);
   }
   stage.addEventListener('pointerdown', onDown);
   stage.addEventListener('pointermove', onMove);
@@ -500,7 +569,7 @@
     if (suppressClick) { e.preventDefault(); return; }
     var b = e.target.closest ? e.target.closest('button, a') : null;
     if (b) { act(b, e); return; }
-    if (busy) return;
+    if (busy || switching) return;
     var vb = visibleBounds();
     var zone = Math.max(60, S.W * 0.28);
     if (e.clientX < vb.left + zone) step(-1);
@@ -519,7 +588,7 @@
   nextBtn.addEventListener('click', function () { step(1); });
   tocBtn.addEventListener('click', function () { goSection('contents'); });
   svcBtns.forEach(function (b) {
-    b.addEventListener('click', function () { setService(b.getAttribute('data-svc')); });
+    b.addEventListener('click', function () { setService(b.getAttribute('data-svc'), b); });
   });
 
   document.addEventListener('keydown', function (e) {
@@ -545,15 +614,61 @@
     var p = targetPage(id);
     if (p) goTo(posOf(p));
   }
-  function setService(svc) {
-    if (svc === S.service) return;
+  /* Morning and Evening are also the look of the page: light paper by day, walnut and night by evening.
+     The colours live in book.css under html[data-mood]; this sets the mood and the browser's bar colour. */
+  function paintMood(svc) {
+    doc.setAttribute('data-mood', svc);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta && LU.desks) meta.setAttribute('content', LU.desks[svc]);
+  }
+
+  /* the change itself: new menu, new colours, back to the contents page */
+  function applyService(svc) {
+    S.keep = null;
     S.service = svc;
     store('lulus-svc', svc);
     cancelAnimationFrame(raf); turn = null; busy = false;
+    paintMood(svc);
     build();
     S.pos = posOf(targetPage('contents'));
     showStatic();
     afterChange();
+  }
+
+  /* The switch: the new look spreads out in a circle from the button that was pressed (a view
+     transition, as on the first version of the site). Without view transitions the page cross-fades;
+     with reduced motion it simply changes. */
+  function setService(svc, origin) {
+    if (svc === S.service || switching) return;
+    if (!ready || reduced()) { applyService(svc); return; }
+    var btn = origin || svcBtns.filter(function (b) { return b.getAttribute('data-svc') === svc; })[0];
+    if (document.startViewTransition && btn) {
+      var r = btn.getBoundingClientRect();
+      var x = r.left + r.width / 2, y = r.top + r.height / 2;
+      var end = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+      switching = true;
+      doc.classList.add('vt');
+      var done = function () { switching = false; doc.classList.remove('vt'); };
+      var tr;
+      try { tr = document.startViewTransition(function () { applyService(svc); }); } catch (err) { done(); applyService(svc); return; }
+      tr.ready.then(function () {
+        doc.animate(
+          { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+          { duration: 1000, easing: 'cubic-bezier(0.65, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+        );
+      }).catch(function () {});
+      tr.finished.then(done, done);
+      return;
+    }
+    if (!stage.animate) { applyService(svc); return; }
+    switching = true;
+    var out = stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' });
+    out.onfinish = function () {
+      applyService(svc);
+      out.cancel();
+      var back = stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
+      back.onfinish = back.oncancel = function () { switching = false; };
+    };
   }
 
   /* ------------------------------------------------------------ hash */
@@ -584,9 +699,11 @@
   }
   function applyHash(animate) {
     var r = resolveHash(parseHash());
+    S.keep = null;
     if (r.service !== S.service) {
       S.service = r.service; store('lulus-svc', r.service);
       cancelAnimationFrame(raf); turn = null; busy = false;
+      paintMood(r.service);
       build();
       S.pos = posOf(targetPage(r.target) || S.pages[0]);
       showStatic(); afterChange();
@@ -605,7 +722,7 @@
     prevBtn.disabled = S.pos <= 0;
     nextBtn.disabled = S.pos >= lastPos();
     var vp = visiblePages();
-    var onToc = vp.some(function (p) { return p.kind === 'toc' || (p.kind === 'end' && p.blocks); });
+    var onToc = vp.some(function (p) { return (p.kind === 'toc' && p.first) || (p.kind === 'end' && p.blocks); });
     tocBtn.disabled = onToc;
     var nums = vp.filter(function (p) { return p.kind === 'sec'; }).map(function (p) { return p.no; });
     var total = S.pages.filter(function (p) { return p.kind === 'sec'; }).length;
@@ -624,11 +741,19 @@
   function anchor() {
     var vp = visiblePages();
     for (var i = 0; i < vp.length; i++) {
-      var p = vp[i];
-      if (p.kind === 'sec') return { kind: 'sec', sec: p.sec, item: p.from };
+      if (vp[i].kind === 'sec') return { kind: 'sec', sec: vp[i].sec, item: vp[i].from };
+    }
+    for (var j = 0; j < vp.length; j++) {
+      var p = vp[j];
       if (p.kind === 'toc' || p.kind === 'cover' || p.kind === 'back') return { kind: p.kind };
     }
     return { kind: 'cover' };
+  }
+  function showing(a) {
+    return visiblePages().some(function (p) {
+      if (a.kind === 'sec') return p.kind === 'sec' && p.sec === a.sec && p.from <= a.item && a.item <= p.to;
+      return p.kind === a.kind;
+    });
   }
   function restore(a) {
     var p = null;
@@ -641,13 +766,15 @@
   }
   var resizeTimer = 0, lastKey = '';
   function relayout(force) {
-    var key = root.clientWidth + 'x' + root.clientHeight + ':' + window.innerWidth;
+    var key = root.clientWidth + 'x' + root.clientHeight + ':' + window.innerWidth + 'x' + window.innerHeight;
     if (!force && key === lastKey) return;
     lastKey = key;
     var a = ready ? anchor() : null;
+    /* turning the phone: a spread shows two pages, but the reader was on one of them; remember which */
+    if (a && S.keep && showing(S.keep)) a = S.keep;
     cancelAnimationFrame(raf); turn = null; busy = false; drag = null;
     build();
-    if (a) restore(a);
+    if (a) { restore(a); S.keep = a; }
     showStatic();
     afterChange();
   }
@@ -664,12 +791,13 @@
     S.service = defaultService();
     var r = resolveHash(parseHash());
     S.service = r.service;
+    paintMood(S.service);
     lastKey = '';
     build();
     S.pos = posOf(targetPage(r.target) || S.pages[0]);
     showStatic();
     ready = true;
-    lastKey = root.clientWidth + 'x' + root.clientHeight + ':' + window.innerWidth;
+    lastKey = root.clientWidth + 'x' + root.clientHeight + ':' + window.innerWidth + 'x' + window.innerHeight;
     afterChange();
     root.classList.add('ready');
     root.setAttribute('data-ready', '1');
@@ -697,6 +825,6 @@
     pos: function () { return S.pos; },
     mode: function () { return S.mode; },
     size: function () { return { w: S.W, h: S.H, fs: S.fs }; },
-    busy: function () { return busy; }
+    busy: function () { return busy || switching; }
   };
 })();
