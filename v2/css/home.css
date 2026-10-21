@@ -420,13 +420,10 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 /* ---------- reveals: slow, opacity and transform only ---------- */
 .js .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.9s var(--slow), transform 0.9s var(--slow); }
 .js .rv.in { opacity: 1; transform: none; }
-/* the grid (the clip sits on the inner box, so the observer still sees the frame): each photo is unveiled from below like a curtain lifting, the photo settling up into place as it opens;
-   a row opens left to right */
+/* the grid: each photo fades in out of a soft blur and sharpens, one after another along the row */
 .js .room .fr.rv { opacity: 1; transform: none; transition: none; }
-.js .room .fr.rv .fr-in { clip-path: inset(100% 0 0 0); background: none; transition: clip-path 2s cubic-bezier(0.45, 0, 0.15, 1); transition-delay: calc(var(--d, 0) * 220ms); }
-.js .room .fr.rv .fr-in img { opacity: 0.4; transform: translateY(6%); transition: transform 2.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 2s ease; transition-delay: calc(var(--d, 0) * 220ms); }
-.js .room .fr.rv.in .fr-in { clip-path: inset(0 0 0 0); }
-.js .room .fr.rv.in .fr-in img { opacity: 1; transform: none; }
+.js .room .fr.rv .fr-in img { opacity: 0; filter: blur(18px); transition: opacity 1.4s ease, filter 1.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--d, 0) * 140ms); }
+.js .room .fr.rv.in .fr-in img { opacity: 1; filter: blur(0); }
 
 /* ---------- the opening veil (first visit): the logo disc on the page colour, a hairline that fills as the photos arrive ---------- */
 .veil { display: none; }
@@ -441,8 +438,7 @@ html.veiled .veil, .veil.out {
 
 @media (prefers-reduced-motion: reduce) {
   .js .rv { opacity: 1; transform: none; transition: none; }
-  .js .room .fr.rv .fr-in { clip-path: none; transition: none; }
-  .js .room .fr.rv .fr-in img { opacity: 1; transform: none; transition: none; }
+  .js .room .fr.rv .fr-in img { opacity: 1; filter: none; transition: none; }
   .hero-media img, .hero-seal, .place, .hero-cta { animation: none; }
   .js .duo .fr-b { animation: none; opacity: 0; }
 }
