@@ -423,10 +423,10 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 /* the grid (the clip sits on the inner box, so the observer still sees the frame): each photo is unveiled from below like a curtain lifting, the photo settling up into place as it opens;
    a row opens left to right */
 .js .room .fr.rv { opacity: 1; transform: none; transition: none; }
-.js .room .fr.rv .fr-in { clip-path: inset(100% 0 0 0); transition: clip-path 1.25s cubic-bezier(0.77, 0, 0.18, 1); transition-delay: calc(var(--d, 0) * 120ms); }
-.js .room .fr.rv .fr-in img { transform: translateY(14%); transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--d, 0) * 120ms + 80ms); }
+.js .room .fr.rv .fr-in { clip-path: inset(100% 0 0 0); background: none; transition: clip-path 2s cubic-bezier(0.45, 0, 0.15, 1); transition-delay: calc(var(--d, 0) * 220ms); }
+.js .room .fr.rv .fr-in img { opacity: 0.4; transform: translateY(6%); transition: transform 2.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 2s ease; transition-delay: calc(var(--d, 0) * 220ms); }
 .js .room .fr.rv.in .fr-in { clip-path: inset(0 0 0 0); }
-.js .room .fr.rv.in .fr-in img { transform: none; }
+.js .room .fr.rv.in .fr-in img { opacity: 1; transform: none; }
 
 /* ---------- the opening veil (first visit): the logo disc on the page colour, a hairline that fills as the photos arrive ---------- */
 .veil { display: none; }
@@ -442,7 +442,7 @@ html.veiled .veil, .veil.out {
 @media (prefers-reduced-motion: reduce) {
   .js .rv { opacity: 1; transform: none; transition: none; }
   .js .room .fr.rv .fr-in { clip-path: none; transition: none; }
-  .js .room .fr.rv .fr-in img { transform: none; transition: none; }
+  .js .room .fr.rv .fr-in img { opacity: 1; transform: none; transition: none; }
   .hero-media img, .hero-seal, .place, .hero-cta { animation: none; }
   .js .duo .fr-b { animation: none; opacity: 0; }
 }
