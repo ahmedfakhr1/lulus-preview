@@ -128,6 +128,9 @@ html:not(.js) .bar { position: static; }
   border: 0; border-radius: var(--r) var(--r) 0 0;
   z-index: var(--z-sheet);
 }
+/* the grabber: a small bar that says the sheet can be swiped down (phones only) */
+.sheet form::before { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px; margin: -8px auto var(--s2); background: color-mix(in srgb, var(--ink) 30%, transparent); }
+@media (min-width: 900px) { .sheet form::before { display: none; } }
 .sheet::backdrop { background: rgba(var(--scrim), 0.62); }
 .sheet[open] { animation: sheet-in 0.32s var(--ease); }
 .sheet[open]::backdrop { animation: fade-in 0.25s ease-out; }

@@ -20,7 +20,7 @@
    the page and the browser picks by today's date in Africa/Cairo.
    ?season=<id> previews any season (a short form such as ?season=winter also works). */
 (function () {
-  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-terrace.webp","heroAlt":"The LÜLU’S terrace at night, lit under the canopy","heroW":1080,"heroH":695},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-terrace.webp","heroAlt":"The LÜLU’S terrace at night, lit under the canopy","heroW":1080,"heroH":695},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"hero-terrace.webp","heroAlt":"The LÜLU’S terrace at night, lit under the canopy","heroW":1080,"heroH":695}]};
+  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-night.webp","heroTall":"hero-night-tall.webp","heroAlt":"The LÜLU’S terrace at night, its sign lit above the glowing planters","heroW":1620,"heroH":1258},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-night.webp","heroTall":"hero-night-tall.webp","heroAlt":"The LÜLU’S terrace at night, its sign lit above the glowing planters","heroW":1620,"heroH":1258},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"hero-night.webp","heroTall":"hero-night-tall.webp","heroAlt":"The LÜLU’S terrace at night, its sign lit above the glowing planters","heroW":1620,"heroH":1258}]};
   var doc = document.documentElement;
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -147,7 +147,9 @@
     var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
     var dims = season.heroW && season.heroH ? ' width="' + season.heroW + '" height="' + season.heroH + '"' : '';
     var focus = season.heroFocus ? ' style="object-position:' + season.heroFocus.replace(/"/g, '') + '"' : '';
-    return '<img src="img/' + season.heroImage + '" alt="' + alt + '"' + dims + focus + ' fetchpriority="high" decoding="async">';
+    var img = '<img src="img/' + season.heroImage + '" alt="' + alt + '"' + dims + focus + ' fetchpriority="high" decoding="async">';
+    /* a phone held upright gets the season's tall crop, so the photo can fill most of the first screen */
+    return season.heroTall ? '<picture><source media="(max-width: 899px) and (orientation: portrait)" srcset="img/' + season.heroTall + '">' + img + '</picture>' : img;
   }
   function heroInto(el) {
     if (!el) return;
@@ -167,7 +169,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/menu.css?v=6cc71b03">
+<link rel="stylesheet" href="css/menu.css?v=27804c10">
 </head>
 <body class="menu" data-wa="201210514222" data-logo="img/logo.png" data-footnote="Prices in EGP, subject to 14% VAT and 12% service charge. Served in-house, for dine-in.">
 <a class="skip" href="#book">Skip to the menu</a>
@@ -413,7 +415,7 @@
   </form>
 </dialog>
 
-<script src="js/app.js?v=238c5393" defer></script>
-<script src="js/book.js?v=64ce9f25" defer></script>
+<script src="js/app.js?v=19ffc4b0" defer></script>
+<script src="js/book.js?v=ed2fabf6" defer></script>
 </body>
 </html>

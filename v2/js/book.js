@@ -144,7 +144,9 @@
     S.mode = spread ? 'spread' : 'single';
     S.W = Math.max(200, W);
     S.H = Math.max(240, H);
-    S.fs = compact ? 14 : Math.max(12.5, Math.min(20, S.W / 22.5, S.H / 24));
+    /* the visitor's text size (browser or phone setting) scales the book's type; more text simply makes more pages */
+    var tz = clamp((parseFloat(getComputedStyle(doc).fontSize) || 16) / 16, 1, 2);
+    S.fs = (compact ? 14 : Math.max(12.5, Math.min(20, S.W / 22.5, S.H / 24))) * tz;
   }
   function applyVars() {
     root.style.setProperty('--pw', S.W + 'px');

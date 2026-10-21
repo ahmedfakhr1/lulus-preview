@@ -123,6 +123,25 @@
     dlg.querySelector('[data-close]').addEventListener('click', function () { dlg.close(); });
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
 
+    /* on a phone the sheet follows a downward swipe and closes past a short distance, like a system sheet */
+    var y0 = null, dy = 0;
+    dlg.addEventListener('touchstart', function (e) {
+      if (window.innerWidth >= 900 || dlg.scrollTop > 0 || e.touches.length !== 1 || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) { y0 = null; return; }
+      y0 = e.touches[0].clientY; dy = 0; dlg.style.transition = 'none';
+    }, { passive: true });
+    dlg.addEventListener('touchmove', function (e) {
+      if (y0 === null) return;
+      dy = Math.max(0, e.touches[0].clientY - y0);
+      dlg.style.transform = dy ? 'translateY(' + dy + 'px)' : '';
+    }, { passive: true });
+    dlg.addEventListener('touchend', function () {
+      if (y0 === null) return;
+      y0 = null;
+      dlg.style.transition = 'transform 0.25s ease-out';
+      if (dy > 90) { dlg.style.transform = 'translateY(100%)'; setTimeout(function () { dlg.close(); dlg.style.transform = ''; dlg.style.transition = ''; }, 230); }
+      else dlg.style.transform = '';
+    });
+
     form.querySelectorAll('[data-step]').forEach(function (b) {
       b.addEventListener('click', function () {
         guests = Math.max(1, Math.min(20, guests + parseInt(b.getAttribute('data-step'), 10)));
