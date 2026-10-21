@@ -260,6 +260,12 @@ body.home::after {
 .gb { transform-box: fill-box; transform-origin: 50% 50%; animation: bloom 0.8s var(--slow) calc(var(--d, 0s) + 1.05s) both; }
 /* at night the dark plants stand against a dark photo, so the planters' glow catches their top edges */
 html:not([data-mood='morning']) .glit { filter: drop-shadow(0 -1.5px 0 color-mix(in srgb, var(--accent) 50%, transparent)); }
+/* the blossoms in colour, all drawn from the season: its accent, its second accent, a blush of the accent and its paper */
+.gc1 { fill: var(--accent); }
+.gc2 { fill: var(--accent2); }
+.gc3 { fill: color-mix(in srgb, var(--accent) 25%, #e48fa0); }
+.gc4 { fill: var(--paper); }
+.gcore { fill: color-mix(in srgb, var(--accent2) 55%, #3b2412); }
 @keyframes grow { from { transform: scaleY(0); } }
 @keyframes bloom { from { transform: scale(0); } }
 html.veiled .gp, html.veiled .gs, html.veiled .gb { animation: none; transform: scale(0); }
