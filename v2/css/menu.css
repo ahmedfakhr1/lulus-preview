@@ -325,7 +325,10 @@ html.vt .pill .thumb { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15,
 @media (hover: hover) and (pointer: fine) { .toc-row:hover .t { text-decoration: underline; text-underline-offset: 4px; } }
 
 /* cover and back cover (walnut in both moods) */
-.pg-cover, .pg-back { background: var(--ink); color: var(--paper); }
+.pg-cover, .pg-back { background: var(--accent); color: var(--paper); }
+/* the cover is her logo made into a book: the season's colour with her wordmark in cream, framed in cream */
+.pg-cover .cover-in, .pg-cover .cover-in::before, .pg-back .back-in, .pg-back .back-in::before { border-color: color-mix(in srgb, var(--paper) 72%, transparent); }
+.pg-back .back-btn { border-color: var(--paper); }
 .cover-in { position: absolute; inset: 1.1em; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5em; text-align: center; padding: 1.5em; }
 .cover-in::before { content: ''; position: absolute; inset: 0.45em; border: 1px solid var(--accent); opacity: 0.42; pointer-events: none; }
 .wm-box { display: block; line-height: 0; }
@@ -471,3 +474,4 @@ html[data-mood='morning'] { --pg-grain: 0.4; }
 .pg-in, .cover-in, .back-in, .end-in { z-index: 1; }
 /* the covers are walnut in both moods, so they keep the light grain */
 .pg-cover::before, .pg-back::before { opacity: 0.12; }
+html[data-mood='evening'] .mbar .bar-logo { color: var(--accent); }

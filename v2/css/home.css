@@ -455,3 +455,6 @@ html.veiled .veil, .veil.out {
 .tx-plate i { display: block; height: 10px; width: 100%; border-radius: 5px; background: color-mix(in srgb, currentColor 9%, transparent); }
 .tx-plate i:last-child { width: 62%; }
 a, button { touch-action: manipulation; }
+
+/* her wordmark takes the season's colour wherever the ground is dark: the whole Evening page and the footer */
+html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo { color: var(--accent); }
