@@ -457,4 +457,4 @@ html.veiled .veil, .veil.out {
 a, button { touch-action: manipulation; }
 
 /* her wordmark takes the season's colour wherever the ground is dark: the whole Evening page and the footer */
-html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo { color: var(--accent); }
+html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo, html[data-mood='evening'] .story-h { color: var(--accent); }
