@@ -453,3 +453,7 @@ html.veiled .veil, .veil.out {
 .story-tx { margin-top: 18px; font-size: 1.0625rem; line-height: 1.7; font-weight: 300; }
 .story-cta { margin-top: 20px; }
 .hero-media:has(.ph-img), .fr-in:has(.ph-img), .px:has(.ph-img) { background: none; }
+/* text plate: her own words go here; until then, three soft lines the width of a short paragraph */
+.tx-plate { width: min(100%, 28rem); display: grid; gap: 14px; justify-items: center; padding: 6px 0; }
+.tx-plate i { display: block; height: 10px; width: 100%; border-radius: 5px; background: color-mix(in srgb, currentColor 9%, transparent); }
+.tx-plate i:last-child { width: 62%; }
