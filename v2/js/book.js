@@ -509,17 +509,29 @@
     return reach({ x: W - 2 * W * e, y: turn.cy - (turn.cy > H / 2 ? 1 : -1) * H * 0.16 * Math.sin(Math.PI * e) });
   }
 
+  var running = null;
   function animate(ms, ease, at, onDone) {
     cancelAnimationFrame(raf);
     var start = null;
+    running = { at: at, ease: ease, onDone: onDone };
     function tick(ts) {
       if (start === null) start = ts;
       var k = Math.min(1, (ts - start) / ms);
       turn.F = at(ease(k));
       frame(turn.F);
-      if (k < 1) raf = requestAnimationFrame(tick); else onDone();
+      if (k < 1) raf = requestAnimationFrame(tick); else { running = null; onDone(); }
     }
     raf = requestAnimationFrame(tick);
+  }
+  /* a new swipe or tap while a page is still settling lays that page down at once, so the next turn
+     starts straight away instead of being ignored */
+  function hurry() {
+    if (!running || !turn) return;
+    cancelAnimationFrame(raf);
+    var r = running; running = null;
+    turn.F = r.at(r.ease(1));
+    frame(turn.F);
+    r.onDone();
   }
 
   function finishTurn(commit) {
@@ -531,6 +543,7 @@
 
   function goTo(pos, opts) {
     pos = clamp(pos, 0, lastPos());
+    if (busy && !switching && !drag) hurry();
     if (busy || switching) return;
     S.keep = null;
     if (pos === S.pos) { afterChange(); return; }
@@ -590,11 +603,15 @@
 
   function onDown(e) {
     if (e.pointerType === 'touch') {
+      /* the first finger down means no other finger is on the glass: forget any finger whose lift was
+         never seen (it lands on a page element that a turn has since taken out of the page) */
+      if (e.isPrimary) { touches = {}; nTouch = 0; pinching = false; }
       if (!touches[e.pointerId]) { touches[e.pointerId] = 1; nTouch++; }
       if (nTouch > 1) { pinching = true; abandon(); swallowClick(); return; }
     }
-    if (busy || switching || pinching || zoomed()) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (busy && !switching && !drag) hurry();
+    if (busy || switching || pinching || zoomed()) return;
     drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, active: false, trail: [[e.timeStamp, e.clientX, e.clientY]] };
   }
   function onMove(e) {
@@ -678,8 +695,9 @@
   }
   stage.addEventListener('pointerdown', onDown);
   stage.addEventListener('pointermove', onMove);
-  stage.addEventListener('pointerup', onUp);
-  stage.addEventListener('pointercancel', onUp);
+  /* lifts are heard on the window too, since the element under the finger may be gone by then */
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
 
   function visibleBounds() {
     var rects = [];
@@ -750,7 +768,7 @@
     S.keep = null;
     S.service = svc;
     store('lulus-svc', svc);
-    cancelAnimationFrame(raf); turn = null; busy = false;
+    cancelAnimationFrame(raf); running = null; turn = null; busy = false;
     paintMood(svc);
     build();
     S.pos = posOf(targetPage('contents'));
@@ -825,7 +843,7 @@
     S.keep = null;
     if (r.service !== S.service) {
       S.service = r.service; store('lulus-svc', r.service);
-      cancelAnimationFrame(raf); turn = null; busy = false;
+      cancelAnimationFrame(raf); running = null; turn = null; busy = false;
       paintMood(r.service);
       build();
       S.pos = posOf(targetPage(r.target) || S.pages[0]);
@@ -895,7 +913,7 @@
     var a = ready ? anchor() : null;
     /* turning the phone: a spread shows two pages, but the reader was on one of them; remember which */
     if (a && S.keep && showing(S.keep)) a = S.keep;
-    cancelAnimationFrame(raf); turn = null; busy = false; drag = null;
+    cancelAnimationFrame(raf); running = null; turn = null; busy = false; drag = null;
     build();
     if (a) { restore(a); S.keep = a; }
     showStatic();
