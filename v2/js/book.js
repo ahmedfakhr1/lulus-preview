@@ -98,7 +98,7 @@
         if (it.season && it.season !== SEASON.id) return;
         items.push(it);
       });
-      if (items.length) out.push({ id: sec.id, title: sec.title, note: sec.note || '', photo: sec.photo || null, items: items });
+      if (items.length) out.push({ id: sec.id, title: sec.title, note: sec.note || '', photo: photoFor(sec), items: items });
     });
     return out;
   }
@@ -115,6 +115,15 @@
   }
   /* a section may open with one photo, a plate across the top of its first page; its box has a fixed shape,
      so pagination never waits for the file */
+  /* each photo names the seasons it belongs to (she posted it then); a season with none shows no photo */
+  function photoFor(sec) {
+    var list = sec.photos || [];
+    for (var i = 0; i < list.length; i++) {
+      var ss = list[i].seasons;
+      if (!ss || ss.indexOf(SEASON.id) >= 0) return list[i];
+    }
+    return null;
+  }
   function photoHTML(sec) {
     var p = sec.photo;
     return p ? '<figure class="sec-photo"><img src="img/' + esc(p.src) + '" alt="' + esc(p.alt || '') + '"' +
