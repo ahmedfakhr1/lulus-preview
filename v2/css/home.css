@@ -291,6 +291,16 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .flora::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--flora) 0 0 / 360px 360px repeat; opacity: var(--flora-o, 0.3); pointer-events: none;
   -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
 html[data-mood="morning"] .flora::before { opacity: 0.4; }
+.blooms { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; opacity: var(--flora-o, 0.3);
+  -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
+html[data-mood="morning"] .blooms { opacity: 0.4; }
+.flora.has-blooms::before { display: none; }
+.blooms i {
+  position: absolute; background: var(--bloom) center / contain no-repeat; transform: rotate(var(--r0));
+  animation: bloom var(--t) linear var(--delay) infinite; animation-direction: var(--dir); animation-play-state: paused; will-change: transform;
+}
+.flora.blooming .blooms i { animation-play-state: running; }
+@keyframes bloom { from { transform: rotate(var(--r0)); } to { transform: rotate(calc(var(--r0) + 360deg)); } }
 
 /* ---------- the room, in fragments ----------
    No captions and no order: details of her photos on a loose twelve-column field, each at its own size and

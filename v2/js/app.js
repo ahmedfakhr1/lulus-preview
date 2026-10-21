@@ -157,3 +157,43 @@
     });
   }
 })();
+
+/* the blossoms behind the photos turn slowly in place, each at its own pace and direction; only while on screen,
+   and not at all when reduced motion is asked for (the still pattern stays then) */
+(function () {
+  var box = document.querySelector('.flora'), spots = window.LULUS_BLOOMS;
+  if (!box || !spots || !window.matchMedia || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var layer = document.createElement('div');
+  layer.className = 'blooms';
+  layer.setAttribute('aria-hidden', 'true');
+  var lastW = 0, lastH = 0;
+  function fill() {
+    var w = box.offsetWidth, h = box.offsetHeight;
+    if (w === lastW && Math.abs(h - lastH) < 40) return;
+    lastW = w; lastH = h;
+    var frag = document.createDocumentFragment(), n = 0;
+    for (var ty = 0; ty < h; ty += 360) {
+      for (var tx = 0; tx < w; tx += 360) {
+        for (var i = 0; i < spots.length; i++) {
+          var s = spots[i], x = tx + s[0], y = ty + s[1], d = Math.round(100 * s[3]);
+          if (x - d > w || y - d > h) continue;
+          var el = document.createElement('i');
+          n++;
+          el.style.cssText = 'left:' + (x - d / 2) + 'px;top:' + (y - d / 2) + 'px;width:' + d + 'px;height:' + d + 'px;' +
+            '--r0:' + s[2] + 'deg;--t:' + (40 + (n * 7) % 40) + 's;--dir:' + (n % 3 ? 'normal' : 'reverse') + ';--delay:-' + (n * 3.7 % 20).toFixed(1) + 's';
+          frag.appendChild(el);
+        }
+      }
+    }
+    layer.textContent = '';
+    layer.appendChild(frag);
+  }
+  box.insertBefore(layer, box.firstChild);
+  box.classList.add('has-blooms');
+  fill();
+  if (window.ResizeObserver) new ResizeObserver(fill).observe(box);
+  else addEventListener('resize', fill);
+  if (window.IntersectionObserver) {
+    new IntersectionObserver(function (es) { box.classList.toggle('blooming', es[0].isIntersecting); }).observe(box);
+  } else box.classList.add('blooming');
+})();

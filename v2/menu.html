@@ -117,6 +117,9 @@
   for (var f = 0; f < spots.length; f++) tile += flower(spots[f][0], spots[f][1], spots[f][2], spots[f][3]);
   tile += '</svg>';
   vars['--flora'] = 'url("data:image/svg+xml,' + encodeURIComponent(tile) + '")';
+  /* one blossom on its own, for the ones that turn slowly in place (app.js lays them out on the same spots) */
+  vars['--bloom'] = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100">' + flower(0, 0, 0, 1) + '</svg>') + '")';
+  window.LULUS_BLOOMS = spots;
   for (var key in vars) doc.style.setProperty(key, vars[key]);
   doc.setAttribute('data-season', season.id);
   doc.className += ' js';
@@ -410,7 +413,7 @@
   </form>
 </dialog>
 
-<script src="js/app.js?v=a8565ad0" defer></script>
+<script src="js/app.js?v=238c5393" defer></script>
 <script src="js/book.js?v=1f39a07c" defer></script>
 </body>
 </html>
