@@ -773,7 +773,7 @@
     cancelAnimationFrame(raf); running = null; turn = null; busy = false;
     paintMood(svc);
     build();
-    S.pos = posOf(targetPage('contents'));
+    S.pos = 0;   /* a new menu opens on its cover */
     showStatic();
     afterChange();
   }
