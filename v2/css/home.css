@@ -112,8 +112,8 @@ button { cursor: pointer; }
 html:not(.js) .bar { position: static; }
 .js .bar { transform: translateY(-101%); visibility: hidden; transition: transform 0.35s var(--ease), visibility 0s 0.35s; }
 .js .bar.on { transform: none; visibility: visible; transition: transform 0.35s var(--ease), visibility 0s; }
-.bar-logo { display: block; width: 44px; height: 44px; border-radius: 50%; }
-.bar-logo img { width: 44px; height: 44px; }
+.bar-logo { display: block; width: 52px; height: 52px; border-radius: 50%; }
+.bar-logo img { width: 52px; height: 52px; }
 .bar-nav { display: flex; align-items: center; gap: var(--s1); }
 .bar-link {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
@@ -121,7 +121,7 @@ html:not(.js) .bar { position: static; }
 }
 
 /* ---------- reserve sheet ---------- */
-.sheet {
+.sheet { overscroll-behavior: contain;
   position: fixed; inset: auto 0 0 0; margin: 0; padding: 0;
   width: 100%; max-width: none; max-height: 92dvh; overflow: auto;
   background: var(--paper); color: var(--ink);
@@ -171,6 +171,7 @@ html:not(.js) .bar { position: static; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+.day-first { margin-top: 6px; font-size: 0.875rem; min-height: 1.3em; }
 
 /* Home page: an impression of LÜLU'S rather than a story. A quiet hero (the logo, the place, Reserve and Menu),
    then the room in fragments: details of her photos laid out loosely, with no captions and no order, drifting
@@ -330,6 +331,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .sn-photo { justify-self: center; width: min(100%, 540px); }
 .sn-photo .px { width: 100%; }
 .sn-body { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+@media (max-width: 767px) { .sn-body { align-items: center; text-align: center; } }
 .sp-line { font-family: var(--font-display); font-style: italic; font-size: 1.25rem; }
 .sn .link { min-height: 44px; display: inline-flex; align-items: center; }
 @media (min-width: 900px) {
@@ -340,7 +342,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 
 /* ---------- the atelier: three names, centred like the rest of the page ---------- */
 .atelier { padding-top: clamp(112px, 24vw, 240px); text-align: center; }
-.at-h { font-weight: 500; font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--h-muted); }
+.at-h { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.0625rem; color: var(--h-muted); }
 .at-list { list-style: none; margin: 36px 0 0; padding: 0; display: grid; gap: 40px; justify-items: center; }
 .at { display: flex; flex-direction: column; align-items: center; }
 .at h3 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(1.875rem, 7vw, 3rem); line-height: 1.1; }
@@ -370,13 +372,12 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   position: relative; width: min(100%, 380px);
   background: var(--paper); color: var(--ink); padding: 48px 28px 16px; text-align: center;
   border: 1px solid var(--hair-paper); border-radius: var(--r);
-  box-shadow: 0 24px 50px -26px rgba(0, 0, 0, 0.55);
-  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+  transition: transform 0.35s var(--ease);
 }
 .invite-card :focus-visible { outline-color: var(--ink); }
 .invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
 .invite-seal { position: absolute; top: -28px; left: 50%; width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; box-shadow: 0 0 0 4px var(--paper); }
-.invite-place { font-family: var(--font-body); font-weight: 500; text-transform: uppercase; letter-spacing: 0.24em; font-size: 0.75rem; margin-bottom: 12px; }
+.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 10px; }
 .invite-acts { list-style: none; margin: 0; padding: 0; position: relative; }
 .invite-acts li + li { border-top: 1px solid var(--hair-paper); }
 .invite-acts a {
@@ -390,7 +391,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .invite-acts a:active svg:last-child { transform: translateX(3px); }
 .invite-card:active { transform: translateY(-2px); }
 @media (hover: hover) and (pointer: fine) {
-  .invite-card:hover { transform: translateY(-3px); box-shadow: 0 30px 56px -26px rgba(0, 0, 0, 0.6); }
+  .invite-card:hover { transform: translateY(-3px); }
   .invite-acts a:hover svg:last-child { transform: translateX(4px); }
   .invite-acts a:hover span { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
 }
@@ -448,12 +449,12 @@ html.veiled .veil, .veil.out {
 /* ---------- about: a short note, like a card left on the table ---------- */
 .story { padding: clamp(72px, 16vw, 140px) var(--gutter) 0; text-align: center; }
 .story .wrap { max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
-.story-eye { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--h-muted); }
+.story-eye { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.0625rem; color: var(--h-muted); }
 .story-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.15; margin-top: 14px; }
 .story-tx { margin-top: 18px; font-size: 1.0625rem; line-height: 1.7; font-weight: 300; }
-.story-cta { margin-top: 20px; }
 .hero-media:has(.ph-img), .fr-in:has(.ph-img), .px:has(.ph-img) { background: none; }
 /* text plate: her own words go here; until then, three soft lines the width of a short paragraph */
 .tx-plate { width: min(100%, 28rem); display: grid; gap: 14px; justify-items: center; padding: 6px 0; }
 .tx-plate i { display: block; height: 10px; width: 100%; border-radius: 5px; background: color-mix(in srgb, currentColor 9%, transparent); }
 .tx-plate i:last-child { width: 62%; }
+a, button { touch-action: manipulation; }

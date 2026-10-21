@@ -112,8 +112,8 @@ button { cursor: pointer; }
 html:not(.js) .bar { position: static; }
 .js .bar { transform: translateY(-101%); visibility: hidden; transition: transform 0.35s var(--ease), visibility 0s 0.35s; }
 .js .bar.on { transform: none; visibility: visible; transition: transform 0.35s var(--ease), visibility 0s; }
-.bar-logo { display: block; width: 44px; height: 44px; border-radius: 50%; }
-.bar-logo img { width: 44px; height: 44px; }
+.bar-logo { display: block; width: 52px; height: 52px; border-radius: 50%; }
+.bar-logo img { width: 52px; height: 52px; }
 .bar-nav { display: flex; align-items: center; gap: var(--s1); }
 .bar-link {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
@@ -121,7 +121,7 @@ html:not(.js) .bar { position: static; }
 }
 
 /* ---------- reserve sheet ---------- */
-.sheet {
+.sheet { overscroll-behavior: contain;
   position: fixed; inset: auto 0 0 0; margin: 0; padding: 0;
   width: 100%; max-width: none; max-height: 92dvh; overflow: auto;
   background: var(--paper); color: var(--ink);
@@ -171,6 +171,7 @@ html:not(.js) .bar { position: static; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+.day-first { margin-top: 6px; font-size: 0.875rem; min-height: 1.3em; }
 
 /* Menu page: the book. Only transform and opacity change while a page turns.
 
@@ -443,4 +444,5 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 /* reduced motion: pages cross-fade, nothing rotates */
 .stage[data-motion='fade'] .slot-pg { transition: opacity 0.16s linear; }
 
-.sec-photo .ph-img { position: relative; width: 100%; aspect-ratio: 16 / 10; max-height: calc(var(--ph, 600px) * 0.3); color: inherit; }
+.sec-photo .ph-img { display: grid; place-items: center; position: relative; width: 100%; aspect-ratio: 16 / 10; max-height: calc(var(--ph, 600px) * 0.3); background: rgba(var(--shade), 0.08); }
+.sec-photo .ph-img::after { content: 'Photo'; font-style: normal; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.45; }

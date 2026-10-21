@@ -114,6 +114,15 @@
       i.addEventListener('input', function () { if (i.getAttribute('aria-invalid') === 'true') check(i); });
     });
 
+    /* the date picker follows the browser's language (mm/dd on US English); show the choice day first as well */
+    var dayFirst = document.getElementById('r-date-d');
+    var showDay = function () {
+      var v = fDate.value;
+      dayFirst.textContent = v ? new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(v + 'T00:00:00Z')) : '';
+    };
+    fDate.addEventListener('input', showDay);
+    fDate.addEventListener('change', showDay);
+
     var open = function () { if (!dlg.open) dlg.showModal(); };
     document.addEventListener('click', function (e) {
       var a = e.target.closest ? e.target.closest('[data-reserve]') : null;

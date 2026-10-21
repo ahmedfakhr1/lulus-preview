@@ -249,16 +249,15 @@
       return { html: '<button class="toc-row" type="button" data-goto="' + esc(s.id) + '"><span class="t">' + esc(s.title) +
         '</span><span class="lead"></span><span class="n">' + s.no + '</span></button>', ref: s.id };
     });
-    /* on a spread the left page carries the title, the right page the list */
-    var spreadMode = S.mode === 'spread';
-    var tfl = flow(spreadMode ? '' : tocHead, runHTML('Contents'), rows, cap);
+    /* the title sits above the list; on a spread the facing page is the seal endpaper */
+    var tfl = flow(tocHead, runHTML('Contents'), rows, cap);
     if (!tfl) return null;
     var tocPages = tfl.map(function (p, k) {
       return { kind: 'toc', first: k === 0, blocks: [p.lead.html].concat(p.items.map(function (b) { return b.html; })) };
     });
 
     pages.push({ kind: 'cover' });
-    pages.push(spreadMode ? { kind: 'end', blocks: [tocHead] } : { kind: 'end' });
+    pages.push({ kind: 'end' });
     tocPages.forEach(function (p) { pages.push(p); });
     secPages.forEach(function (p) { pages.push(p); });
     if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
