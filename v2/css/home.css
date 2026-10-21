@@ -112,8 +112,8 @@ button { cursor: pointer; }
 html:not(.js) .bar { position: static; }
 .js .bar { transform: translateY(-101%); visibility: hidden; transition: transform 0.35s var(--ease), visibility 0s 0.35s; }
 .js .bar.on { transform: none; visibility: visible; transition: transform 0.35s var(--ease), visibility 0s; }
-.bar-logo { display: block; width: 52px; height: 52px; border-radius: 50%; }
-.bar-logo img { width: 52px; height: 52px; }
+.wm { display: block; width: 100%; height: auto; overflow: visible; }
+.bar-logo { display: flex; align-items: center; min-height: 44px; width: 92px; color: inherit; }
 .bar-nav { display: flex; align-items: center; gap: var(--s1); }
 .bar-link {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
@@ -236,8 +236,7 @@ body.home::after {
 /* the first screen on a phone is only the photo and the seal with Reserve and Menu; the room begins below it */
 .hero { min-height: 100vh; min-height: 100svh; }
 .hero-body { flex: 1; }
-.hero-seal { margin-top: -46px; line-height: 0; }
-.hero-logo { width: 92px; height: 92px; border-radius: 50%; box-shadow: 0 0 0 6px var(--h-bg); }
+.hero-seal { margin-top: 32px; line-height: 0; width: min(230px, 60vw); color: var(--h-fg); }
 .place { margin-top: 24px; font-weight: 500; font-size: 0.75rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--h-muted); }
 .hero-cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .hero .btn-light { background: var(--h-fg); color: var(--h-bg); border-color: var(--h-fg); }
@@ -269,8 +268,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
     width: min(540px, 48vw, calc((100svh - 180px) * var(--hero-r, 1.554)));
   }
   .hero-body { grid-column: 1; grid-row: 1; align-items: flex-start; padding: 0; flex: none; }
-  .hero-seal { margin-top: 0; }
-  .hero-logo { width: 112px; height: 112px; box-shadow: none; }
+  .hero-seal { margin-top: 0; width: 300px; }
   .hero-cta { justify-content: flex-start; }
 }
 /* on a 1x screen a file shows sharp at its full pixel width, so the photos may take more room there */
@@ -279,7 +277,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 }
 @media (max-height: 479px) and (orientation: landscape) {
   .hero { padding-top: 72px; padding-bottom: 32px; }
-  .hero-logo { width: 72px; height: 72px; }
+  .hero-seal { width: 180px; }
   .place { margin-top: 10px; }
   .hero-cta { margin-top: 18px; }
 }
@@ -291,8 +289,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   .hero-body { flex: none; padding-bottom: 40px; }
 }
 @media (max-width: 899px) and (orientation: portrait) and (max-height: 700px) {
-  .hero-logo { width: 76px; height: 76px; }
-  .hero-seal { margin-top: -38px; }
+  .hero-seal { margin-top: 24px; width: min(190px, 52vw); }
   .hero-cta { margin-top: 22px; }
 }
 
@@ -400,7 +397,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .foot { background: var(--h-foot); color: color-mix(in srgb, var(--paper) 72%, transparent); font-weight: 300; padding: var(--s6) 0 var(--s5); text-align: center; }
 .foot :focus-visible { outline-color: var(--paper); }
 .foot-in { display: grid; gap: var(--s5); justify-items: center; }
-.foot-logo { width: 64px; height: 64px; }
+.foot-logo { width: 120px; color: var(--paper); line-height: 0; }
 .foot-cols { display: grid; gap: var(--s4); justify-items: center; }
 .foot-h { font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.88; }
 .foot-col { display: flex; flex-direction: column; align-items: center; }
@@ -412,7 +409,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   .foot { text-align: left; }
   .foot-in { grid-template-columns: auto 1fr 1fr; align-items: start; justify-items: start; column-gap: clamp(64px, 10vw, 200px); }
   .foot-cols { display: contents; }
-  .foot-logo { grid-column: 1; grid-row: 1; width: 72px; height: 72px; }
+  .foot-logo { grid-column: 1; grid-row: 1; width: 130px; margin-top: 6px; }
   .foot-col { align-items: flex-start; }
   .foot-col:first-child { grid-column: 2; grid-row: 1; justify-self: center; }
   .foot-col:last-child { grid-column: 3; grid-row: 1; justify-self: end; }
@@ -429,7 +426,7 @@ html.veiled .veil, .veil.out {
   display: grid; place-items: center; position: fixed; inset: 0; z-index: 60; background: var(--h-bg); cursor: pointer;
 }
 .veil-in { display: flex; flex-direction: column; align-items: center; gap: 26px; }
-.veil img { width: 96px; height: 96px; border-radius: 50%; animation: surface 0.8s var(--slow) both; }
+.veil .wm { width: 170px; color: var(--h-fg); animation: surface 0.8s var(--slow) both; }
 .veil-line { display: block; width: 120px; height: 1px; background: var(--h-hair); overflow: hidden; }
 .veil-line i { display: block; height: 100%; background: var(--h-acc); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.4s var(--ease); }
 .veil.out { opacity: 0; pointer-events: none; transition: opacity 0.8s var(--slow); }

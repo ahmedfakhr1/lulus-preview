@@ -280,8 +280,10 @@
   }
 
   /* ------------------------------------------------------------ page elements */
-  function logoImg(cls, size) {
-    return '<img class="' + cls + '" src="' + esc(LOGO) + '" width="' + size + '" height="' + size + '" alt="LÜLU’S">';
+  /* her wordmark, inline from the page's template so it takes the page's ink colour */
+  var WM = (document.getElementById('wm') || {}).innerHTML || '';
+  function logoImg(cls, size, hidden) {
+    return '<span class="wm-box ' + cls + '"' + (hidden ? ' aria-hidden="true"' : ' role="img" aria-label="LÜLU’S"') + '>' + WM + '</span>';
   }
   function elFor(p) {
     if (p.el) return p.el;
@@ -295,13 +297,13 @@
         '<button class="cover-open" type="button" data-act="next">Open the menu</button></div>';
     } else if (p.kind === 'back') {
       el.setAttribute('aria-label', 'Back cover');
-      el.innerHTML = '<div class="back-in">' + logoImg('', 56) +
+      el.innerHTML = '<div class="back-in">' + logoImg('back-wm', 56) +
         '<p>' + esc(FOOT) + '</p>' +
         '<div class="back-links"><button class="back-btn" type="button" data-goto="contents">Contents</button>' +
         '<a class="back-btn" href="' + esc(RESERVE_URL) + '" data-reserve>Reserve a table</a></div></div>';
     } else if (p.kind === 'end' && !p.blocks) {
       el.setAttribute('aria-hidden', 'true');
-      el.innerHTML = '<div class="end-in">' + logoImg('', 56).replace('alt="LÜLU’S"', 'alt=""') + '</div>';
+      el.innerHTML = '<div class="end-in">' + logoImg('end-wm', 56, true) + '</div>';
     } else if (p.kind === 'blank') {
       el.setAttribute('aria-hidden', 'true');
     } else {

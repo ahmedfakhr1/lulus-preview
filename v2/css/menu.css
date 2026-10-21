@@ -112,8 +112,8 @@ button { cursor: pointer; }
 html:not(.js) .bar { position: static; }
 .js .bar { transform: translateY(-101%); visibility: hidden; transition: transform 0.35s var(--ease), visibility 0s 0.35s; }
 .js .bar.on { transform: none; visibility: visible; transition: transform 0.35s var(--ease), visibility 0s; }
-.bar-logo { display: block; width: 52px; height: 52px; border-radius: 50%; }
-.bar-logo img { width: 52px; height: 52px; }
+.wm { display: block; width: 100%; height: auto; overflow: visible; }
+.bar-logo { display: flex; align-items: center; min-height: 44px; width: 92px; color: inherit; }
 .bar-nav { display: flex; align-items: center; gap: var(--s1); }
 .bar-link {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
@@ -229,7 +229,7 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 .mbar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 10px var(--gutter); }
 .mbar .btn { background: transparent; color: var(--c-fg); border-color: color-mix(in srgb, var(--c-fg) 62%, transparent); }
 @media (hover: hover) and (pointer: fine) { .mbar .btn:hover { background: var(--c-fg); color: var(--c-bg); } }
-.mbar .bar-logo { border-radius: 50%; }
+
 
 /* book area */
 .book { position: relative; min-height: 0; display: grid; place-items: center; overflow: hidden; }
@@ -323,7 +323,8 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 .pg-cover, .pg-back { background: var(--ink); color: var(--paper); }
 .cover-in { position: absolute; inset: 1.1em; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5em; text-align: center; padding: 1.5em; }
 .cover-in::before { content: ''; position: absolute; inset: 0.45em; border: 1px solid var(--accent); opacity: 0.42; pointer-events: none; }
-.cover-logo { width: min(150px, 42%); height: auto; aspect-ratio: 1; }
+.wm-box { display: block; line-height: 0; }
+.cover-logo { width: min(240px, 66%); }
 .cover-t { font-family: var(--font-display); font-weight: 400; font-size: 1.15em; letter-spacing: 0.5em; text-indent: 0.5em; text-transform: uppercase; }
 .cover-s { font-family: var(--font-display); font-style: italic; font-size: 1.3em; margin-top: -0.6em; min-height: 1.3em; }
 .cover-open, .back-btn {
@@ -334,13 +335,13 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 }
 .back-in { position: absolute; inset: 1.1em; border: 1px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2em; text-align: center; padding: 1.5em; }
 .back-in::before { content: ''; position: absolute; inset: 0.45em; border: 1px solid var(--accent); opacity: 0.42; pointer-events: none; }
-.back-in img { width: 56px; height: 56px; }
+.back-wm { width: min(130px, 44%); }
 .back-in p { font-size: 0.85em; max-width: 26em; }
 .back-links { display: flex; flex-wrap: wrap; gap: 0.7em; justify-content: center; }
 .pg-end .pg-in { justify-content: center; }
 .pg-end .toc-head { padding-bottom: 1.6em; }
 .pg-end .end-in { position: absolute; inset: 0; display: grid; place-items: center; }
-.pg-end img { width: 56px; height: 56px; opacity: 0.9; }
+.end-wm { width: min(130px, 34%); opacity: 0.9; }
 
 /* bottom navigation */
 .bnav { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 14px; width: 100%; max-width: 760px; margin: 0 auto; padding: 6px 12px calc(10px + env(safe-area-inset-bottom)); min-height: 66px; }
@@ -436,9 +437,9 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
   .compact .pg-end .toc-head { padding-bottom: 0.7em; }
   .compact .toc-row { padding: 0.3em 0; }
   .compact .cover-in, .compact .back-in { inset: 0.8em; gap: 0.8em; padding: 0.9em; }
-  .compact .cover-logo { width: min(92px, 32%); }
+  .compact .cover-logo { width: min(170px, 58%); }
   .compact .cover-s { margin-top: -0.3em; }
-  .compact .back-in img { width: 44px; height: 44px; }
+  .compact .back-wm { width: min(100px, 40%); }
 }
 
 /* reduced motion: pages cross-fade, nothing rotates */
