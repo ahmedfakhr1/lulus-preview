@@ -149,9 +149,9 @@
   };
 })();
 </script>
-<script>try{if(!localStorage.getItem('lulus-veil'))document.documentElement.classList.add('veiled')}catch(e){}</script>
+<script>try{if(!localStorage.getItem('lulus-veil')){var d=document.documentElement;d.classList.add('veiled');setTimeout(function(){if(!d.classList.contains('veiled'))return;try{localStorage.setItem('lulus-veil','1')}catch(e){}var v=document.getElementById('veil');if(v){v.classList.add('out');setTimeout(function(){v.classList.remove('out')},900)}d.classList.remove('veiled')},Math.max(0,2400-(performance.now?performance.now():0)))}}catch(e){}</script>
 <style>html[data-season="fall-2026"] .season{display:block}html[data-season="fall-2026"] .season-pane[data-for="fall-2026"]{display:block}</style>
-<link rel="stylesheet" href="css/home.css?v=6b605959">
+<link rel="stylesheet" href="css/home.css?v=3141a555">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"LÜLU’S","image":"img/og.jpg","telephone":"+201210514222","address":{"@type":"PostalAddress","streetAddress":"EDNC by SODIC","addressLocality":"New Cairo","addressCountry":"EG"},"hasMenu":"menu.html","sameAs":["https://www.instagram.com/lulusinmotion/","https://www.tiktok.com/@lulusinmotion"]}</script>
 </head>
 <body class="home" data-wa="201210514222" data-appstore="https://apps.apple.com/app/id6757676939" data-play="https://play.google.com/store/apps/details?id=com.seamlabs.lulus">
@@ -303,6 +303,6 @@
   </form>
 </dialog>
 
-<script src="js/app.js?v=e75845e3" defer></script>
+<script src="js/app.js?v=c61dc339" defer></script>
 </body>
 </html>

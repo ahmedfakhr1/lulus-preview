@@ -263,6 +263,10 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .hero-mark, htm
 @keyframes surface { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
+/* phone: the first chapter follows the buttons closely, no dark band under them */
+@media (max-width: 899px) and (orientation: portrait) {
+  .hero + .chap { padding-top: 48px; }
+}
 @media (min-width: 900px), (min-width: 560px) and (orientation: landscape) {
   .hero {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; text-align: left;
@@ -303,6 +307,8 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .hero-mark, htm
 /* ---------- II. The table ----------
    One photo holds its place while short lines pass it; each line brings its own photo in. */
 .tb { position: relative; margin-top: clamp(40px, 8vw, 72px); }
+/* the chapter head sits above the photo's opaque band (which reaches 76px above the photo), so the band never hides it */
+.table > .wrap:not(.tb) { position: relative; z-index: 2; }
 .tb-fig {
   position: sticky; top: 76px; z-index: 1; margin: 0 auto; width: min(100%, 400px); aspect-ratio: 4 / 5;
   background: var(--h-bg);

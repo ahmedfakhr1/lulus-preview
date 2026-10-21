@@ -18,7 +18,7 @@
 
   /* ---- every photo is fetched and decoded up front, so nothing appears bit by bit while scrolling.
      On the first visit a short veil (the logo and a hairline that fills) covers the page until the photos
-     are ready, for at most 2.5 s; a tap or any key lifts it at once. */
+     are ready, for at most 2.5 s (that cap lives in <head>, so a slow script cannot hold it); a tap or any key lifts it at once. */
   var docEl = document.documentElement;
   var veil = document.getElementById('veil');
   var photos = Array.prototype.slice.call(document.querySelectorAll('main img, .foot img'));
@@ -39,6 +39,7 @@
     var lift = function () {
       if (lifted) return;
       lifted = true;
+      if (!docEl.classList.contains('veiled')) return;  // the 2.5 s cap in <head> already lifted it
       try { localStorage.setItem('lulus-veil', '1'); } catch (e) {}
       veil.classList.add('out');
       docEl.classList.remove('veiled');
