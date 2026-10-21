@@ -293,7 +293,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   .hero-cta { margin-top: 22px; }
 }
 
-/* ---------- the room: her dishes in a quiet, aligned grid ----------
+/* ---------- the room: her four best photos of the season, two by two ----------
    Same shape for every photo, even gaps, no frames and no movement: the photos carry it. */
 .room {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
@@ -302,9 +302,9 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .fr { margin: 0; position: relative; }
 .fr-in { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: rgb(var(--scrim)); }
 .fr-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-@media (min-width: 900px) { .room .fr.wide { grid-column: span 2; } .room .fr.wide .fr-in { aspect-ratio: auto; height: 100%; } }
+
 @media (min-width: 900px) {
-  .room { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .room { gap: 12px; max-width: 920px; }
 }
 
 /* ---------- photos that drift inside their frame (parallax by moving, never by enlarging) ---------- */

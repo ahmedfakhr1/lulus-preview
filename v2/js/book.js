@@ -102,6 +102,12 @@
     });
     return out;
   }
+  /* fetch this season's section photos as soon as the menu opens, so no page waits for its photo when turned */
+  var warmed = [];
+  DATA.sections.forEach(function (sec) {
+    var p = photoFor(sec);
+    if (p) { var im = new Image(); im.decoding = 'async'; im.src = 'img/' + p.src; warmed.push(im); }
+  });
   function hasSection(id, service) {
     return sectionsFor(service).some(function (s) { return s.id === id; });
   }
