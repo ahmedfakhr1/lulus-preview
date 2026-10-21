@@ -377,6 +377,7 @@ html[data-mood="morning"] .flora::before { opacity: 0.4; }
 .at { display: flex; flex-direction: column; align-items: center; }
 .at h3 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(1.875rem, 7vw, 3rem); line-height: 1.1; }
 .at .link { min-height: 44px; display: inline-flex; align-items: center; color: var(--h-muted); }
+.at-ic { width: 26px; height: 26px; margin-top: 14px; fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 @media (min-width: 900px) {
   .at-list { grid-template-columns: repeat(3, auto); justify-content: center; gap: 0 clamp(56px, 7vw, 112px); }
 }
