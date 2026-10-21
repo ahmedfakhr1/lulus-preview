@@ -106,10 +106,10 @@
   var fl1 = hex(mix(acc, paper, 0.5)), fl2 = c.accent, fl3 = hex(mix(acc2, ink, 0.25));
   function flower(x, y, r) {
     var g = '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(0.5)">', i;
-    for (i = 0; i < 8; i++) g += '<ellipse cx="0" cy="-27" rx="11" ry="25" fill="' + fl1 + '" transform="rotate(' + (i * 45) + ')"/>';
-    for (i = 0; i < 8; i++) g += '<ellipse cx="0" cy="-16" rx="7" ry="15" fill="' + fl2 + '" transform="rotate(' + (i * 45 + 22.5) + ')"/>';
-    for (i = 0; i < 6; i++) g += '<circle cx="0" cy="-8" r="2.6" fill="' + fl3 + '" transform="rotate(' + (i * 60) + ')"/>';
-    return g + '<circle r="5.5" fill="' + fl3 + '"/></g>';
+    for (i = 0; i < 5; i++) g += '<path d="M0 -4C-26 -20 -22 -50 -6 -46C-2 -45 0 -40 0 -38C0 -40 2 -45 6 -46C22 -50 26 -20 0 -4Z" fill="' + fl1 + '" transform="rotate(' + (i * 72) + ')"/>';
+    for (i = 0; i < 5; i++) g += '<path d="M0 -2C-12 -10 -10 -26 0 -24C10 -26 12 -10 0 -2Z" fill="' + fl2 + '" transform="rotate(' + (i * 72) + ')"/>';
+    for (i = 0; i < 5; i++) g += '<circle cx="0" cy="-11" r="1.8" fill="' + fl3 + '" transform="rotate(' + (i * 72 + 36) + ')"/>';
+    return g + '<circle r="6" fill="' + fl3 + '"/></g>';
   }
   var tile = '<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170" viewBox="0 0 170 170">' +
     flower(42, 42, 0) + flower(127, 127, 22) + '</svg>';
