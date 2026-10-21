@@ -381,7 +381,7 @@ html[data-mood="morning"] .flora::before { opacity: 0.4; }
 /* the line under each name, with its small drawing set in the middle like a seal */
 .at-rule { display: flex; align-items: center; gap: 12px; width: min(240px, 70vw); margin-top: 6px; }
 .at-rule::before, .at-rule::after { content: ''; flex: 1; height: 1px; background: var(--h-hair); }
-.at-ic { flex: none; width: 32px; height: 32px; fill: none; stroke: var(--accent); color: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.at-ic { flex: none; width: 28px; height: 28px; fill: none; stroke: var(--accent); color: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 @media (min-width: 900px) {
   .at-list { grid-template-columns: repeat(3, auto); justify-content: center; gap: 0 clamp(56px, 7vw, 112px); }
 }
