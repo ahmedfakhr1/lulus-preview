@@ -452,3 +452,7 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 
 .sec-photo .ph-img { display: grid; place-items: center; position: relative; width: 100%; aspect-ratio: 16 / 10; max-height: calc(var(--ph, 600px) * 0.3); background: rgba(var(--shade), 0.08); }
 .sec-photo .ph-img::after { content: 'Photo'; font-style: normal; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.45; }
+
+/* the cover is only her wordmark; the whole cover opens the book */
+.cover-tap { position: absolute; inset: 0; background: none; border: 0; padding: 0; cursor: pointer; }
+.cover-tap:focus-visible { outline: 1px solid var(--accent); outline-offset: -0.9em; }
