@@ -36,20 +36,28 @@
   };
   var turn = null, busy = false, raf = 0, ready = false, switching = false;
 
-  /* ------------------------------------------------------------ DOM scaffold */
+  /* ------------------------------------------------------------ DOM scaffold
+     The turning sheet is drawn flat, with 2D transforms only: the part of the page that has not lifted yet,
+     and the lifted part (its back) laid over it, mirrored across the fold. Both sit in one box that is turned
+     to the fold and clips at it, so nothing is ever drawn in 3D and nothing reaches past the book. */
   stage.setAttribute('role', 'group');
   stage.setAttribute('aria-roledescription', 'book');
   stage.setAttribute('aria-label', 'Menu');
   stage.innerHTML =
-    '<div class="slot slot-l"><div class="slot-pg"></div><i class="cast"></i></div>' +
-    '<div class="slot slot-r"><div class="slot-pg"></div><i class="cast"></i></div>' +
-    '<div class="leaf"><div class="face face-f"><i class="sh"></i><i class="cv"></i></div><div class="face face-b"><i class="sh"></i><i class="cv"></i></div></div>';
+    '<div class="slot slot-l"><div class="slot-pg"></div></div>' +
+    '<div class="slot slot-r"><div class="slot-pg"></div></div>' +
+    '<div class="flip"><div class="flip-o">' +
+      '<div class="bed"><i class="fs"></i></div>' +
+      '<div class="fold"><div class="face face-f"></div><i class="drop"></i><div class="face face-b"><i class="hl"></i></div></div>' +
+    '</div></div>';
   var slotL = stage.querySelector('.slot-l'), slotR = stage.querySelector('.slot-r');
-  var castL = slotL.querySelector('.cast'), castR = slotR.querySelector('.cast');
-  var leaf = stage.querySelector('.leaf');
-  var faceF = leaf.querySelector('.face-f'), faceB = leaf.querySelector('.face-b');
-  var shF = faceF.querySelector('.sh'), shB = faceB.querySelector('.sh');
-  var cvF = faceF.querySelector('.cv'), cvB = faceB.querySelector('.cv');
+  var flip = stage.querySelector('.flip'), flipO = stage.querySelector('.flip-o');
+  var fold = stage.querySelector('.fold'), fsEl = stage.querySelector('.fs');
+  var faceF = stage.querySelector('.face-f'), faceB = stage.querySelector('.face-b');
+  var dropEl = stage.querySelector('.drop'), hlEl = stage.querySelector('.hl');
+  var verso = document.createElement('div');
+  verso.className = 'pg pg-verso';
+  verso.setAttribute('aria-hidden', 'true');
 
   var meas = document.createElement('div');
   meas.className = 'measure';
@@ -117,7 +125,8 @@
     var compact = !!mqCompact.matches;
     root.classList.toggle('compact', compact);
     var cw = root.clientWidth, ch = root.clientHeight;
-    var spread = compact || (window.innerWidth >= 900 && window.innerHeight >= 480);
+    var vw = doc.clientWidth || window.innerWidth, vh = doc.clientHeight || window.innerHeight;
+    var spread = compact || (vw >= 900 && vh >= 480);
     var mx = compact ? 6 : spread ? 28 : 10, my = compact ? 5 : spread ? 18 : 8;
     var H = Math.floor(ch - 2 * my);
     var maxW = spread ? (cw - 2 * mx) / 2 : (cw - 2 * mx);
@@ -134,7 +143,6 @@
     root.style.setProperty('--ph', S.H + 'px');
     root.style.setProperty('--sw', (S.mode === 'spread' ? S.W * 2 : S.W) + 'px');
     root.style.setProperty('--fs', S.fs.toFixed(2) + 'px');
-    root.style.setProperty('--persp', Math.round(S.W * 3.4) + 'px');
     stage.classList.toggle('single', S.mode === 'single');
   }
 
@@ -334,8 +342,8 @@
     clearBox(box);
     if (page) { box.appendChild(elFor(page)); slot.classList.add('has'); } else slot.classList.remove('has');
   }
-  function putFace(face, page) {
-    if (page) face.insertBefore(elFor(page), face.firstChild);
+  function putFace(face, el) {
+    if (el) face.insertBefore(el, face.firstChild);
   }
   function clearAll() {
     clearBox(slotL.firstElementChild); clearBox(slotR.firstElementChild);
@@ -346,60 +354,118 @@
     clearAll();
     var pp = pagesAtPos(S.pos);
     putSlot(slotL, pp.l); putSlot(slotR, pp.r);
-    leaf.classList.remove('on');
-    castL.style.opacity = 0; castR.style.opacity = 0;
-    stage.style.transform = 'translate3d(' + shiftOf(S.pos) + 'px,0,0)';
+    flip.classList.remove('on');
+    stage.style.transform = 'translate(' + shiftOf(S.pos) + 'px,0)';
   }
 
-  /* ------------------------------------------------------------ the turn */
-  function setupTurn(from, to) {
+  /* ------------------------------------------------------------ the turn
+     A turn lifts the outer corner O of the sheet and carries it to the point F. The fold is the line halfway
+     between them, at right angles to OF. The part beyond the fold is mirrored across it, so its other side
+     shows, lying over the rest of the sheet. All of this is worked out in "peel" coordinates: the spine at
+     x = 0 and the sheet lying from 0 to W. A turn forward peels the right-hand sheet to the left; a turn back
+     peels the left-hand sheet to the right, which is the same picture seen in a mirror (dir = -1). */
+  var I = [1, 0, 0, 1, 0, 0];
+  function mul(m, n) {
+    return [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3],
+      m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
+  }
+  function inv(m) {
+    var det = m[0] * m[3] - m[1] * m[2];
+    var a = m[3] / det, b = -m[1] / det, c = -m[2] / det, d = m[0] / det;
+    return [a, b, c, d, -(a * m[4] + c * m[5]), -(b * m[4] + d * m[5])];
+  }
+  function css(m) {
+    return 'matrix(' + m[0].toFixed(5) + ',' + m[1].toFixed(5) + ',' + m[2].toFixed(5) + ',' + m[3].toFixed(5) + ',' +
+      m[4].toFixed(2) + ',' + m[5].toFixed(2) + ')';
+  }
+
+  /* The paper is held at the spine, so the corner can only travel where the sheet can reach. */
+  function reach(F) {
+    var W = S.W, cy = turn.cy, far = Math.hypot(W, S.H);
+    for (var i = 0; i < 3; i++) {
+      var dx = F.x, dy = F.y - cy, r = Math.hypot(dx, dy);
+      if (r > W) { F = { x: dx * W / r, y: cy + dy * W / r }; }
+      dx = F.x; dy = F.y - (S.H - cy); r = Math.hypot(dx, dy);
+      if (r > far) { F = { x: dx * far / r, y: (S.H - cy) + dy * far / r }; }
+    }
+    return F;
+  }
+
+  function setupTurn(from, to, cy) {
     var fwd = to > from;
     clearAll();
+    var up, down;      /* the side of the sheet that faces up before the turn, and the side that lands face up */
     if (S.mode === 'single') {
       var a = S.seq[from], b = S.seq[to];
       putSlot(slotL, null);
       putSlot(slotR, fwd ? b : a);
-      putFace(faceF, fwd ? a : b);
+      /* one page at a time: the back of the sheet is plain paper */
+      var holder = fwd ? a : b;
+      verso.classList.toggle('ink', holder.kind === 'cover' || holder.kind === 'back');
+      up = fwd ? elFor(a) : verso;
+      down = fwd ? verso : elFor(b);
     } else {
-      var l, r, front, back;
-      if (fwd) { l = pageAt(2 * from - 1); front = pageAt(2 * from); back = pageAt(2 * to - 1); r = pageAt(2 * to); }
-      else { l = pageAt(2 * to - 1); front = pageAt(2 * to); back = pageAt(2 * from - 1); r = pageAt(2 * from); }
+      var l, r, u, dn;
+      if (fwd) { l = pageAt(2 * from - 1); u = pageAt(2 * from); dn = pageAt(2 * to - 1); r = pageAt(2 * to); }
+      else { l = pageAt(2 * to - 1); u = pageAt(2 * from - 1); dn = pageAt(2 * to); r = pageAt(2 * from); }
       putSlot(slotL, l); putSlot(slotR, r);
-      putFace(faceF, front); putFace(faceB, back);
+      up = u ? elFor(u) : null; down = dn ? elFor(dn) : null;
     }
-    turn = { from: from, to: to, fwd: fwd, t: fwd ? 0 : 1, a: shiftOf(from), b: shiftOf(to), target: 0 };
-    leaf.classList.add('on');
-    frame(turn.t);
+    faceF.className = 'face face-f ' + (fwd ? 'rp' : 'lp');
+    faceB.className = 'face face-b ' + (fwd ? 'lp' : 'rp');
+    putFace(faceF, up); putFace(faceB, down);
+    cy = cy === undefined ? S.H : cy;
+    var W = S.W;
+    turn = {
+      from: from, to: to, fwd: fwd, dir: fwd ? 1 : -1, cy: cy, O: { x: W, y: cy }, rest: { x: -W, y: cy },
+      L: 2 * Math.ceil(Math.hypot(2 * W, S.H)) + 16,
+      U: fwd ? I : [-1, 0, 0, 1, W, 0], D: fwd ? [-1, 0, 0, 1, W, 0] : I,
+      X: [fwd ? 1 : -1, 0, 0, 1, 0, 0], B: [1, 0, 0, 1, fwd ? 0 : W, 0],
+      a: shiftOf(from), b: shiftOf(to)
+    };
+    turn.F = { x: W, y: cy };
+    flip.style.setProperty('--L', turn.L + 'px');
+    flip.classList.toggle('bwd', !fwd);
+    flip.classList.add('on');
+    frame(turn.F);
   }
 
-  /* One frame of the turn, t from 0 (flat on the right) to 1 (flat on the left).
-     Besides the swing the leaf lifts a little towards the reader and sways, a soft band of light
-     travels across it as it curves, and its shadow grows on the page underneath, then falls away.
-     Only transform and opacity are written. */
-  function frame(t) {
-    var s = Math.sin(Math.PI * t);
-    var spread = S.mode === 'spread';
-    var lift = S.W * 0.036 * s;
-    var sway = (turn && !turn.fwd ? -1 : 1) * 1.6 * Math.sin(2 * Math.PI * t);
-    leaf.style.transform = 'translateZ(' + lift.toFixed(1) + 'px) rotateY(' + (-180 * t).toFixed(2) + 'deg) skewY(' + sway.toFixed(2) + 'deg)';
-    shF.style.opacity = t < 0.5 ? (0.8 * Math.pow(s, 1.15)).toFixed(3) : 0;
-    shB.style.opacity = spread && t >= 0.5 ? (0.8 * Math.pow(s, 1.15)).toFixed(3) : 0;
-    /* the band of light: from the spine to the free edge while the leaf rises, back across the other face while it lands */
-    var kF = clamp(t * 2, 0, 1), kB = clamp(t * 2 - 1, 0, 1);
-    cvF.style.opacity = t < 0.5 ? (Math.sin(Math.PI * kF)).toFixed(3) : 0;
-    cvF.style.transform = 'translate3d(' + ((-1 + 2 * kF) * 100).toFixed(1) + '%,0,0)';
-    cvB.style.opacity = spread && t >= 0.5 ? (Math.sin(Math.PI * kB)).toFixed(3) : 0;
-    cvB.style.transform = 'translate3d(' + ((-1 + 2 * kB) * 100).toFixed(1) + '%,0,0)';
-    /* shadow thrown on the page underneath: it widens while the leaf climbs, fades as it passes upright */
-    var cR = t < 0.5 ? Math.sin(Math.PI * clamp(t * 2, 0, 1)) : 0;
-    var cL = spread && t > 0.5 ? Math.sin(Math.PI * clamp(t * 2 - 1, 0, 1)) : 0;
-    castR.style.opacity = cR.toFixed(3);
-    castR.style.transform = 'scaleX(' + (0.35 + 0.65 * clamp(t * 2.2, 0, 1)).toFixed(3) + ')';
-    castL.style.opacity = cL.toFixed(3);
-    castL.style.transform = 'scaleX(' + (0.35 + 0.65 * clamp((1 - t) * 2.2, 0, 1)).toFixed(3) + ')';
-    if (turn && turn.a !== turn.b) {
-      var p = turn.fwd ? t : 1 - t;
-      stage.style.transform = 'translate3d(' + (turn.a + (turn.b - turn.a) * p).toFixed(2) + 'px,0,0)';
+  /* how far the turn has gone, 0 at the start, 1 when the sheet has landed */
+  function progressOf(F) { return clamp((S.W - F.x) / (2 * S.W), 0, 1); }
+
+  /* One frame. Only transform and opacity are written. */
+  function frame(F) {
+    var W = S.W, O = turn.O;
+    var dx = F.x - O.x, dy = F.y - O.y, len = Math.hypot(dx, dy);
+    if (len < 0.6) { dx = -0.6; dy = 0; len = 0.6; }
+    var nx = dx / len, ny = dy / len;              /* across the fold, towards the part that stays */
+    var ux = ny, uy = -nx;                         /* along the fold */
+    var mx = O.x + dx / 2, my = O.y + dy / 2;      /* a point on the fold */
+    var h = turn.L / 2, ox = mx - ux * h, oy = my - uy * h;
+    var K = [ux, uy, nx, ny, ox, oy];
+    var Ki = inv(K);
+    /* the mirror across the fold */
+    var a = 2 * ux * ux - 1, b = 2 * ux * uy, d = 2 * uy * uy - 1;
+    var R = [a, b, b, d, mx - a * mx - b * my, my - b * mx - d * my];
+    var RD = mul(R, turn.D);
+    var p = progressOf(F);
+    var s = Math.sin(Math.PI * p);
+    fold.style.transform = css(mul(turn.X, K));
+    faceF.style.transform = css(mul(Ki, turn.U));
+    var down = css(mul(Ki, RD));
+    faceB.style.transform = down;
+    dropEl.style.transform = down;
+    dropEl.style.opacity = (0.9 * Math.pow(s, 0.7)).toFixed(3);
+    /* light on the curve of the lifted paper, from the fold outwards */
+    var wl = Math.max(1, W * (0.18 + 0.3 * s));
+    hlEl.style.transform = css(mul(inv(RD), [ux, uy, nx * wl / 100, ny * wl / 100, ox, oy]));
+    hlEl.style.opacity = Math.pow(s, 0.5).toFixed(3);
+    /* the shadow the lifted paper throws on the page it uncovers */
+    var ws = Math.max(1, W * (0.06 + 0.22 * s));
+    fsEl.style.transform = css(mul(turn.B, mul(turn.X, [-ux, -uy, -nx * ws / 100, -ny * ws / 100, mx + ux * h, my + uy * h])));
+    fsEl.style.opacity = Math.pow(s, 0.6).toFixed(3);
+    if (turn.a !== turn.b) {
+      stage.style.transform = 'translate(' + (turn.a + (turn.b - turn.a) * p).toFixed(2) + 'px,0)';
     }
   }
 
@@ -412,38 +478,42 @@
       if (x >= 1) return 1;
       var lo = 0, hi = 1, u = x;
       for (var i = 0; i < 24; i++) {
-        var d = bx(u) - x;
-        if (Math.abs(d) < 1e-5) break;
-        if (d > 0) hi = u; else lo = u;
+        var dd = bx(u) - x;
+        if (Math.abs(dd) < 1e-5) break;
+        if (dd > 0) hi = u; else lo = u;
         u = (lo + hi) / 2;
       }
       return by(u);
     };
   }
-  /* a page is lifted slowly, swings through, and settles: gentle start, brisk middle, long soft landing */
-  var easeTurn = bezier(0.42, 0, 0.24, 1);
-  /* after a drag: carries on from the finger's own speed and eases to rest (never a snap) */
+  /* a page is lifted gently, swings through, and settles with a long soft landing */
+  var easeTurn = bezier(0.45, 0.05, 0.22, 1);
+  /* after a drag: carries on at the finger's own speed and eases to rest (never a snap) */
   function easeRelease(m0) {
     return function (k) { return (k * k * k - 2 * k * k + k) * m0 + (-2 * k * k * k + 3 * k * k); };
   }
-  var TURN_MS = 880, FAR_MS = 980;
+  var TURN_MS = 900, FAR_MS = 1000;
 
-  function runTo(target, ms, ease, onDone) {
-    cancelAnimationFrame(raf);
-    turn.target = target;
-    var t0 = turn.t, start = null;
-    function step(ts) {
-      if (start === null) start = ts;
-      var k = Math.min(1, (ts - start) / ms);
-      turn.t = t0 + (target - t0) * ease(k);
-      frame(turn.t);
-      if (k < 1) raf = requestAnimationFrame(step); else onDone();
-    }
-    raf = requestAnimationFrame(step);
+  /* the path of the corner for a turn made by a button, a tap or a key: across, rising a little in the middle */
+  function pathAt(e) {
+    var W = S.W, H = S.H;
+    return reach({ x: W - 2 * W * e, y: turn.cy - (turn.cy > H / 2 ? 1 : -1) * H * 0.16 * Math.sin(Math.PI * e) });
   }
 
-  function finishTurn() {
-    var commit = turn.fwd ? turn.target === 1 : turn.target === 0;
+  function animate(ms, ease, at, onDone) {
+    cancelAnimationFrame(raf);
+    var start = null;
+    function tick(ts) {
+      if (start === null) start = ts;
+      var k = Math.min(1, (ts - start) / ms);
+      turn.F = at(ease(k));
+      frame(turn.F);
+      if (k < 1) raf = requestAnimationFrame(tick); else onDone();
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function finishTurn(commit) {
     if (commit) { S.pos = turn.to; S.keep = null; }
     turn = null; busy = false;
     showStatic();
@@ -461,7 +531,7 @@
     stage.setAttribute('data-motion', 'turn');
     setupTurn(S.pos, pos);
     var far = Math.abs(pos - S.pos) > 1;
-    runTo(turn.fwd ? 1 : 0, far ? FAR_MS : TURN_MS, easeTurn, finishTurn);
+    animate(far ? FAR_MS : TURN_MS, easeTurn, pathAt, function () { finishTurn(true); });
   }
   function step(d) { goTo(S.pos + d); }
 
@@ -479,84 +549,128 @@
     };
   }
 
-  /* ------------------------------------------------------------ gestures */
+  /* ------------------------------------------------------------ gestures
+     One finger at 1x: the corner comes to the finger and then stays under it. Two fingers, or a page that
+     is zoomed in, belong to the browser: pinch and pan, never a turn. */
   var drag = null, suppressClick = false, framePending = false;
+  var touches = {}, nTouch = 0, pinching = false;
+  function zoomed() { var vv = window.visualViewport; return !!(vv && vv.scale > 1.01); }
+  function syncZoom() { stage.classList.toggle('zoomed', zoomed()); }
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', syncZoom);
 
   /* a drag is never also a tap: the click that follows a drag is ignored */
   function swallowClick() {
     suppressClick = true;
     setTimeout(function () { suppressClick = false; }, 350);
   }
+  function sheetPoint(e) {
+    return { x: (e.clientX - drag.ox) * drag.dir, y: e.clientY - drag.oy };
+  }
+  function smooth(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+
+  /* the page goes back to where it lay, from wherever the finger left it */
+  function abandon() {
+    var d = drag; drag = null;
+    if (!d || !d.active || d.soft || !turn) return;
+    var F0 = turn.F, R = turn.O;
+    var dist = Math.hypot(R.x - F0.x, R.y - F0.y) / (2 * S.W);
+    animate(clamp(dist * TURN_MS, 200, 600), bezier(0.25, 0.6, 0.3, 1), function (k) {
+      return reach({ x: F0.x + (R.x - F0.x) * k, y: F0.y + (R.y - F0.y) * k });
+    }, function () { finishTurn(false); });
+  }
 
   function onDown(e) {
-    if (busy || switching) return;
+    if (e.pointerType === 'touch') {
+      if (!touches[e.pointerId]) { touches[e.pointerId] = 1; nTouch++; }
+      if (nTouch > 1) { pinching = true; abandon(); swallowClick(); return; }
+    }
+    if (busy || switching || pinching || zoomed()) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lastX: e.clientX, lastT: e.timeStamp, vx: 0, active: false,
-             trail: [[e.timeStamp, e.clientX]] };
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, active: false, trail: [[e.timeStamp, e.clientX, e.clientY]] };
   }
   function onMove(e) {
     if (!drag || e.pointerId !== drag.id || drag.dead) return;
+    if (pinching) { abandon(); return; }
     var dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    drag.trail.push([e.timeStamp, e.clientX, e.clientY]);
+    if (drag.trail.length > 16) drag.trail.shift();
     if (!drag.active) {
       /* an upright drag is a scroll, never a turn; the click that ends it is ignored too */
       if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) { drag.dead = true; swallowClick(); return; }
       if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
       var fwd = dx < 0, to = S.pos + (fwd ? 1 : -1);
       if (to < 0 || to > lastPos()) { drag = null; swallowClick(); return; }
-      if (reduced()) { drag.active = true; drag.soft = true; drag.fwd = fwd; return; }
       drag.active = true; drag.fwd = fwd;
+      if (reduced()) { drag.soft = true; return; }
       busy = true;
       stage.setAttribute('data-motion', 'turn');
-      setupTurn(S.pos, to);
+      var sr = stage.getBoundingClientRect();
+      drag.ox = sr.left + (S.mode === 'spread' ? S.W : 0);
+      drag.oy = sr.top;
+      drag.dir = fwd ? 1 : -1;
+      var st = { x: (drag.x0 - drag.ox) * drag.dir, y: drag.y0 - drag.oy };
+      setupTurn(S.pos, to, st.y > S.H / 2 ? S.H : 0);
+      drag.start = st;
+      drag.home = turn.O;
       try { stage.setPointerCapture(e.pointerId); } catch (err) {}
     }
-    var dt = e.timeStamp - drag.lastT;
-    if (dt > 0) drag.vx = 0.7 * drag.vx + 0.3 * ((e.clientX - drag.lastX) / dt);
-    drag.lastX = e.clientX; drag.lastT = e.timeStamp;
-    drag.trail.push([e.timeStamp, e.clientX]);
-    if (drag.trail.length > 12) drag.trail.shift();
     if (drag.soft || !turn) return;
-    var span = S.mode === 'single' ? S.W * 0.85 : S.W * 0.95;
-    var p = clamp((drag.fwd ? -dx : dx) / span, 0, 1);
-    turn.t = drag.fwd ? p : 1 - p;
+    /* the corner starts where it lies and comes to the finger over the first stretch of the drag */
+    var f = sheetPoint(e);
+    var w = 1 - smooth(Math.hypot(f.x - drag.start.x, f.y - drag.start.y) / (S.W * 0.42));
+    turn.F = reach({ x: f.x + (drag.home.x - drag.start.x) * w, y: f.y + (drag.home.y - drag.start.y) * w });
     if (!framePending) {
       framePending = true;
-      requestAnimationFrame(function () { framePending = false; if (turn && drag) frame(turn.t); });
+      requestAnimationFrame(function () { framePending = false; if (turn && drag) frame(turn.F); });
     }
   }
   function onUp(e) {
-    if (!drag || (e && e.pointerId !== drag.id)) return;
+    if (e.pointerType === 'touch' && touches[e.pointerId]) {
+      delete touches[e.pointerId]; nTouch = Math.max(0, nTouch - 1);
+      if (pinching) { if (nTouch === 0) pinching = false; swallowClick(); abandon(); return; }
+    }
+    if (!drag || e.pointerId !== drag.id) return;
+    if (e.type === 'pointercancel') { swallowClick(); abandon(); return; }
     var d = drag; drag = null;
     if (d.dead) { swallowClick(); return; }
     if (!d.active) return;
-    /* the finger's speed over its last 100 ms */
-    var tr = d.trail, tEnd = tr[tr.length - 1][0], k0 = tr.length - 1;
-    while (k0 > 0 && tEnd - tr[k0 - 1][0] <= 100) k0--;
-    if (k0 < tr.length - 1) d.vx = (tr[tr.length - 1][1] - tr[k0][1]) / Math.max(1, tEnd - tr[k0][0]);
     swallowClick();
+    /* the finger's speed over its last 100 ms */
+    var tr = d.trail, last = tr[tr.length - 1], k0 = tr.length - 1;
+    while (k0 > 0 && last[0] - tr[k0 - 1][0] <= 100) k0--;
+    /* a slow device may space the moves out: then the last two moves give the speed */
+    if (k0 === tr.length - 1 && k0 > 0 && last[0] - tr[k0 - 1][0] <= 220) k0--;
+    var span = Math.max(1, last[0] - tr[k0][0]);
+    var vx = k0 < tr.length - 1 ? (last[1] - tr[k0][1]) / span : 0;
+    var vy = k0 < tr.length - 1 ? (last[2] - tr[k0][2]) / span : 0;
     if (d.soft) {
-      if (Math.abs(d.lastX - d.x0) > 40) step(d.fwd ? 1 : -1);
+      if (Math.abs(last[1] - d.x0) > 40) step(d.fwd ? 1 : -1);
       return;
     }
     if (!turn) return;
-    var progress = turn.fwd ? turn.t : 1 - turn.t;
-    var vdir = turn.fwd ? -d.vx : d.vx;           /* px per ms in the direction of turning */
-    var commit = (progress > 0.32 || vdir > 0.45) && vdir > -0.45;
-    var target = turn.fwd ? (commit ? 1 : 0) : (commit ? 0 : 1);
-    var rest = Math.abs(target - turn.t);
-    /* the time left is in proportion to the distance left; the finger's own speed sets how briskly it starts */
-    var span = S.mode === 'single' ? S.W * 0.85 : S.W * 0.95;
-    var toward = commit ? vdir : -vdir;
-    var v0 = clamp(toward, 0, 3) / span;           /* turn-units per ms */
-    var ms = clamp(rest * TURN_MS, 240, TURN_MS);
-    var m0 = rest > 0.001 ? clamp(v0 * ms / rest, 0, 2.2) : 0;
-    runTo(target, ms, easeRelease(m0), finishTurn);
+    vx *= turn.dir;                                /* in peel coordinates */
+    var gone = progressOf(turn.F);
+    var vdir = -vx;                                /* px per ms in the direction of turning */
+    var commit = (gone > 0.3 || vdir > 0.4) && vdir > -0.4;
+    var tgt = commit ? turn.rest : turn.O;
+    var F0 = turn.F;
+    var ex = tgt.x - F0.x, ey = tgt.y - F0.y, dist = Math.hypot(ex, ey);
+    /* time in proportion to the way left; the finger's own speed sets how briskly it carries on */
+    var ms = clamp(dist / (2 * S.W) * TURN_MS * 1.1, 260, TURN_MS);
+    var along = dist > 0.5 ? (vx * ex + vy * ey) / dist : 0;   /* px per ms towards the target */
+    var m0 = dist > 0.5 ? clamp(Math.max(0, along) * ms / dist, 0, 2.4) : 0;
+    var ease = easeRelease(m0);
+    animate(ms, function (k) { return k; }, function (k) {
+      var q = ease(k);
+      /* a light lift on the way, so the corner arcs rather than slides */
+      var lift = Math.sin(Math.PI * q) * Math.min(S.H * 0.05, dist * 0.08) * (turn.cy > S.H / 2 ? -1 : 1);
+      return reach({ x: F0.x + ex * q, y: F0.y + ey * q + lift });
+    }, function () { finishTurn(commit); });
   }
   stage.addEventListener('pointerdown', onDown);
   stage.addEventListener('pointermove', onMove);
   stage.addEventListener('pointerup', onUp);
   stage.addEventListener('pointercancel', onUp);
-  stage.addEventListener('lostpointercapture', function () { /* the pointerup already finished the drag */ });
 
   function visibleBounds() {
     var rects = [];
@@ -569,7 +683,7 @@
     if (suppressClick) { e.preventDefault(); return; }
     var b = e.target.closest ? e.target.closest('button, a') : null;
     if (b) { act(b, e); return; }
-    if (busy || switching) return;
+    if (busy || switching || zoomed()) return;
     var vb = visibleBounds();
     var zone = Math.max(60, S.W * 0.28);
     if (e.clientX < vb.left + zone) step(-1);
@@ -766,7 +880,7 @@
   }
   var resizeTimer = 0, lastKey = '';
   function relayout(force) {
-    var key = root.clientWidth + 'x' + root.clientHeight + ':' + window.innerWidth + 'x' + window.innerHeight;
+    var key = root.clientWidth + 'x' + root.clientHeight + ':' + doc.clientWidth + 'x' + doc.clientHeight;
     if (!force && key === lastKey) return;
     lastKey = key;
     var a = ready ? anchor() : null;
@@ -797,7 +911,7 @@
     S.pos = posOf(targetPage(r.target) || S.pages[0]);
     showStatic();
     ready = true;
-    lastKey = root.clientWidth + 'x' + root.clientHeight + ':' + window.innerWidth + 'x' + window.innerHeight;
+    lastKey = root.clientWidth + 'x' + root.clientHeight + ':' + doc.clientWidth + 'x' + doc.clientHeight;
     afterChange();
     root.classList.add('ready');
     root.setAttribute('data-ready', '1');
@@ -825,6 +939,12 @@
     pos: function () { return S.pos; },
     mode: function () { return S.mode; },
     size: function () { return { w: S.W, h: S.H, fs: S.fs }; },
-    busy: function () { return busy || switching; }
+    busy: function () { return busy || switching; },
+    /* the turn in progress: how far it has gone (0 to 1) and where the lifted corner is on screen */
+    turn: function () {
+      if (!turn) return null;
+      var r = stage.getBoundingClientRect(), sx = r.left + (S.mode === 'spread' ? S.W : 0);
+      return { p: progressOf(turn.F), x: sx + turn.dir * turn.F.x, y: r.top + turn.F.y, fwd: turn.fwd };
+    }
   };
 })();

@@ -169,107 +169,236 @@ html:not(.js) .bar { position: static; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* Home page */
+/* Home page: an evening at LÜLU'S, told in six chapters (I Arrival, II The table, III The sweet finale,
+   IV This season, V The atelier, VI The invitation). Chapter numerals are counted by CSS, so a season with
+   nothing to show simply drops out and the numbering closes up.
+
+   The page follows the mood set in <head> (season.js): Evening is the night room, warm and dark, with paper
+   text; Morning is the season's own light ground with ink text. Motion is opacity and transform only. */
+
+html {
+  color-scheme: dark;
+  --h-bg: var(--desk-night);
+  --h-fg: var(--paper);
+  --h-muted: var(--muted-desk);
+  --h-hair: var(--hair-desk);
+  --h-acc: var(--accent);
+  --h-foot: var(--page-night);
+  --grain: 0.055;
+  --slow: cubic-bezier(0.22, 0.61, 0.24, 1);
+}
+html[data-mood='morning'] {
+  color-scheme: light;
+  --h-bg: var(--bg);
+  --h-fg: var(--ink);
+  --h-muted: var(--muted);
+  --h-hair: var(--hair);
+  --h-acc: var(--acc-day);
+  --h-foot: var(--ink);
+  --grain: 0.04;
+}
+body.home { background: var(--h-bg); color: var(--h-fg); }
+.home :focus-visible { outline-color: var(--h-fg); }
+
+/* a very fine paper grain over everything, drawn once and never repainted on scroll */
+body.home::after {
+  content: ''; position: fixed; inset: 0; z-index: 30; pointer-events: none;
+  background: url(../img/grain.png) 0 0 / 128px 128px repeat; opacity: var(--grain);
+}
+
 .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
 
-/* ---------- hero ----------
-   One portrait photo, shown no larger than its own pixels allow, on a band of the season colour that holds
-   the logo, the place and the two buttons. Phone: the photo on top at full width (never past 540 CSS px, which is
-   half of a 1080 px file on a 2x screen), the band below. Wide screens and phones on their side: the band on the
-   left and the photo as a framed column on the right. The photo's shape comes from the file (--hero-r, set by
-   season.js), so a different hero photo fits without any change here. */
-.hero {
-  position: relative; overflow: hidden;
-  min-height: 100vh; min-height: 100svh;
-  display: flex; flex-direction: column; align-items: center;
-  text-align: center; color: var(--on-photo);
-  background: var(--ink);
-}
-@media (max-width: 899px) and (orientation: portrait) { .hero { min-height: 0; } }
+/* ---------- header bar ---------- */
+.home .bar { background: var(--h-bg); color: var(--h-fg); border-bottom-color: var(--h-hair); }
+.home .bar .btn { background: var(--h-fg); color: var(--h-bg); }
+@media (hover: hover) and (pointer: fine) { .home .bar .btn:hover { background: color-mix(in srgb, var(--h-fg) 86%, var(--accent)); } }
+
+/* ---------- chapter heads: a numeral in Bodoni italic, the name in small spaced capitals, a hairline ---------- */
+main { counter-reset: chapter; }
+.mark { display: flex; align-items: baseline; gap: 16px; counter-increment: chapter; font-size: 1rem; }
+.mark-n { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 8vw, 3.5rem); line-height: 1; color: var(--h-acc); }
+.mark-n::before { content: counter(chapter, upper-roman); }
+.mark-l { font-weight: 500; font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; }
+.mark::after { content: ''; flex: 1; align-self: center; height: 1px; background: var(--h-hair); transform: translateY(-0.2em); }
+
+.display { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 9vw, 4.5rem); line-height: 1.08; letter-spacing: -0.01em; text-wrap: balance; }
+.note { color: var(--h-muted); }
+.chap { position: relative; padding-top: clamp(112px, 26vw, 240px); }
+.chap .link { color: inherit; }
+
+/* ---------- I. Arrival ----------
+   The terrace at night, never shown wider than half its own pixels. On a phone it runs edge to edge and the
+   logo sits on its lower edge like a seal; on a wide screen the words take the left and the photo the right. */
+.hero { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .hero-media {
-  flex: none; width: min(100%, 540px); aspect-ratio: var(--hero-r, 0.9818);
-  max-height: min(64vh, 100vh - 340px); max-height: min(64svh, 100svh - 340px); overflow: hidden; background: rgb(var(--scrim));
+  position: relative; width: 100%; max-width: 540px; aspect-ratio: 4 / 3; overflow: hidden; background: rgb(var(--scrim));
 }
 .hero-media:empty { display: none; }
-.hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; animation: hero-in 1.2s var(--ease) both; }
-.hero-top { margin-top: auto; padding: 36px var(--gutter) 0; display: flex; flex-direction: column; align-items: center; gap: 18px; animation: rise 0.9s 0.25s var(--ease) both; }
-.hero-logo { width: 112px; height: 112px; }
-.place { font-weight: 500; font-size: 0.8125rem; letter-spacing: 0.26em; text-transform: uppercase; }
-.hero-cta { margin: 24px 0 auto; padding: 0 var(--gutter) 40px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; animation: rise 0.9s 0.45s var(--ease) both; }
-@keyframes hero-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.hero-body { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 var(--gutter) 8px; }
+.hero-seal { margin-top: -46px; line-height: 0; }
+.hero-logo { width: 92px; height: 92px; border-radius: 50%; box-shadow: 0 0 0 6px var(--h-bg); }
+.hero-mark { margin-top: 26px; gap: 12px; }
+.hero-mark::after { display: none; }
+.hero-mark .mark-n { font-size: 1.75rem; }
+.hero-line { margin-top: 10px; font-family: var(--font-display); font-style: italic; font-size: clamp(2.375rem, 10.5vw, 4.75rem); line-height: 1.04; letter-spacing: -0.012em; text-wrap: balance; }
+.place { margin-top: 18px; font-weight: 500; font-size: 0.75rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--h-muted); }
+.hero-cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.hero .btn-light { background: var(--h-fg); color: var(--h-bg); border-color: var(--h-fg); }
+.hero .btn-ghost { background: transparent; color: var(--h-fg); border-color: color-mix(in srgb, var(--h-fg) 70%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .hero .btn-light:hover { background: color-mix(in srgb, var(--h-fg) 86%, var(--accent)); }
+  .hero .btn-ghost:hover { background: var(--h-fg); color: var(--h-bg); }
+}
+
+/* the arrival: the photo surfaces from the dark, then the seal, then the words */
+.hero-media img { animation: surface 1.6s var(--slow) both; }
+.hero-seal, .hero-mark, .hero-line, .place, .hero-cta { animation: rise 0.9s var(--slow) both; }
+.hero-seal { animation-delay: 0.35s; }
+.hero-mark { animation-delay: 0.5s; }
+.hero-line { animation-delay: 0.6s; }
+.place { animation-delay: 0.72s; }
+.hero-cta { animation-delay: 0.84s; }
+html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .hero-mark, html.veiled .hero-line, html.veiled .place, html.veiled .hero-cta { animation: none; opacity: 0; }
+@keyframes surface { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
 @media (min-width: 900px), (min-width: 560px) and (orientation: landscape) {
   .hero {
-    --hero-pad: clamp(28px, 8svh, 80px);
-    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-content: center;
-    column-gap: clamp(32px, 6vw, 112px);
-    padding: var(--hero-pad) max(var(--gutter), calc((100% - 1200px) / 2));
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; text-align: left;
+    column-gap: clamp(32px, 6vw, 104px);
+    min-height: 100vh; min-height: 100svh;
+    padding: 96px max(var(--gutter), calc((100% - 1200px) / 2)) 64px;
   }
   .hero-media {
-    grid-column: 2; grid-row: 1 / 3; align-self: center; max-height: none;
-    width: min(540px, 44vw, calc((100vh - 2 * var(--hero-pad)) * var(--hero-r, 0.9818)));
-    width: min(540px, 44vw, calc((100svh - 2 * var(--hero-pad)) * var(--hero-r, 0.9818)));
+    grid-column: 2; grid-row: 1; aspect-ratio: var(--hero-r, 1.554); max-width: none;
+    width: min(540px, 48vw, calc((100svh - 180px) * var(--hero-r, 1.554)));
   }
-  .hero { row-gap: 28px; }
-  .hero-top { grid-column: 1; grid-row: 1; align-self: end; margin: 0; padding: 0; }
-  .hero-cta { grid-column: 1; grid-row: 2; align-self: start; margin: 0; padding: 0; }
+  .hero-body { grid-column: 1; grid-row: 1; align-items: flex-start; padding: 0; }
+  .hero-seal { margin-top: 0; }
+  .hero-logo { width: 112px; height: 112px; box-shadow: none; }
+  .hero-cta { justify-content: flex-start; }
+}
+/* on a 1x screen a file shows sharp at its full pixel width, so the photos may take more room there */
+@media (min-width: 900px) and (max-resolution: 1.4dppx) {
+  .hero-media { width: min(760px, 50vw, calc((100svh - 180px) * var(--hero-r, 1.554))); }
+  .tb-fig { width: min(100%, 480px); top: calc(50svh - 300px); }
+}
+@media (max-height: 479px) and (orientation: landscape) {
+  .hero { padding-top: 72px; padding-bottom: 32px; }
+  .hero-logo { width: 72px; height: 72px; }
+  .hero-mark { margin-top: 14px; }
+  .hero-line { font-size: 2.25rem; }
+  .place { margin-top: 10px; }
+  .hero-cta { margin-top: 18px; }
+}
+@media (max-width: 899px) and (orientation: portrait) and (max-height: 700px) {
+  .hero-logo { width: 76px; height: 76px; }
+  .hero-seal { margin-top: -38px; }
+  .hero-mark { margin-top: 18px; }
+  .hero-line { font-size: 2.125rem; }
+  .hero-cta { margin-top: 22px; }
 }
 
-/* ---------- sections ---------- */
-section { position: relative; }
-.sec-pad { padding-top: clamp(80px, 16vw, 176px); }
-h2.big { font-family: var(--font-display); font-size: clamp(2.4rem, 7.2vw, 4.25rem); line-height: 1.06; letter-spacing: -0.01em; }
+/* ---------- II. The table ----------
+   One photo holds its place while short lines pass it; each line brings its own photo in. */
+.tb { position: relative; margin-top: clamp(40px, 8vw, 72px); }
+.tb-fig {
+  position: sticky; top: 76px; z-index: 1; margin: 0 auto; width: min(100%, 400px); aspect-ratio: 4 / 5;
+  background: var(--h-bg);
+  /* an opaque band the full width of the screen, so the lines slip away under the photo */
+  box-shadow: 0 0 0 100vmax var(--h-bg); clip-path: inset(-76px -100vmax 0 -100vmax);
+}
+.tb-fig img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tb-fig img + img { opacity: 0; }
+.js .tb-fig img { opacity: 0; transition: opacity 0.9s var(--slow); }
+.js .tb-fig img.on { opacity: 1; }
+.tb-lines { list-style: none; margin: 0; padding: 0; position: relative; }
+.tb-line { min-height: 50vh; min-height: 50svh; padding: 28px 0 0; }
+.tb-line:first-child { padding-top: 32px; }
+.tb-line:last-child { min-height: 32vh; min-height: 32svh; }
+.tb-line p { font-family: var(--font-display); font-style: italic; font-size: clamp(1.875rem, 7.4vw, 3.25rem); line-height: 1.14; max-width: 15em; text-wrap: balance; }
+.js .tb-line p { opacity: 0.3; transform: translateY(10px); transition: opacity 0.8s var(--slow), transform 0.8s var(--slow); }
+.js .tb-line.on p { opacity: 1; transform: none; }
+.tb-link { margin-top: 8px; }
 
-.js .rv { opacity: 0; transform: translateY(18px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
-.js .rv.in { opacity: 1; transform: none; }
+@media (min-width: 900px) {
+  .tb { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: clamp(48px, 7vw, 120px); align-items: start; }
+  .tb-fig { grid-column: 1; grid-row: 1 / 3; top: calc(50vh - 250px); top: calc(50svh - 250px); margin: 0; justify-self: end; box-shadow: none; clip-path: none; }
+  .tb-lines { grid-column: 2; grid-row: 1; }
+  .tb-line, .tb-line:first-child { min-height: 64vh; min-height: 64svh; padding-top: 0; display: flex; align-items: center; }
+  .tb-line:last-child { min-height: 64vh; min-height: 64svh; }
+  .tb-link { grid-column: 2; grid-row: 2; justify-self: start; margin: 0 0 8vh; }
+}
 
-/* dinner */
-.dinner { padding-top: clamp(56px, 18vw, 200px); display: grid; gap: var(--s5) var(--s3); grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; }
-.dinner-head { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--s2); }
-.dn { margin: 0; }
-.dn img { width: 100%; height: auto; background: var(--tint); }  /* the photo's own shape: never cropped or enlarged by the page */
-.dn figcaption { margin-top: 12px; font-size: 0.9375rem; color: var(--muted); }
-.dn-a { grid-column: 1 / 11; }
-.dn-b { grid-column: 5 / -1; margin-top: calc(-1 * var(--s3)); }
+/* ---------- photos that drift inside their frame (parallax by moving, never by enlarging) ---------- */
+.px { position: relative; width: min(100%, var(--px-w, 540px)); aspect-ratio: var(--px-r, 0.8); overflow: hidden; background: var(--tint); }
+.px img { position: absolute; left: 0; top: 0; width: 100%; height: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .px img { animation: drift linear both; animation-timeline: view(); animation-range: cover; }
+    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-9.0909%); } }
+  }
+}
 
-/* this season */
-.season { display: none; margin-top: clamp(88px, 18vw, 200px); background: var(--tint); padding: clamp(56px, 10vw, 120px) 0; }
+/* ---------- III. The sweet finale ---------- */
+.fin { display: grid; gap: 40px; }
+.fin-photo { margin: 0; justify-self: center; width: min(100%, 407px); }
+.fin-photo .px { width: 100%; }
+.fin-text { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+@media (min-width: 900px) {
+  .fin { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: clamp(48px, 7vw, 120px); align-items: end; }
+  .fin .mark { grid-column: 1 / -1; }
+  .fin-photo { grid-column: 2; grid-row: 2; justify-self: start; }
+  .fin-text { grid-column: 1; grid-row: 2; padding-bottom: 12vh; justify-self: end; max-width: 520px; width: 100%; }
+}
+
+/* ---------- IV. This season: the season's own palette, lit like a page in the room ---------- */
+.season { display: none; }
 .season-pane { display: none; }
-.season-pane .wrap { display: grid; gap: var(--s5); }
-.sp-body:only-child { grid-column: 1 / -1; }
-.sp-photo { order: 2; }
-.sp-photo img { width: 100%; height: auto; }
-.sp-body { display: flex; flex-direction: column; gap: var(--s3); align-items: flex-start; }
-.sp-sub { color: var(--ink); font-size: 1.0625rem; margin-top: -8px; }
+.sn {
+  display: grid; gap: 40px; background: var(--tint); color: var(--ink);
+  padding-top: clamp(56px, 12vw, 120px); padding-bottom: clamp(64px, 12vw, 128px);
+  --h-acc: var(--ink); --h-hair: color-mix(in srgb, var(--ink) 30%, var(--tint)); --h-fg: var(--ink);
+}
+.sn :focus-visible { outline-color: var(--ink); }
+.sn-photo { justify-self: center; width: min(100%, 540px); }
+.sn-photo .px { width: 100%; }
+.sn-body { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
 .sp-line { font-family: var(--font-display); font-style: italic; font-size: 1.25rem; }
-.sp-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); width: 100%; }
-.sp-list .n { display: block; font-family: var(--font-display); font-size: clamp(1.5rem, 4.4vw, 2rem); line-height: 1.15; }
-.sp-list .d { display: block; margin-top: 4px; font-size: 0.9375rem; color: var(--ink); max-width: 44ch; }
+.sp-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 22px; width: 100%; }
+.sp-list .n { display: block; font-family: var(--font-display); font-size: clamp(1.5rem, 5.4vw, 2.125rem); line-height: 1.15; }
+.sp-list .d { display: block; margin-top: 6px; font-size: 0.9375rem; max-width: 40ch; }
+@media (min-width: 900px) {
+  .sn { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: clamp(48px, 7vw, 120px); align-items: center; padding-left: clamp(40px, 5vw, 72px); padding-right: clamp(40px, 5vw, 72px); }
+  .sn .mark { grid-column: 1 / -1; }
+  .sn-photo { grid-column: 2; grid-row: 2; }
+  .sn-body { grid-column: 1; grid-row: 2; }
+}
+@media (min-width: 1240px) { .sn { max-width: 1200px; } }
 
-/* experience */
-.exp { padding-top: clamp(88px, 18vw, 200px); }
-.exp-grid { display: grid; gap: var(--s2); margin-top: var(--s5); }
-.xp { background: var(--tint); padding: var(--s4) var(--s3); display: flex; flex-direction: column; gap: var(--s2); align-items: flex-start; border-radius: var(--r); }
-.xp:nth-child(2) { background: var(--tint2); }
-.xp h3 { font-family: var(--font-display); font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.1; }
-.xp p { max-width: 36ch; }
-.xp .link { margin-top: auto; }
+/* ---------- V. The atelier ---------- */
+.at-list { list-style: none; margin: clamp(32px, 6vw, 56px) 0 0; padding: 0; }
+.at { display: grid; gap: 10px; padding: 32px 0; align-items: start; justify-items: start; }
+.at + .at { border-top: 1px solid var(--h-hair); }
+.at h3 { font-family: var(--font-display); font-style: italic; font-size: clamp(2rem, 8vw, 3.5rem); line-height: 1.08; }
+.at p { color: var(--h-muted); max-width: 38ch; }
+@media (min-width: 900px) {
+  .at { grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) auto; column-gap: clamp(32px, 4vw, 64px); align-items: baseline; padding: 40px 0; }
+}
 
-/* visit: the invitation. A season photo, never wider than half its own pixels, with a cream card resting on
-   its lower edge: a fine inner border in the season accent and the logo disc set into the top like a wax seal. */
-.visit { padding-top: clamp(88px, 18vw, 200px); padding-bottom: clamp(88px, 18vw, 200px); display: grid; gap: var(--s5); }
-.v-place { font-family: var(--font-display); font-size: clamp(1.5rem, 4.6vw, 2.25rem); line-height: 1.2; margin-top: var(--s3); }
-.v-about { margin-top: var(--s2); max-width: 44ch; color: var(--muted); }
-.invite { display: flex; flex-direction: column; align-items: center; }
-.invite-photo { width: min(100%, var(--photo-w, 296px)); height: auto; border-radius: var(--r); background: var(--tint); }
+/* ---------- VI. The invitation ----------
+   A cream card in the season's paper: a fine inner border in the accent and the logo disc set into the top like a wax seal. */
+.chap.invitation { padding-bottom: clamp(112px, 22vw, 220px); }
+.invite { display: flex; justify-content: center; margin-top: clamp(72px, 12vw, 112px); }
 .invite-card {
-  position: relative; width: min(100%, 360px); margin-top: -56px;
-  background: var(--paper); color: var(--ink); padding: 44px 26px 14px; text-align: center;
+  position: relative; width: min(100%, 380px);
+  background: var(--paper); color: var(--ink); padding: 48px 28px 16px; text-align: center;
   border: 1px solid var(--hair-paper); border-radius: var(--r);
-  box-shadow: 0 18px 40px -22px rgba(var(--scrim), 0.55);
+  box-shadow: 0 24px 50px -26px rgba(0, 0, 0, 0.55);
   transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
 }
+.invite-card :focus-visible { outline-color: var(--ink); }
 .invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
 .invite-seal { position: absolute; top: -28px; left: 50%; width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; box-shadow: 0 0 0 4px var(--paper); }
 .invite-place { font-family: var(--font-display); font-variant: small-caps; letter-spacing: 0.08em; font-size: 1.0625rem; margin-bottom: 8px; }
@@ -283,18 +412,14 @@ h2.big { font-family: var(--font-display); font-size: clamp(2.4rem, 7.2vw, 4.25r
 .invite-acts a:active svg { transform: translateX(3px); }
 .invite-card:active { transform: translateY(-2px); }
 @media (hover: hover) and (pointer: fine) {
-  .invite-card:hover { transform: translateY(-3px); box-shadow: 0 24px 44px -22px rgba(var(--scrim), 0.6); }
+  .invite-card:hover { transform: translateY(-3px); box-shadow: 0 30px 56px -26px rgba(0, 0, 0, 0.6); }
   .invite-acts a:hover svg { transform: translateX(4px); }
   .invite-acts a:hover span { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
 }
-@media (min-width: 900px) {
-  .visit { grid-template-columns: 1fr auto; align-items: center; column-gap: var(--s6); }
-  .invite { align-items: flex-start; }
-  .invite-card { width: 340px; margin: -110px 0 0 140px; }
-}
 
-/* footer */
-.foot { background: var(--ink); color: var(--paper); padding: var(--s6) 0 var(--s5); }
+/* ---------- footer ---------- */
+.foot { background: var(--h-foot); color: var(--paper); padding: var(--s6) 0 var(--s5); }
+.foot :focus-visible { outline-color: var(--paper); }
 .foot-in { display: grid; gap: var(--s5); }
 .foot-logo { width: 56px; height: 56px; }
 .foot-cols { display: grid; gap: var(--s4); }
@@ -303,32 +428,29 @@ h2.big { font-family: var(--font-display); font-size: clamp(2.4rem, 7.2vw, 4.25r
 .foot-col a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
 .foot-col a:hover, .foot-col a:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
 .credit { font-size: 0.9375rem; }
-
 @media (min-width: 900px) {
-  .dinner { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--s5) var(--s4); }
-  .dinner-head { grid-column: 1 / 5; grid-row: 1; }
-  .dn-a { grid-column: 2 / 8; grid-row: 2; }
-  .dn-b { grid-column: 8 / 12; grid-row: 2; margin-top: clamp(56px, 9vw, 130px); }
-  .season-pane .wrap { grid-template-columns: 5fr 6fr; gap: var(--s6); align-items: center; }
-  .sp-photo { order: 0; }
-  .exp-grid { grid-template-columns: 1.35fr 1fr; grid-template-rows: auto auto; gap: var(--s3); }
-  .xp:nth-child(1) { grid-row: 1 / 3; min-height: 380px; padding: var(--s5) var(--s4); }
-  .xp { padding: var(--s4); }
   .foot-in { grid-template-columns: auto 1fr; align-items: start; }
   .foot-cols { grid-template-columns: repeat(2, minmax(0, 220px)); }
   .credit { grid-column: 1 / -1; }
 }
-@media (min-width: 900px) {
-  .hero-logo { width: 132px; height: 132px; }
+
+/* ---------- reveals: slow, opacity and transform only ---------- */
+.js .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.9s var(--slow), transform 0.9s var(--slow); }
+.js .rv.in { opacity: 1; transform: none; }
+
+/* ---------- the opening veil (first visit): the logo disc on the page colour, a hairline that fills as the photos arrive ---------- */
+.veil { display: none; }
+html.veiled .veil, .veil.out {
+  display: grid; place-items: center; position: fixed; inset: 0; z-index: 60; background: var(--h-bg); cursor: pointer;
 }
-@media (max-height: 700px) and (orientation: portrait) {
-  .hero-logo { width: 88px; height: 88px; }
-}
-@media (max-height: 479px) and (orientation: landscape) {
-  .hero-logo { width: 84px; height: 84px; }
-  .hero-top { gap: 12px; }
-}
+.veil-in { display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.veil img { width: 96px; height: 96px; border-radius: 50%; animation: surface 0.8s var(--slow) both; }
+.veil-line { display: block; width: 120px; height: 1px; background: var(--h-hair); overflow: hidden; }
+.veil-line i { display: block; height: 100%; background: var(--h-acc); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.4s var(--ease); }
+.veil.out { opacity: 0; pointer-events: none; transition: opacity 0.8s var(--slow); }
+
 @media (prefers-reduced-motion: reduce) {
-  .js .rv { opacity: 1; transform: none; transition: none; }
-  .hero-media img, .hero-top, .hero-cta { animation: none; }
+  .js .rv, .js .tb-line p { opacity: 1; transform: none; transition: none; }
+  .hero-media img, .hero-seal, .hero-mark, .hero-line, .place, .hero-cta { animation: none; }
+  .js .tb-fig img { transition: none; }
 }

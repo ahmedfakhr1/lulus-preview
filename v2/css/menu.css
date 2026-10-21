@@ -233,10 +233,12 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 .js .book.ready { opacity: 1; }
 .stage {
   position: relative; width: var(--sw, 300px); height: var(--ph, 500px);
-  perspective: var(--persp, 1800px);
-  touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  /* a sideways drag turns the page; an upright one and a two-finger pinch stay with the browser */
+  touch-action: pan-y pinch-zoom; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
   will-change: transform;
 }
+/* zoomed in: every drag pans the page, none turns it */
+.stage.zoomed { touch-action: auto; }
 .slot { position: absolute; top: 0; width: var(--pw); height: var(--ph); }
 .slot-l { left: 0; }
 .slot-r { left: var(--pw); }
@@ -245,27 +247,25 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 .slot-pg { position: absolute; inset: 0; }
 .slot.has .slot-pg { box-shadow: var(--pg-shadow); }
 
-/* shadow thrown by the turning leaf onto the page beneath */
-.cast { position: absolute; inset: 0; pointer-events: none; opacity: 0; will-change: opacity, transform; }
-.slot-r .cast { background: linear-gradient(to right, rgba(var(--shade), 0.5), rgba(var(--shade), 0.18) 38%, rgba(var(--shade), 0) 78%); transform-origin: 0 50%; }
-.slot-l .cast { background: linear-gradient(to left, rgba(var(--shade), 0.5), rgba(var(--shade), 0.18) 38%, rgba(var(--shade), 0) 78%); transform-origin: 100% 50%; }
-
-.leaf {
-  position: absolute; top: 0; left: var(--pw); width: var(--pw); height: var(--ph);
-  transform-origin: 0 50%; transform-style: preserve-3d; display: none; will-change: transform;
-}
-.single .leaf { left: 0; }
-.leaf.on { display: block; }
-.face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.face-b { transform: rotateY(180deg); }
-.single .face-b { display: none; }
-/* the leaf darkens as it turns edge-on, and a soft band of light travels across it as it curves */
-.sh { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; will-change: opacity; background: linear-gradient(to right, rgba(var(--shade), 0.55), rgba(var(--shade), 0) 85%); }
-.face-b .sh { background: linear-gradient(to left, rgba(var(--shade), 0.55), rgba(var(--shade), 0) 85%); }
-.cv {
-  position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; will-change: transform, opacity;
-  background: linear-gradient(90deg, rgba(var(--shade), 0) 0%, rgba(var(--shade), 0.2) 36%, rgba(var(--sheen), 0.3) 60%, rgba(var(--sheen), 0) 100%);
-}
+/* The turning sheet. Flat layers only (no 3D), clipped to the book: nothing shows outside it at any point. */
+.flip { position: absolute; inset: 0; overflow: hidden; display: none; pointer-events: none; contain: strict; }
+.flip.on { display: block; }
+.flip-o { position: absolute; top: 0; left: var(--pw); width: 0; height: 0; }
+.single .flip-o { left: 0; }
+.bed { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); overflow: hidden; }
+.flip.bwd .bed { left: calc(-1 * var(--pw)); }
+.fold { position: absolute; left: 0; top: 0; width: var(--L, 2000px); height: var(--L, 2000px); overflow: hidden; transform-origin: 0 0; will-change: transform; }
+.face, .drop { position: absolute; left: 0; top: 0; width: var(--pw); height: var(--ph); transform-origin: 0 0; will-change: transform; }
+.face { overflow: hidden; }
+.drop { box-shadow: 0 0 30px 0 rgba(var(--shade), 0.42); opacity: 0; will-change: transform, opacity; }
+.fs, .hl { position: absolute; left: 0; top: 0; width: var(--L, 2000px); height: 100px; transform-origin: 0 0; pointer-events: none; opacity: 0; will-change: transform, opacity; }
+/* the shadow along the fold, on the page it uncovers */
+.fs { background: linear-gradient(to bottom, rgba(var(--shade), 0.46), rgba(var(--shade), 0.16) 34%, rgba(var(--shade), 0)); }
+/* the curve of the lifted paper: a fine dark crease, then light that falls away */
+.hl { z-index: 3; background: linear-gradient(to bottom, rgba(var(--shade), 0.24), rgba(var(--sheen), 0.3) 9%, rgba(var(--sheen), 0.1) 44%, rgba(var(--sheen), 0)); }
+/* one page at a time: the back of the sheet is plain paper */
+.pg-verso::before { content: ''; position: absolute; inset: 0; background: rgba(var(--shade), 0.05); }
+.pg-verso.ink { background: var(--ink); }
 
 /* a single page */
 .pg {
@@ -274,8 +274,8 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
   font-size: var(--fs, 16px); line-height: 1.4; contain: layout paint;
 }
 .pg::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2; }
-.stage:not(.single) .slot-l .pg::after, .stage:not(.single) .face-b .pg::after { background: linear-gradient(to left, rgba(var(--shade), 0.2), rgba(var(--shade), 0) 9%); }
-.stage:not(.single) .slot-r .pg::after, .stage:not(.single) .face-f .pg::after { background: linear-gradient(to right, rgba(var(--shade), 0.2), rgba(var(--shade), 0) 9%); }
+.stage:not(.single) .slot-l .pg::after, .stage:not(.single) .face.lp .pg::after { background: linear-gradient(to left, rgba(var(--shade), 0.2), rgba(var(--shade), 0) 9%); }
+.stage:not(.single) .slot-r .pg::after, .stage:not(.single) .face.rp .pg::after { background: linear-gradient(to right, rgba(var(--shade), 0.2), rgba(var(--shade), 0) 9%); }
 .pg-in { position: absolute; inset: 0; padding: 2.7em 2.1em 3.5em; display: flex; flex-direction: column; }
 .blocks { display: block; }
 .pg-no { position: absolute; left: 0; right: 0; bottom: 1.25em; text-align: center; font-size: 0.8em; letter-spacing: 0.14em; color: var(--pg-muted); font-variant-numeric: tabular-nums; }
@@ -371,9 +371,12 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 .nb[disabled] { opacity: 0.28; cursor: default; }
 @media (hover: hover) and (pointer: fine) { .nb:not([disabled]):hover { background: color-mix(in srgb, var(--c-fg) 14%, transparent); } }
 .bn-mid { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; }
-.bn-toc { min-height: 44px; padding: 0 14px; background: none; border: 0; color: var(--c-fg); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; }
-.bn-toc svg { display: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
-.bn-toc[disabled] { opacity: 0.4; cursor: default; }
+.bn-toc { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; background: none; border: 0; border-radius: 50%; color: var(--c-fg); transition: transform 0.16s var(--ease); }
+.bn-toc svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; }
+.bn-toc circle { fill: currentColor; stroke: none; }
+.bn-toc:active { transform: scale(0.94); }
+.bn-toc[disabled] { opacity: 0.36; cursor: default; }
+@media (hover: hover) and (pointer: fine) { .bn-toc:not([disabled]):hover { background: color-mix(in srgb, var(--c-fg) 12%, transparent); } }
 .bn-count { font-size: 0.875rem; font-variant-numeric: tabular-nums; color: var(--c-fg); white-space: nowrap; }
 
 /* no-script fallback list */
@@ -406,9 +409,6 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
   .pill button { min-width: 0; width: 44px; padding: 0; }
   .pill button span { display: none; }
   .nb { width: 44px; height: 44px; }
-  .bn-toc { width: 44px; padding: 0; display: grid; place-items: center; }
-  .bn-toc span { display: none; }
-  .bn-toc svg { display: block; }
   .bn-count { display: none; }
 
   /* tighter pages */

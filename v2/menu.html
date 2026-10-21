@@ -20,7 +20,7 @@
    the page and the browser picks by today's date in Africa/Cairo.
    ?season=<id> previews any season (a short form such as ?season=winter also works). */
 (function () {
-  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-table.webp","heroAlt":"A dinner table with truffle pasta, pasta in tomato sauce and a bread basket","heroW":1080,"heroH":1100},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-table.webp","heroAlt":"A dinner table with truffle pasta, pasta in tomato sauce and a bread basket","heroW":1080,"heroH":1100},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"hero-table.webp","heroAlt":"A dinner table with truffle pasta, pasta in tomato sauce and a bread basket","heroW":1080,"heroH":1100}]};
+  var DATA = {"def":{"id":"default","name":"","colours":{"bg":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-terrace.webp","heroAlt":"The LÜLU’S terrace at night, lit under the canopy","heroW":1080,"heroH":695},"seasons":[{"id":"fall-2026","name":"Fall 2026","start":"2026-09-15","end":"2026-11-30","colours":{"bg":"#eeedeb","paper":"#fdf2d5","ink":"#583f22","accent":"#d29a50","accent2":"#d1852f"},"heroImage":"hero-terrace.webp","heroAlt":"The LÜLU’S terrace at night, lit under the canopy","heroW":1080,"heroH":695},{"id":"winter-2026","name":"Winter 2026","start":"2026-12-01","end":"2027-02-07","colours":{"bg":"#edf1f4","paper":"#f8fafb","ink":"#1d3146","accent":"#9db8cc","accent2":"#5f87a6"},"heroImage":"hero-terrace.webp","heroAlt":"The LÜLU’S terrace at night, lit under the canopy","heroW":1080,"heroH":695}]};
   var doc = document.documentElement;
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -95,6 +95,11 @@
     '--page-night': hex(pageNight),
     '--muted-night': hex(mix(paper, pageNight, 0.78)),
     '--hair-night': hex(mix(paper, pageNight, 0.24)),
+    /* the home page by evening: night surroundings, paper text */
+    '--muted-desk': hex(mix(paper, deskNight, 0.66)),
+    '--hair-desk': hex(mix(paper, deskNight, 0.2)),
+    /* the chapter numerals by day: the accent, deepened with ink so it reads on the light page */
+    '--acc-day': hex(mix(acc, ink, 0.36)),
     '--scrim': Math.round(scrim[0]) + ',' + Math.round(scrim[1]) + ',' + Math.round(scrim[2])
   };
   for (var key in vars) doc.style.setProperty(key, vars[key]);
@@ -116,7 +121,7 @@
   doc.setAttribute('data-mood', service);
 
   var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', /^menu/.test(location.pathname.split('/').pop() || '') ? (service === 'morning' ? hex(deskDay) : hex(deskNight)) : c.bg);
+  if (meta) meta.setAttribute('content', /^menu/.test(location.pathname.split('/').pop() || '') ? (service === 'morning' ? hex(deskDay) : hex(deskNight)) : (service === 'morning' ? c.bg : hex(deskNight)));
 
   /* The hero photo: one portrait photo per season, shown at most as wide as its own pixels allow
      (see .hero-media in home.css). heroW / heroH come from the file itself at build time. */
@@ -144,7 +149,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/menu.css?v=1a2723f2">
+<link rel="stylesheet" href="css/menu.css?v=67dc8d38">
 </head>
 <body class="menu" data-wa="201210514222" data-logo="img/logo.png" data-footnote="Prices in EGP, subject to 14% VAT and 12% service charge. Served in-house, for dine-in.">
 <a class="skip" href="#book">Skip to the menu</a>
@@ -346,7 +351,7 @@
   </div></div>
   <button class="nb" id="prev" type="button" aria-label="Previous page" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
   <div class="bn-mid">
-    <button class="bn-toc" id="toc" type="button" aria-label="Contents"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14M5 12h14M5 17h14"/></svg><span>Contents</span></button>
+    <button class="bn-toc" id="toc" type="button" aria-label="Contents" title="Contents"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.6" cy="6.5" r="0.9"/><circle cx="4.6" cy="12" r="0.9"/><circle cx="4.6" cy="17.5" r="0.9"/></svg></button>
     <span class="bn-count" id="count"></span>
   </div>
   <button class="nb" id="next" type="button" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
@@ -390,7 +395,7 @@
   </form>
 </dialog>
 
-<script src="js/app.js?v=0ca0811c" defer></script>
-<script src="js/book.js?v=ee4d587b" defer></script>
+<script src="js/app.js?v=e75845e3" defer></script>
+<script src="js/book.js?v=1f39a07c" defer></script>
 </body>
 </html>
