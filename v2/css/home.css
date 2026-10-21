@@ -189,7 +189,7 @@ html {
   --h-hair: var(--hair-desk);
   --h-acc: var(--accent);
   --h-foot: var(--page-night);
-  --grain: 0.045;
+  --grain: 0.036;
   --slow: cubic-bezier(0.22, 0.61, 0.24, 1);
 }
 html[data-mood='morning'] {
@@ -200,7 +200,7 @@ html[data-mood='morning'] {
   --h-hair: var(--hair);
   --h-acc: var(--acc-day);
   --h-foot: var(--ink);
-  --grain: 0.035;
+  --grain: 0.028;
 }
 body.home { background: var(--h-bg); color: var(--h-fg); }
 .home :focus-visible { outline-color: var(--h-fg); }
