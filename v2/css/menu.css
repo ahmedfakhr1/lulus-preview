@@ -462,3 +462,10 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 .slot-pg, .bed, .face { overflow: hidden; }
 .slot-r .slot-pg, .face, .bed, .drop { border-radius: 0 var(--pg-r) var(--pg-r) 0; }
 .slot-l .slot-pg, .flip.bwd .bed { border-radius: var(--pg-r) 0 0 var(--pg-r); }
+
+/* paper grain on every page, the cover included: the same fine noise as the home page, laid over the
+   paper colour so it lightens and darkens it a touch, under the text */
+.pg::before, .pg-verso::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: url(../img/grain.png) 0 0 / 96px 96px repeat; mix-blend-mode: soft-light; opacity: var(--pg-grain, 0.14); }
+html[data-mood='morning'] { --pg-grain: 0.4; }
+.pg-in, .cover-in, .back-in, .end-in { z-index: 1; }

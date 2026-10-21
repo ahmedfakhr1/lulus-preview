@@ -292,6 +292,7 @@
     if (p.kind === 'cover') {
       el.setAttribute('aria-label', 'Cover');
       el.innerHTML = '<div class="cover-in">' + logoImg('cover-logo', 150) +
+        '<p class="cover-t">Menu</p>' +
         '<button class="cover-tap" type="button" data-act="next" aria-label="Open the menu"></button></div>';
     } else if (p.kind === 'back') {
       el.setAttribute('aria-label', 'Back cover');
