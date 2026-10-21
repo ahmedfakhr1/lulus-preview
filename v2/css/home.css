@@ -380,6 +380,11 @@ html[data-mood="morning"] .flora::before { opacity: 0.4; }
 .at .link { border-bottom: 0; }
 /* the line under each name, with its small drawing set in the middle like a seal */
 .at-rule { display: flex; align-items: center; gap: 12px; width: min(240px, 70vw); margin-top: 6px; }
+/* the nail studio's drawing: two hands with almond nails, drawn larger, the fingers filled with the page colour so they overlap cleanly */
+.at-ic-art { width: 46px; height: 56px; }
+.at-ic-art .sk { fill: var(--h-bg); stroke: var(--accent); stroke-width: 1.1px; vector-effect: non-scaling-stroke; }
+.at-ic-art .fl { fill: var(--h-bg); stroke: none; }
+.at-ic-art .nl { fill: var(--accent); stroke: none; }
 .at-rule::before, .at-rule::after { content: ''; flex: 1; height: 1px; background: var(--h-hair); }
 .at-ic { flex: none; width: 28px; height: 28px; fill: none; stroke: var(--accent); color: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 @media (min-width: 900px) {
