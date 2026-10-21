@@ -444,3 +444,12 @@ html.veiled .veil, .veil.out {
 .ph-img::after { content: 'Photo'; font-family: var(--font-body, inherit); font-style: normal; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.45; }
 .at-app { margin-top: 40px; text-align: center; }
 .at-app .link { color: var(--h-muted); }
+
+/* ---------- about: a short note, like a card left on the table ---------- */
+.story { padding: clamp(72px, 16vw, 140px) var(--gutter) 0; text-align: center; }
+.story .wrap { max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+.story-eye { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--h-muted); }
+.story-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.15; margin-top: 14px; }
+.story-tx { margin-top: 18px; font-size: 1.0625rem; line-height: 1.7; font-weight: 300; }
+.story-cta { margin-top: 20px; }
+.hero-media:has(.ph-img), .fr-in:has(.ph-img), .px:has(.ph-img) { background: none; }
