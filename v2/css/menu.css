@@ -221,9 +221,14 @@ html:not(.js) .bnav, html:not(.js) .stage { display: none; }
 /* the switch between Morning and Evening: the new look grows from the button as a circle */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 ::view-transition-old(root) { z-index: 1; }
-::view-transition-new(root) { z-index: 2; }
+::view-transition-new(root) {
+  z-index: 2;
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%); mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-size: 0 0; mask-size: 0 0;
+}
+::view-transition-group(root) { animation-duration: 1.6s; }
 html.vt *, html.vt *::before, html.vt *::after { transition: none !important; }
-html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
+html.vt .pill .thumb { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15, 1) !important; }
 
 /* top bar */
 .mbar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 10px var(--gutter); }
@@ -352,7 +357,7 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 /* Morning | Evening: a pill with a thumb that slides to the one chosen */
 .svc { order: 1; display: flex; justify-content: center; }
 .pill { position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid color-mix(in srgb, var(--c-fg) 55%, transparent); border-radius: var(--r); }
-.pill .thumb { position: absolute; top: 0; bottom: 0; left: 0; width: 50%; background: var(--c-fg); border-radius: var(--r); transition: transform 0.55s var(--ease); pointer-events: none; }
+.pill .thumb { position: absolute; top: 0; bottom: 0; left: 0; width: 50%; background: var(--c-fg); border-radius: var(--r); transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15, 1); pointer-events: none; }
 html[data-mood='evening'] .pill .thumb { transform: translateX(100%); }
 .pill button {
   position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 8px;

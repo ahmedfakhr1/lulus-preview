@@ -778,9 +778,9 @@
     afterChange();
   }
 
-  /* The switch: the new look spreads out in a circle from the button that was pressed (a view
-     transition, as on the first version of the site). Without view transitions the page cross-fades;
-     with reduced motion it simply changes. */
+  /* The switch: the new look spreads out from the button that was pressed like light filling a room,
+     a wide soft-edged circle rather than a hard line (a view transition with a feathered mask).
+     Without view transitions the page cross-fades slowly; with reduced motion it simply changes. */
   function setService(svc, origin) {
     if (svc === S.service || switching) return;
     if (!ready || reduced()) { applyService(svc); return; }
@@ -795,21 +795,29 @@
       var tr;
       try { tr = document.startViewTransition(function () { applyService(svc); }); } catch (err) { done(); applyService(svc); return; }
       tr.ready.then(function () {
+        /* the mask is a radial fade (solid to 55%, clear at the edge); it grows from the button
+           to well past the farthest corner, so the soft rim has fully passed when it ends */
+        var big = end * 2 / 0.55 + 40;
+        var ease = 'cubic-bezier(0.6, 0, 0.25, 1)';
         doc.animate(
-          { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
-          { duration: 1000, easing: 'cubic-bezier(0.65, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+          { maskSize: ['0px 0px', big + 'px ' + big + 'px'],
+            maskPosition: [x + 'px ' + y + 'px', (x - big / 2) + 'px ' + (y - big / 2) + 'px'],
+            webkitMaskSize: ['0px 0px', big + 'px ' + big + 'px'],
+            webkitMaskPosition: [x + 'px ' + y + 'px', (x - big / 2) + 'px ' + (y - big / 2) + 'px'] },
+          { duration: 1600, easing: ease, fill: 'both', pseudoElement: '::view-transition-new(root)' }
         );
+        doc.animate({ opacity: [0.35, 1] }, { duration: 900, easing: 'ease-out', fill: 'both', pseudoElement: '::view-transition-new(root)' });
       }).catch(function () {});
       tr.finished.then(done, done);
       return;
     }
     if (!stage.animate) { applyService(svc); return; }
     switching = true;
-    var out = stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' });
+    var out = stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: 'ease-in', fill: 'forwards' });
     out.onfinish = function () {
       applyService(svc);
       out.cancel();
-      var back = stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
+      var back = stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 640, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
       back.onfinish = back.oncancel = function () { switching = false; };
     };
   }
