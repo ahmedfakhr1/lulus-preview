@@ -469,3 +469,5 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
   background: url(../img/grain.png) 0 0 / 96px 96px repeat; mix-blend-mode: soft-light; opacity: var(--pg-grain, 0.14); }
 html[data-mood='morning'] { --pg-grain: 0.4; }
 .pg-in, .cover-in, .back-in, .end-in { z-index: 1; }
+/* the covers are walnut in both moods, so they keep the light grain */
+.pg-cover::before, .pg-back::before { opacity: 0.12; }
