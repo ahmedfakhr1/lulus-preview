@@ -287,7 +287,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 
 /* ---------- her flowers behind the photos: a tiled top-view flower in three shades of the season colour ---------- */
 .flora { position: relative; isolation: isolate; padding-bottom: clamp(72px, 14vw, 140px); }
-.flora::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--flora) 0 0 / 170px 170px repeat; opacity: var(--flora-o, 0.3); pointer-events: none;
+.flora::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--flora) 0 0 / 360px 360px repeat; opacity: var(--flora-o, 0.3); pointer-events: none;
   -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
 html[data-mood="morning"] .flora::before { opacity: 0.4; }
 

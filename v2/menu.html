@@ -104,15 +104,18 @@
   };
   /* a flower seen from above, in three shades of the season colour, tiled behind the photos; it changes with the season */
   var fl1 = hex(mix(acc, paper, 0.5)), fl2 = c.accent, fl3 = hex(mix(acc2, ink, 0.25));
-  function flower(x, y, r) {
-    var g = '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(0.5)">', i;
+  function flower(x, y, r, k) {
+    var g = '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(' + k + ')">', i;
     for (i = 0; i < 5; i++) g += '<path d="M0 -4C-26 -20 -22 -50 -6 -46C-2 -45 0 -40 0 -38C0 -40 2 -45 6 -46C22 -50 26 -20 0 -4Z" fill="' + fl1 + '" transform="rotate(' + (i * 72) + ')"/>';
     for (i = 0; i < 5; i++) g += '<path d="M0 -2C-12 -10 -10 -26 0 -24C10 -26 12 -10 0 -2Z" fill="' + fl2 + '" transform="rotate(' + (i * 72) + ')"/>';
     for (i = 0; i < 5; i++) g += '<circle cx="0" cy="-11" r="1.8" fill="' + fl3 + '" transform="rotate(' + (i * 72 + 36) + ')"/>';
     return g + '<circle r="6" fill="' + fl3 + '"/></g>';
   }
-  var tile = '<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170" viewBox="0 0 170 170">' +
-    flower(42, 42, 0) + flower(127, 127, 22) + '</svg>';
+  /* scattered, not gridded: uneven spots, turns and sizes inside a 360 px tile, kept clear of its edges so it repeats without seams */
+  var spots = [[52, 60, 8, 0.5], [196, 38, 47, 0.38], [300, 120, 20, 0.56], [128, 168, 63, 0.44], [40, 262, 34, 0.4], [232, 250, 12, 0.5], [318, 318, 55, 0.34], [150, 318, 28, 0.36]];
+  var tile = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">';
+  for (var f = 0; f < spots.length; f++) tile += flower(spots[f][0], spots[f][1], spots[f][2], spots[f][3]);
+  tile += '</svg>';
   vars['--flora'] = 'url("data:image/svg+xml,' + encodeURIComponent(tile) + '")';
   for (var key in vars) doc.style.setProperty(key, vars[key]);
   doc.setAttribute('data-season', season.id);
