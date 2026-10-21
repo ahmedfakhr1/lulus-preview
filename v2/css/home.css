@@ -185,7 +185,7 @@ html {
   --h-hair: var(--hair-desk);
   --h-acc: var(--accent);
   --h-foot: var(--page-night);
-  --grain: 0.055;
+  --grain: 0.028;
   --flora-o: 0.26;
   --slow: cubic-bezier(0.22, 0.61, 0.24, 1);
 }
@@ -197,14 +197,15 @@ html[data-mood='morning'] {
   --h-hair: var(--hair);
   --h-acc: var(--acc-day);
   --h-foot: var(--ink);
-  --grain: 0.04;
+  --grain: 0.02;
 }
 body.home { background: var(--h-bg); color: var(--h-fg); }
 .home :focus-visible { outline-color: var(--h-fg); }
 
-/* a very fine paper grain over everything, drawn once and never repainted on scroll */
+/* a very fine paper grain on the ground only, behind the photos and the cards, drawn once and never repainted on scroll */
+body.home { isolation: isolate; }
 body.home::after {
-  content: ''; position: fixed; inset: 0; z-index: 30; pointer-events: none;
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: url(../img/grain.png) 0 0 / 128px 128px repeat; opacity: var(--grain);
 }
 
