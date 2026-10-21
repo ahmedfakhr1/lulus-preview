@@ -57,37 +57,15 @@
   if (rv.length) {
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+        es.forEach(function (e) {
+          // a frame with two photos keeps being watched: its slow cross-fade runs only while it is on screen
+          if (e.target.classList.contains('duo')) { e.target.classList.toggle('live', e.isIntersecting); if (e.isIntersecting) e.target.classList.add('in'); return; }
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
       }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
       rv.forEach(function (el) { io.observe(el); });
     } else {
       rv.forEach(function (el) { el.classList.add('in'); });
-    }
-  }
-
-  /* ---- II. The table: the line passing the middle of the screen brings its photo in ---- */
-  var tbLines = Array.prototype.slice.call(document.querySelectorAll('.tb-line'));
-  var tbFrames = Array.prototype.slice.call(document.querySelectorAll('.tb-fig img'));
-  if (tbLines.length) {
-    var show = function (i) {
-      tbFrames.forEach(function (f, k) { f.classList.toggle('on', k === i); });
-      tbLines.forEach(function (l, k) { l.classList.toggle('on', k === i); });
-    };
-    show(0);
-    if ('IntersectionObserver' in window) {
-      /* the line whose top has passed a mark across the screen (lower on a phone, where the photo sits above
-         the lines) is the current one; scrolling back up brings the earlier photos back */
-      var wide = window.matchMedia && window.matchMedia('(min-width: 900px)').matches;
-      var mark = wide ? 0.56 : 0.72;
-      var pick = function () {
-        var cur = 0, lim = window.innerHeight * mark;
-        tbLines.forEach(function (l, k) { if (l.firstElementChild.getBoundingClientRect().top < lim) cur = k; });
-        show(cur);
-      };
-      var tio = new IntersectionObserver(pick, { rootMargin: '0px 0px -' + Math.round((1 - mark) * 100) + '% 0px' });
-      tbLines.forEach(function (l) { tio.observe(l.firstElementChild); });
-    } else {
-      tbLines.forEach(function (l) { l.classList.add('on'); });
     }
   }
 
