@@ -117,7 +117,7 @@
      so pagination never waits for the file */
   function photoHTML(sec) {
     var p = sec.photo;
-    return p ? '<figure class="sec-photo"><img src="img/' + esc(p.src) + '" alt="' + esc(p.alt || '') + '" decoding="async"></figure>' : '';
+    return p ? '<figure class="sec-photo"><i class="ph-img" role="img" aria-label="Photo to come"></i></figure>' : '';
   }
   function headHTML(sec) {
     return '<div class="sec-head">' + photoHTML(sec) + '<h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
@@ -126,7 +126,7 @@
   /* a page that carries on a section shows only the section's name, small, above the items */
   function runHTML(title) { return '<div class="run">' + esc(title) + '</div>'; }
 
-  DATA.sections.forEach(function (sec) { if (sec.photo) { var im = new Image(); im.decoding = 'async'; im.src = 'img/' + sec.photo.src; } });
+  // section photos are plain plates for now, nothing to preload
 
   /* ------------------------------------------------------------ layout */
   function layout() {

@@ -438,3 +438,9 @@ html.veiled .veil, .veil.out {
   .hero-media img, .hero-seal, .place, .hero-cta { animation: none; }
   .js .duo .fr-b { animation: none; opacity: 0; }
 }
+
+/* photo plate: Malak turned down the guest photos, so each photo slot holds a quiet tinted plate until hers arrive */
+.ph-img { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, currentColor 7%, transparent); }
+.ph-img::after { content: 'Photo'; font-family: var(--font-body, inherit); font-style: normal; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.45; }
+.at-app { margin-top: 40px; text-align: center; }
+.at-app .link { color: var(--h-muted); }

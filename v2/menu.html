@@ -145,6 +145,7 @@
      (see .hero-media in home.css). heroW / heroH come from the file itself at build time. */
   function heroHTML() {
     var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
+    return '<i class="ph-img" role="img" aria-label="Photo to come"></i>';
     var dims = season.heroW && season.heroH ? ' width="' + season.heroW + '" height="' + season.heroH + '"' : '';
     var focus = season.heroFocus ? ' style="object-position:' + season.heroFocus.replace(/"/g, '') + '"' : '';
     var img = '<img src="img/' + season.heroImage + '" alt="' + alt + '"' + dims + focus + ' fetchpriority="high" decoding="async">';
@@ -169,7 +170,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/menu.css?v=27804c10">
+<link rel="stylesheet" href="css/menu.css?v=ea2ec7b3">
 </head>
 <body class="menu" data-wa="201210514222" data-logo="img/logo.png" data-footnote="Prices in EGP, subject to 14% VAT and 12% service charge. Served in-house, for dine-in.">
 <a class="skip" href="#book">Skip to the menu</a>
@@ -416,6 +417,6 @@
 </dialog>
 
 <script src="js/app.js?v=3906f536" defer></script>
-<script src="js/book.js?v=ed2fabf6" defer></script>
+<script src="js/book.js?v=71684151" defer></script>
 </body>
 </html>

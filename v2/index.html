@@ -145,6 +145,7 @@
      (see .hero-media in home.css). heroW / heroH come from the file itself at build time. */
   function heroHTML() {
     var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
+    return '<i class="ph-img" role="img" aria-label="Photo to come"></i>';
     var dims = season.heroW && season.heroH ? ' width="' + season.heroW + '" height="' + season.heroH + '"' : '';
     var focus = season.heroFocus ? ' style="object-position:' + season.heroFocus.replace(/"/g, '') + '"' : '';
     var img = '<img src="img/' + season.heroImage + '" alt="' + alt + '"' + dims + focus + ' fetchpriority="high" decoding="async">';
@@ -171,7 +172,7 @@
 </script>
 <script>try{if(!localStorage.getItem('lulus-veil')){var d=document.documentElement;d.classList.add('veiled');setTimeout(function(){if(!d.classList.contains('veiled'))return;try{localStorage.setItem('lulus-veil','1')}catch(e){}var v=document.getElementById('veil');if(v){v.classList.add('out');setTimeout(function(){v.classList.remove('out')},900)}d.classList.remove('veiled')},Math.max(0,2400-(performance.now?performance.now():0)))}}catch(e){}</script>
 <style>html[data-season="fall-2026"] .season{display:block}html[data-season="fall-2026"] .season-pane[data-for="fall-2026"]{display:block}</style>
-<link rel="stylesheet" href="css/home.css?v=3fecbffd">
+<link rel="stylesheet" href="css/home.css?v=39fc9031">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"LÜLU’S","image":"img/og.jpg","telephone":"+201210514222","address":{"@type":"PostalAddress","streetAddress":"EDNC by SODIC","addressLocality":"New Cairo","addressCountry":"EG"},"hasMenu":"menu.html","sameAs":["https://www.instagram.com/lulusinmotion/","https://www.tiktok.com/@lulusinmotion"]}</script>
 </head>
 <body class="home" data-wa="201210514222" data-appstore="https://apps.apple.com/app/id6757676939" data-play="https://play.google.com/store/apps/details?id=com.seamlabs.lulus">
@@ -190,7 +191,7 @@
   <section class="hero" id="top" aria-label="LÜLU’S">
     <div class="hero-media" id="hero-media"></div>
     <script>LULUS.heroInto(document.getElementById('hero-media'));</script>
-    <noscript><div class="hero-media" style="--hero-r:1.2878"><img src="img/hero-night.webp" width="1620" height="1258" alt="The LÜLU’S terrace at night, its sign lit above the glowing planters"></div></noscript>
+    <noscript><div class="hero-media" style="--hero-r:1.2878"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></noscript>
     <div class="hero-body">
       <h1 class="hero-seal"><img class="hero-logo" src="img/logo.png" width="112" height="112" alt="LÜLU’S"></h1>
       <p class="place">EDNC by SODIC, New Cairo</p>
@@ -202,26 +203,27 @@
   </section>
 
   <section class="room" id="room" aria-label="The room">
-    <figure class="fr f1 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><img src="img/dish-burrata.webp" width="1200" height="1500" alt="Burrata over cherry tomatoes with pistachio" decoding="async"></div></figure>
-    <figure class="fr f2 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><img src="img/dish-eggs.webp" width="1200" height="1500" alt="Eggs royale with smoked salmon and hollandaise" decoding="async"></div></figure>
-    <figure class="fr f3 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><img src="img/dish-salmon.webp" width="1200" height="1500" alt="A smoked salmon croissant on a turquoise plate" decoding="async"></div></figure>
-    <figure class="fr f4 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><img src="img/dish-truffle.webp" width="1200" height="1500" alt="Truffle scrambled eggs on a leaf-shaped plate" decoding="async"></div></figure>
-    <figure class="fr f5 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><img src="img/dish-lemon.webp" width="1200" height="1500" alt="A dessert shaped like a lemon on a ruffled plate" decoding="async"></div></figure>
-    <figure class="fr f6 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><img src="img/dish-pizza.webp" width="1200" height="1500" alt="A pistachio pizza with a charred crust" decoding="async"></div></figure>
+    <figure class="fr f1 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></figure>
+    <figure class="fr f2 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></figure>
+    <figure class="fr f3 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></figure>
+    <figure class="fr f4 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></figure>
+    <figure class="fr f5 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></figure>
+    <figure class="fr f6 rv" style="--w:600px;--r:0.8000;--z:0"><div class="fr-in"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></figure>
   </section>
 
   <section class="season" id="season" aria-label="This season">
-    <div class="season-pane" data-for="fall-2026"><div class="sn"><div class="sn-photo rv"><div class="px" style="--px-w:540px;--px-r:0.9746"><img src="img/fall-matcha.webp" width="1080" height="1219" alt="A matcha drink on a table with pumpkins and autumn leaves" decoding="async"></div></div><div class="sn-body"><h2 class="display rv" id="season-h-fall-2026">Fall 2026</h2><a class="link rv" href="menu.html#sweet">See the season in the menu</a></div></div></div>
+    <div class="season-pane" data-for="fall-2026"><div class="sn"><div class="sn-photo rv"><div class="px" style="--px-w:540px;--px-r:0.9746"><i class="ph-img" role="img" aria-label="Photo to come"></i></div></div><div class="sn-body"><h2 class="display rv" id="season-h-fall-2026">Fall 2026</h2><a class="link rv" href="menu.html#sweet">See the season in the menu</a></div></div></div>
   </section>
 
   <section class="atelier" id="atelier" aria-labelledby="atelier-h">
     <div class="wrap">
       <h2 class="at-h rv" id="atelier-h">The atelier</h2>
       <ul class="at-list">
-        <li class="at rv"><h3>Nail studio</h3><a class="link" href="https://apps.apple.com/app/id6757676939" data-app rel="noopener">Open the app</a><span class="at-rule" aria-hidden="true"><svg class="at-ic" viewBox="0 0 32 32" focusable="false"><path d="M13.3 3.5h3.4l.9 8.5h-5.2z"/><path d="M11.4 12h7.2v2.4h-7.2z"/><rect x="7.5" y="14.4" width="15" height="13.6" rx="3.6"/><path d="M10.6 18v6.4"/><path d="M25 3.2c.3 1.9 1 2.6 2.9 2.9c-1.9.3-2.6 1-2.9 2.9c-.3-1.9-1-2.6-2.9-2.9c1.9-.3 2.6-1 2.9-2.9z"/><path d="M27.6 11.2c.15.9.5 1.25 1.4 1.4c-.9.15-1.25.5-1.4 1.4c-.15-.9-.5-1.25-1.4-1.4c.9-.15 1.25-.5 1.4-1.4z"/></svg></span></li>
-        <li class="at rv"><h3>Yoga</h3><a class="link" href="https://apps.apple.com/app/id6757676939" data-app rel="noopener">Open the app</a><span class="at-rule" aria-hidden="true"><svg class="at-ic" viewBox="0 0 32 32" focusable="false"><path d="M16 25c-4-4-5-11 0-19c5 8 4 15 0 19z"/><path d="M16 25c-5 0-11-4-12-12c6 0 11 5 12 12z"/><path d="M16 25c5 0 11-4 12-12c-6 0-11 5-12 12z"/><path d="M6 28h20"/></svg></span></li>
-        <li class="at rv"><h3>Workshops &amp; talks</h3><a class="link" href="https://apps.apple.com/app/id6757676939" data-app rel="noopener">Open the app</a><span class="at-rule" aria-hidden="true"><svg class="at-ic" viewBox="0 0 32 32" focusable="false"><path d="M16 9c-3-2-7-2-11-1v17c4-1 8-1 11 1c3-2 7-2 11-1V8c-4-1-8-1-11 1z"/><path d="M16 9v17"/></svg></span></li>
+        <li class="at rv"><h3>Nail studio</h3><span class="at-rule" aria-hidden="true"><svg class="at-ic" viewBox="0 0 32 32" focusable="false"><path d="M13.3 3.5h3.4l.9 8.5h-5.2z"/><path d="M11.4 12h7.2v2.4h-7.2z"/><rect x="7.5" y="14.4" width="15" height="13.6" rx="3.6"/><path d="M10.6 18v6.4"/><path d="M25 3.2c.3 1.9 1 2.6 2.9 2.9c-1.9.3-2.6 1-2.9 2.9c-.3-1.9-1-2.6-2.9-2.9c1.9-.3 2.6-1 2.9-2.9z"/><path d="M27.6 11.2c.15.9.5 1.25 1.4 1.4c-.9.15-1.25.5-1.4 1.4c-.15-.9-.5-1.25-1.4-1.4c.9-.15 1.25-.5 1.4-1.4z"/></svg></span></li>
+        <li class="at rv"><h3>Yoga</h3><span class="at-rule" aria-hidden="true"><svg class="at-ic" viewBox="0 0 32 32" focusable="false"><path d="M16 25c-4-4-5-11 0-19c5 8 4 15 0 19z"/><path d="M16 25c-5 0-11-4-12-12c6 0 11 5 12 12z"/><path d="M16 25c5 0 11-4 12-12c-6 0-11 5-12 12z"/><path d="M6 28h20"/></svg></span></li>
+        <li class="at rv"><h3>Workshops &amp; talks</h3><span class="at-rule" aria-hidden="true"><svg class="at-ic" viewBox="0 0 32 32" focusable="false"><path d="M16 9c-3-2-7-2-11-1v17c4-1 8-1 11 1c3-2 7-2 11-1V8c-4-1-8-1-11 1z"/><path d="M16 9v17"/></svg></span></li>
       </ul>
+      <p class="at-app rv"><a class="link" href="https://apps.apple.com/app/id6757676939" data-app rel="noopener">Book them in the app</a></p>
     </div>
   </section>
 

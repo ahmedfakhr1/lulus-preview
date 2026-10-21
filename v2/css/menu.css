@@ -442,3 +442,5 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 
 /* reduced motion: pages cross-fade, nothing rotates */
 .stage[data-motion='fade'] .slot-pg { transition: opacity 0.16s linear; }
+
+.sec-photo .ph-img { position: relative; width: 100%; aspect-ratio: 16 / 10; max-height: calc(var(--ph, 600px) * 0.3); color: inherit; }
