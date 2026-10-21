@@ -98,7 +98,7 @@
         if (it.season && it.season !== SEASON.id) return;
         items.push(it);
       });
-      if (items.length) out.push({ id: sec.id, title: sec.title, note: sec.note || '', items: items });
+      if (items.length) out.push({ id: sec.id, title: sec.title, note: sec.note || '', photo: sec.photo || null, items: items });
     });
     return out;
   }
@@ -113,12 +113,20 @@
       (it.price != null ? '<span class="it-price">' + money(it.price) + '</span>' : '') + '</div>' +
       (it.desc ? '<div class="it-desc">' + esc(it.desc) + '</div>' : '') + '</div>';
   }
+  /* a section may open with one photo, a plate across the top of its first page; its box has a fixed shape,
+     so pagination never waits for the file */
+  function photoHTML(sec) {
+    var p = sec.photo;
+    return p ? '<figure class="sec-photo"><img src="img/' + esc(p.src) + '" alt="' + esc(p.alt || '') + '" decoding="async"></figure>' : '';
+  }
   function headHTML(sec) {
-    return '<div class="sec-head"><h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
+    return '<div class="sec-head">' + photoHTML(sec) + '<h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
       (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
   }
   /* a page that carries on a section shows only the section's name, small, above the items */
   function runHTML(title) { return '<div class="run">' + esc(title) + '</div>'; }
+
+  DATA.sections.forEach(function (sec) { if (sec.photo) { var im = new Image(); im.decoding = 'async'; im.src = 'img/' + sec.photo.src; } });
 
   /* ------------------------------------------------------------ layout */
   function layout() {

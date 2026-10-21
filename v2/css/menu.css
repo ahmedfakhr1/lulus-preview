@@ -283,6 +283,9 @@ html.vt .pill .thumb { transition: transform 0.55s var(--ease) !important; }
 
 /* section heading */
 .sec-head { text-align: center; padding-bottom: 1.9em; }
+/* the opening photo of a section: a plate across the page, a hairline mat like a print */
+.sec-photo { margin: -0.6em 0 1.5em; padding: 0.35em; border: 1px solid var(--pg-hair); }
+.sec-photo img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; max-height: calc(var(--ph, 600px) * 0.3); object-fit: cover; background: rgba(var(--shade), 0.08); }
 .sec-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 2.3em; line-height: 1.08; letter-spacing: -0.005em; }
 .sec-head .rule { display: block; width: 2.6em; height: 1px; background: var(--pg-ink); margin: 1em auto 0; opacity: 0.55; }
 .sec-head .note { margin-top: 0.9em; font-size: 0.78em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pg-muted); }
