@@ -456,3 +456,9 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 /* the cover is only her wordmark; the whole cover opens the book */
 .cover-tap { position: absolute; inset: 0; background: none; border: 0; padding: 0; cursor: pointer; }
 .cover-tap:focus-visible { outline: 1px solid var(--accent); outline-offset: -0.9em; }
+
+/* book corners: the fore-edge corners are softly rounded like card stock; the spine edge stays straight */
+.stage { --pg-r: 9px; }
+.slot-pg, .bed, .face { overflow: hidden; }
+.slot-r .slot-pg, .face, .bed, .drop { border-radius: 0 var(--pg-r) var(--pg-r) 0; }
+.slot-l .slot-pg, .flip.bwd .bed { border-radius: var(--pg-r) 0 0 var(--pg-r); }
