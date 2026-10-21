@@ -302,7 +302,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .fr { margin: 0; position: relative; }
 .fr-in { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: rgb(var(--scrim)); }
 .fr-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-@media (max-width: 899px) { .room .fr.wide { grid-column: span 2; } .room .fr.wide .fr-in { aspect-ratio: 8 / 5; } }
+@media (min-width: 900px) { .room .fr.wide { grid-column: span 2; } .room .fr.wide .fr-in { aspect-ratio: auto; height: 100%; } }
 @media (min-width: 900px) {
   .room { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 }
