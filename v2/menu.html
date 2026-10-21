@@ -102,6 +102,18 @@
     '--acc-day': hex(mix(acc, ink, 0.36)),
     '--scrim': Math.round(scrim[0]) + ',' + Math.round(scrim[1]) + ',' + Math.round(scrim[2])
   };
+  /* a flower seen from above, in three shades of the season colour, tiled behind the photos; it changes with the season */
+  var fl1 = hex(mix(acc, paper, 0.5)), fl2 = c.accent, fl3 = hex(mix(acc2, ink, 0.25));
+  function flower(x, y, r) {
+    var g = '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(0.5)">', i;
+    for (i = 0; i < 8; i++) g += '<ellipse cx="0" cy="-27" rx="11" ry="25" fill="' + fl1 + '" transform="rotate(' + (i * 45) + ')"/>';
+    for (i = 0; i < 8; i++) g += '<ellipse cx="0" cy="-16" rx="7" ry="15" fill="' + fl2 + '" transform="rotate(' + (i * 45 + 22.5) + ')"/>';
+    for (i = 0; i < 6; i++) g += '<circle cx="0" cy="-8" r="2.6" fill="' + fl3 + '" transform="rotate(' + (i * 60) + ')"/>';
+    return g + '<circle r="5.5" fill="' + fl3 + '"/></g>';
+  }
+  var tile = '<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170" viewBox="0 0 170 170">' +
+    flower(42, 42, 0) + flower(127, 127, 22) + '</svg>';
+  vars['--flora'] = 'url("data:image/svg+xml,' + encodeURIComponent(tile) + '")';
   for (var key in vars) doc.style.setProperty(key, vars[key]);
   doc.setAttribute('data-season', season.id);
   doc.className += ' js';

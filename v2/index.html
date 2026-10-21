@@ -102,6 +102,18 @@
     '--acc-day': hex(mix(acc, ink, 0.36)),
     '--scrim': Math.round(scrim[0]) + ',' + Math.round(scrim[1]) + ',' + Math.round(scrim[2])
   };
+  /* a flower seen from above, in three shades of the season colour, tiled behind the photos; it changes with the season */
+  var fl1 = hex(mix(acc, paper, 0.5)), fl2 = c.accent, fl3 = hex(mix(acc2, ink, 0.25));
+  function flower(x, y, r) {
+    var g = '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(0.5)">', i;
+    for (i = 0; i < 8; i++) g += '<ellipse cx="0" cy="-27" rx="11" ry="25" fill="' + fl1 + '" transform="rotate(' + (i * 45) + ')"/>';
+    for (i = 0; i < 8; i++) g += '<ellipse cx="0" cy="-16" rx="7" ry="15" fill="' + fl2 + '" transform="rotate(' + (i * 45 + 22.5) + ')"/>';
+    for (i = 0; i < 6; i++) g += '<circle cx="0" cy="-8" r="2.6" fill="' + fl3 + '" transform="rotate(' + (i * 60) + ')"/>';
+    return g + '<circle r="5.5" fill="' + fl3 + '"/></g>';
+  }
+  var tile = '<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170" viewBox="0 0 170 170">' +
+    flower(42, 42, 0) + flower(127, 127, 22) + '</svg>';
+  vars['--flora'] = 'url("data:image/svg+xml,' + encodeURIComponent(tile) + '")';
   for (var key in vars) doc.style.setProperty(key, vars[key]);
   doc.setAttribute('data-season', season.id);
   doc.className += ' js';
@@ -151,7 +163,7 @@
 </script>
 <script>try{if(!localStorage.getItem('lulus-veil')){var d=document.documentElement;d.classList.add('veiled');setTimeout(function(){if(!d.classList.contains('veiled'))return;try{localStorage.setItem('lulus-veil','1')}catch(e){}var v=document.getElementById('veil');if(v){v.classList.add('out');setTimeout(function(){v.classList.remove('out')},900)}d.classList.remove('veiled')},Math.max(0,2400-(performance.now?performance.now():0)))}}catch(e){}</script>
 <style>html[data-season="fall-2026"] .season{display:block}html[data-season="fall-2026"] .season-pane[data-for="fall-2026"]{display:block}</style>
-<link rel="stylesheet" href="css/home.css?v=ff43be33">
+<link rel="stylesheet" href="css/home.css?v=ba510d19">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"LÜLU’S","image":"img/og.jpg","telephone":"+201210514222","address":{"@type":"PostalAddress","streetAddress":"EDNC by SODIC","addressLocality":"New Cairo","addressCountry":"EG"},"hasMenu":"menu.html","sameAs":["https://www.instagram.com/lulusinmotion/","https://www.tiktok.com/@lulusinmotion"]}</script>
 </head>
 <body class="home" data-wa="201210514222" data-appstore="https://apps.apple.com/app/id6757676939" data-play="https://play.google.com/store/apps/details?id=com.seamlabs.lulus">
@@ -181,12 +193,14 @@
     </div>
   </section>
 
+  <div class="flora">
   <section class="room" id="room" aria-label="The room">
     <figure class="fr f1 rv" style="--w:340px;--r:1.2593;--z:-1"><div class="fr-in"><img src="img/frag-plate-gold.webp" width="680" height="540" alt="A white plate on a woven gold mat" decoding="async"></div></figure>
     <figure class="fr f2 rv" style="--w:270px;--r:1.5000;--z:2"><div class="fr-in"><img src="img/frag-stitch.webp" width="540" height="360" alt="LÜLU’S stitched in red on a white jacket" decoding="async"></div></figure>
     <figure class="fr f3 rv duo" style="--w:280px;--r:0.8000;--z:1"><div class="fr-in"><img src="img/frag-hands.webp" width="560" height="700" alt="A hand with gold bracelets resting at a table" decoding="async"><img src="img/frag-gold.webp" width="560" height="699" alt="A gold fork on a woven gold table mat" decoding="async" class="fr-b"></div></figure>
     <figure class="fr f4 rv" style="--w:540px;--r:3.3750;--z:0"><div class="fr-in"><img src="img/frag-plate.webp" width="1080" height="320" alt="Gloved hands carrying a plate" decoding="async"></div></figure>
   </section>
+  </div>
 
   <section class="season" id="season" aria-label="This season">
     <div class="season-pane" data-for="fall-2026"><div class="sn"><div class="sn-photo rv"><div class="px" style="--px-w:540px;--px-r:0.9746"><img src="img/fall-matcha.webp" width="1080" height="1219" alt="A matcha drink on a table with pumpkins and autumn leaves" decoding="async"></div></div><div class="sn-body"><h2 class="display rv" id="season-h-fall-2026">Fall 2026</h2><a class="link rv" href="menu.html#sweet">See the season in the menu</a></div></div></div>

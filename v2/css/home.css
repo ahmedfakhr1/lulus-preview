@@ -186,6 +186,7 @@ html {
   --h-acc: var(--accent);
   --h-foot: var(--page-night);
   --grain: 0.055;
+  --flora-o: 0.26;
   --slow: cubic-bezier(0.22, 0.61, 0.24, 1);
 }
 html[data-mood='morning'] {
@@ -228,6 +229,9 @@ body.home::after {
 .hero-media:empty { display: none; }
 .hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
 .hero-body { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 var(--gutter) 8px; }
+/* the first screen on a phone is only the photo and the seal with Reserve and Menu; the room begins below it */
+.hero { min-height: 100vh; min-height: 100svh; }
+.hero-body { flex: 1; }
 .hero-seal { margin-top: -46px; line-height: 0; }
 .hero-logo { width: 92px; height: 92px; border-radius: 50%; box-shadow: 0 0 0 6px var(--h-bg); }
 .place { margin-top: 24px; font-weight: 500; font-size: 0.75rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--h-muted); }
@@ -260,7 +264,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
     grid-column: 2; grid-row: 1; aspect-ratio: var(--hero-r, 1.554); max-width: none;
     width: min(540px, 48vw, calc((100svh - 180px) * var(--hero-r, 1.554)));
   }
-  .hero-body { grid-column: 1; grid-row: 1; align-items: flex-start; padding: 0; }
+  .hero-body { grid-column: 1; grid-row: 1; align-items: flex-start; padding: 0; flex: none; }
   .hero-seal { margin-top: 0; }
   .hero-logo { width: 112px; height: 112px; box-shadow: none; }
   .hero-cta { justify-content: flex-start; }
@@ -281,6 +285,12 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   .hero-cta { margin-top: 22px; }
 }
 
+/* ---------- her flowers behind the photos: a tiled top-view flower in three shades of the season colour ---------- */
+.flora { position: relative; isolation: isolate; padding-bottom: clamp(72px, 14vw, 140px); }
+.flora::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--flora) 0 0 / 170px 170px repeat; opacity: var(--flora-o, 0.3); pointer-events: none;
+  -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
+html[data-mood="morning"] .flora::before { opacity: 0.4; }
+
 /* ---------- the room, in fragments ----------
    No captions and no order: details of her photos on a loose twelve-column field, each at its own size and
    offset, a few overlapping. Every frame is shown no wider than half its photo's pixels (--w), and drifts at
@@ -290,6 +300,9 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   padding: clamp(72px, 16vw, 168px) 0 0; max-width: 1200px; margin: 0 auto;
 }
 .fr { margin: 0; width: min(100%, var(--w)); position: relative; }
+/* each fragment is framed like a gallery print: a cream mat, a gold hairline inside it, a soft shadow on the wall */
+.fr { box-sizing: border-box; padding: clamp(8px, 2.4vw, 14px); background: var(--paper); box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.45); }
+.fr::after { content: ''; position: absolute; inset: clamp(4px, 1.2vw, 7px); border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent); pointer-events: none; }
 .fr-in { position: relative; width: 100%; aspect-ratio: var(--r); overflow: hidden; background: rgb(var(--scrim)); }
 .fr-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 /* two photos in one frame trade places, very slowly, while the frame is on screen */
@@ -300,18 +313,18 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 @keyframes xfade { 0%, 38% { opacity: 0; } 50%, 88% { opacity: 1; } 100% { opacity: 0; } }
 
 /* phone: the fragments step down the screen, some to the edge, some inset, one overlapping another */
-.f1 { grid-column: 1 / 11; justify-self: start; }
+.f1 { grid-column: 1 / 11; justify-self: start; margin-left: var(--gutter); }
 .f2 { grid-column: 6 / 13; justify-self: end; margin-top: 32px; margin-right: var(--gutter); }
 .f3 { grid-column: 2 / 10; margin-top: 48px; }
-.f4 { grid-column: 3 / 13; justify-self: end; margin-top: 40px; }
+.f4 { grid-column: 3 / 13; justify-self: end; margin-top: 40px; margin-right: var(--gutter); }
 .f5 { grid-column: 1 / 13; justify-self: center; margin-top: 64px; }
 .f6 { grid-column: 4 / 12; margin-top: 48px; }
 @media (min-width: 900px) {
   .room { column-gap: 24px; padding-left: var(--gutter); padding-right: var(--gutter); }
-  .f1 { grid-column: 1 / 7; justify-self: end; }
+  .f1 { grid-column: 1 / 7; justify-self: end; margin-left: 0; }
   .f2 { grid-column: 8 / 12; justify-self: start; margin: 160px 0 0; }
   .f3 { grid-column: 2 / 6; justify-self: end; margin-top: 40px; }
-  .f4 { grid-column: 7 / 11; justify-self: start; margin-top: 240px; }
+  .f4 { grid-column: 7 / 11; justify-self: start; margin-top: 240px; margin-right: 0; }
   .f5 { grid-column: 4 / 12; margin-top: 96px; }
   .f6 { grid-column: 1 / 5; justify-self: end; margin-top: -24px; }
 }
