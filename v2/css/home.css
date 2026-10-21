@@ -258,6 +258,19 @@ body.home::after {
 .garden { position: absolute; left: 0; right: 0; bottom: -1px; z-index: 1; width: 100%; height: clamp(104px, 34vw, 180px); color: var(--h-bg); fill: currentColor; pointer-events: none; }
 .gp, .gs { transform-box: fill-box; transform-origin: 50% 100%; animation: grow 1.5s var(--slow) var(--d, 0.15s) both; }
 .gb { transform-box: fill-box; transform-origin: 50% 50%; animation: bloom 0.8s var(--slow) calc(var(--d, 0s) + 1.05s) both; }
+/* on a phone held upright the seal sits on the photo's edge, and plants sprout from its rim and grow out over the photo */
+.hero-seal { position: relative; }
+.hero-logo { position: relative; z-index: 1; }
+.crown { position: absolute; left: 50%; bottom: 50%; width: 220px; height: 110px; margin-left: -110px; color: var(--h-bg); fill: currentColor; pointer-events: none; overflow: visible; }
+.cp { transform-box: view-box; animation: sprout 1.3s var(--slow) var(--d, 0.6s) both; }
+@keyframes sprout { from { transform: scale(0); } }
+html.veiled .cp { animation: none; transform: scale(0); }
+@media (max-width: 899px) and (orientation: portrait) and (max-height: 700px) {
+  .crown { transform: scale(0.846); transform-origin: 50% 100%; }
+}
+@media (min-width: 900px), (min-width: 560px) and (orientation: landscape) {
+  .crown { display: none; }
+}
 /* at night the dark plants stand against a dark photo, so the planters' glow catches their top edges */
 html:not([data-mood='morning']) .glit { filter: drop-shadow(0 -1.5px 0 color-mix(in srgb, var(--accent) 50%, transparent)); }
 /* the blossoms in colour, all drawn from the season: its accent, its second accent, a blush of the accent and its paper */
@@ -506,6 +519,6 @@ html.veiled .veil, .veil.out {
 
 @media (prefers-reduced-motion: reduce) {
   .js .rv { opacity: 1; transform: none; transition: none; }
-  .hero-media img, .hero-seal, .place, .hero-cta, .gp, .gs, .gb { animation: none; }
+  .hero-media img, .hero-seal, .place, .hero-cta, .gp, .gs, .gb, .cp { animation: none; }
   .js .duo .fr-b { animation: none; opacity: 0; }
 }
