@@ -565,7 +565,7 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 @media (prefers-reduced-motion: reduce) { .js .at.rv, .js .at-app.rv { opacity: 1; transform: none; transition: none; } }
 
 /* ---------- Lülu's in motion: the v1 list she liked, set quietly like the old atelier trio ---------- */
-.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: color-mix(in srgb, var(--ink) 5%, var(--h-bg)); }
+.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: color-mix(in srgb, var(--ink) 5%, transparent); } /* see-through tint, so the page grain shows here as everywhere */
 .mt-list { list-style: none; margin: 28px auto 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; gap: 18px 24px; }
 .mt { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 6vw, 1.875rem); line-height: 1.2; white-space: nowrap; }
 .mt { display: flex; flex-direction: column; align-items: center; }
