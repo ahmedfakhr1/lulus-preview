@@ -299,6 +299,9 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
   padding: clamp(72px, 16vw, 140px) var(--gutter) 0; max-width: 1080px; margin: 0 auto;
 }
+.room-head { padding: clamp(96px, 20vw, 200px) var(--gutter) 0; text-align: center; }
+.room-head .display { margin-top: 10px; }
+.room-head + .room { padding-top: clamp(32px, 6vw, 56px); }
 .fr { margin: 0; position: relative; }
 .fr-in { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: rgb(var(--scrim)); }
 .fr-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

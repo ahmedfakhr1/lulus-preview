@@ -476,5 +476,5 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 html[data-mood='morning'] { --pg-grain: 0.4; }
 .pg-in, .cover-in, .back-in, .end-in { z-index: 1; }
 /* the covers are walnut in both moods, so they keep the light grain */
-.pg-cover::before, .pg-back::before { opacity: 0.12; }
+.pg-cover::before, .pg-back::before, .pg-verso::after { opacity: 0.04; }
 html[data-mood='evening'] .mbar .bar-logo { color: var(--accent); }
