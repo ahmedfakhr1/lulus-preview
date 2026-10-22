@@ -527,13 +527,16 @@ html.lb-open { overflow: hidden; }
 .lb { position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--on-photo); }
 .lb::backdrop { background: transparent; }
 .lb :focus-visible { outline-color: var(--on-photo); }
-.lb-bg { position: absolute; inset: 0; background: rgb(var(--scrim)); opacity: 0; transition: opacity 0.65s var(--ease); }
+/* see-through: the page stays faintly visible, blurred, behind the photo */
+.lb-bg { position: absolute; inset: 0; background: rgba(var(--scrim), 0.55); -webkit-backdrop-filter: blur(18px) saturate(1.1); backdrop-filter: blur(18px) saturate(1.1); opacity: 0; transition: opacity 0.65s var(--ease); }
 .lb.on .lb-bg { opacity: 1; }
 .lb-stage { position: absolute; inset: calc(64px + env(safe-area-inset-top)) 0 calc(96px + env(safe-area-inset-bottom)); touch-action: none; }
 .lb-img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: min(94vw, 900px); max-height: 100%; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }
-.lb-n { position: absolute; top: calc(24px + env(safe-area-inset-top)); left: 0; right: 0; text-align: center; font-family: var(--font-display); font-style: italic; font-size: 1.125rem; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; pointer-events: none; }
+/* the photo count is read out to screen readers only (Ahmed: no count on screen) */
+.lb-n { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .lb .x.lb-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: var(--gutter); margin: 0; color: inherit; background: none; border-color: color-mix(in srgb, var(--on-photo) 55%, transparent); transition: transform 0.16s var(--ease); }
 .lb-nav { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 48px; height: 48px; display: grid; place-items: center; padding: 0; background: none; color: inherit; border: 1px solid color-mix(in srgb, var(--on-photo) 55%, transparent); border-radius: 50%; transition: transform 0.16s var(--ease), opacity 0.2s; }
+.lb .x svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
 .lb-nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .lb-prev { left: calc(50% - 60px); }
 .lb-next { left: calc(50% + 12px); }
