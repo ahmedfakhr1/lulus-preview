@@ -243,9 +243,26 @@
       var im = f.querySelector('img'), box = f.querySelector('.fr-in');
       if (!im || !box) return;
       var open = function () {
+        /* let go of the press at once, so the photo grows from where the frame really is */
+        box.classList.remove('press'); box.classList.add('rel');
         collect();
-        for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); return; }
+        for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); break; }
+        requestAnimationFrame(function () { box.classList.remove('rel'); });
+        if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
       };
+      /* a finger resting on a photo makes it give a little, as a button does; a scroll lifts it again */
+      var held = 0, px = 0, py = 0;
+      var lift = function () { clearTimeout(held); box.classList.remove('press'); };
+      box.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse' && e.button) return;
+        px = e.clientX; py = e.clientY;
+        clearTimeout(held);
+        held = setTimeout(function () { box.classList.add('press'); }, 60);
+      });
+      box.addEventListener('pointermove', function (e) {
+        if (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10) lift();
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { box.addEventListener(t, lift); });
       box.setAttribute('role', 'button'); box.tabIndex = 0; box.setAttribute('aria-haspopup', 'dialog');
       box.setAttribute('aria-label', 'Open photo: ' + im.alt);
       box.addEventListener('click', open);
