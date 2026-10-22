@@ -733,7 +733,8 @@
   }
   /* decode now, and wake or create the audio from the first touch of anything, and every touch after it */
   if (audio.on) loadFlips();
-  WAKE.forEach(function (ev) { document.addEventListener(ev, wake, { passive: true, capture: true }); });
+  /* not passive: WebKit does not count a touch as permission to play when its listener is passive */
+  WAKE.forEach(function (ev) { document.addEventListener(ev, wake, { passive: false, capture: true }); });
   if (sndBtn) sndBtn.addEventListener('click', function () {
     audio.on = !audio.on;
     store('lulus-snd', audio.on ? 'on' : 'off');
