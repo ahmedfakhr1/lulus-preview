@@ -98,7 +98,7 @@
         if (it.season && it.season !== SEASON.id) return;
         items.push(it);
       });
-      if (items.length) out.push({ id: sec.id, title: sec.title, note: sec.note || '', photo: photoFor(sec), items: items });
+      if (items.length) out.push({ id: sec.id, title: sec.title, note: sec.note || '', pack: sec.pack || '', photo: photoFor(sec), items: items });
     });
     return out;
   }
@@ -132,6 +132,9 @@
   function headHTML(sec) {
     return '<div class="sec-head">' + photoHTML(sec) + '<h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
       (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
+  }
+  function subHTML(sec) {
+    return '<div class="sub-head"><h3>' + esc(sec.title) + '</h3>' + (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
   }
   /* a page that carries on a section shows only the section's name, small, above the items */
   function runHTML(title) { return '<div class="run">' + esc(title) + '</div>'; }
@@ -184,7 +187,7 @@
   function flow(headHtml, contHtml, entries, cap) {
     var head = { html: headHtml, h: heightOf(headHtml) };
     var cont = { html: contHtml, h: heightOf(contHtml) };
-    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref }; });
+    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts }; });
     var i;
     for (i = 0; i < blocks.length; i++) {
       if (head.h + blocks[i].h > cap || cont.h + blocks[i].h > cap) return null;
@@ -232,15 +235,28 @@
     var pages = [];
     var secPages = [];
     var no = 0;
+    /* sections that share a "pack" (the drinks, one sheet in her menu) run on together: each later one opens
+       with a small heading kept with its first item, instead of a page of its own */
     for (var si = 0; si < secs.length; si++) {
       var sec = secs[si];
-      var entries = sec.items.map(function (it, idx) { return { html: itemHTML(it), ref: idx }; });
-      var fl = flow(headHTML(sec), runHTML(sec.title), entries, cap);
+      var group = [sec];
+      while (sec.pack && si + 1 < secs.length && secs[si + 1].pack === sec.pack) group.push(secs[++si]);
+      var entries = [], gi = 0;
+      group.forEach(function (gs, k) {
+        gs.items.forEach(function (it, idx) {
+          var html = itemHTML(it);
+          if (k > 0 && idx === 0) html = subHTML(gs) + html;
+          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null });
+        });
+      });
+      var fl = flow(headHTML(sec), runHTML(group.length > 1 ? '' : sec.title), entries, cap);
       if (!fl) return null;
       fl.forEach(function (p, k) {
         no += 1;
+        var has = k === 0 ? [sec.id] : [];
+        p.items.forEach(function (b) { if (b.starts) has.push(b.starts); });
         secPages.push({
-          kind: 'sec', sec: sec.id, title: sec.title, no: no, first: k === 0,
+          kind: 'sec', sec: sec.id, has: has, title: sec.title, no: no, first: k === 0,
           from: p.items.length ? p.items[0].ref : 0,
           to: p.items.length ? p.items[p.items.length - 1].ref : 0,
           blocks: [p.lead.html].concat(p.items.map(function (b) { return b.html; }))
@@ -248,7 +264,7 @@
       });
     }
     S.secs = secs.map(function (s) {
-      var first = secPages.filter(function (p) { return p.sec === s.id; })[0];
+      var first = secPages.filter(function (p) { return p.has.indexOf(s.id) >= 0; })[0];
       return { id: s.id, title: s.title, no: first ? first.no : 0 };
     });
 
@@ -759,7 +775,7 @@
   function targetPage(id) {
     if (id === 'cover') return S.pages[0];
     if (id === 'contents') return firstOf(function (p) { return p.kind === 'toc'; });
-    return firstOf(function (p) { return p.kind === 'sec' && p.sec === id; });
+    return firstOf(function (p) { return p.kind === 'sec' && (p.sec === id || p.has.indexOf(id) >= 0); });
   }
   function goSection(id) {
     var p = targetPage(id);

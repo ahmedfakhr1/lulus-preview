@@ -297,6 +297,9 @@ html.vt .pill .thumb { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15,
 .sec-photo img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; max-height: calc(var(--ph, 600px) * 0.3); object-fit: cover; background: rgba(var(--shade), 0.08); }
 .sec-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 2.3em; line-height: 1.08; letter-spacing: -0.005em; }
 .sec-head .rule { display: block; width: 2.6em; height: 1px; background: var(--pg-ink); margin: 1em auto 0; opacity: 0.55; }
+.sub-head { text-align: center; padding: 1.3em 0 0.9em; }
+.sub-head h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.55em; line-height: 1.1; }
+.sub-head .note { margin-top: 0.5em; font-size: 0.78em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pg-muted); }
 .sec-head .note { margin-top: 0.9em; font-size: 0.78em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pg-muted); }
 /* the small heading on a page that carries a section on: just its name */
 .run { text-align: center; padding-bottom: 1.5em; font-size: 0.84em; font-weight: 500; letter-spacing: 0.24em; text-indent: 0.24em; text-transform: uppercase; color: var(--pg-muted); }
@@ -312,7 +315,7 @@ html.vt .pill .thumb { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15,
   color: var(--pg-ink); background: var(--pg-tag); border: 1px solid var(--accent); border-radius: 2px;
 }
 .it-price { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 400; }
-.it-desc { margin-top: 0.15em; font-size: 0.875em; line-height: 1.4; color: var(--pg-muted); max-width: 92%; overflow-wrap: anywhere; }
+.it-desc { white-space: pre-line; margin-top: 0.15em; font-size: 0.875em; line-height: 1.4; color: var(--pg-muted); max-width: 92%; overflow-wrap: anywhere; }
 
 /* contents */
 .toc-head { text-align: center; padding-bottom: 1.2em; }
