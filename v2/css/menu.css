@@ -289,7 +289,7 @@ html.vt .pill .thumb { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15,
 .pg-in { position: absolute; inset: 0; padding: 2.7em 2.1em 3.9em; display: flex; flex-direction: column; }
 .blocks { display: block; }
 /* the small print: above the page number, centred, never over the items (the page keeps room for two lines of it) */
-.pg-fn { position: absolute; left: 2.1em; right: 2.1em; bottom: 4em; margin: 0; text-align: center; font-size: max(9.5px, 0.58em); line-height: 1.25; letter-spacing: 0.03em; color: var(--pg-muted); text-wrap: balance; }
+.pg-fn { position: absolute; left: 2.1em; right: 2.1em; bottom: calc(var(--fs, 16px) * 2.42); margin: 0; text-align: center; font-size: max(8.5px, 0.52em); line-height: 1.25; letter-spacing: 0.04em; color: var(--pg-muted); text-wrap: balance; }
 .pg-no { position: absolute; left: 0; right: 0; bottom: 1.25em; text-align: center; font-size: 0.8em; letter-spacing: 0.14em; color: var(--pg-muted); font-variant-numeric: tabular-nums; }
 .measure { position: absolute; left: -99999px; top: 0; visibility: hidden; pointer-events: none; }
 
@@ -443,7 +443,7 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 
   /* tighter pages */
   .compact .pg-in { padding: 0.95em 1.4em 2.3em; }
-  .compact .pg-fn { left: 1.4em; right: 1.4em; bottom: 2.2em; }
+  .compact .pg-fn { left: 1.4em; right: 1.4em; bottom: calc(var(--fs, 14px) * 1.75); }
   .compact .pg-no { bottom: 0.5em; font-size: 0.86em; }
   .compact .sec-head { padding-bottom: 0.75em; }
   .compact .sec-head h2 { font-size: 1.75em; }
