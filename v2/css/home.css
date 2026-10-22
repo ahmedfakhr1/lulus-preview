@@ -524,18 +524,20 @@ html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[
 @media (prefers-reduced-motion: reduce) { .fr-in[role='button'], .fr-in.press { transition: none; transform: none; } .fr-in[role='button']:hover img { transform: none; } }
 .fr-in[role='button']:focus-visible { outline: 2px solid var(--h-fg); outline-offset: -4px; }
 html.lb-open { overflow: hidden; }
-.lb { position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--on-photo); }
+/* with the viewer open the top bar fades away, so the close button never sits on Reserve */
+html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s var(--ease); }
+.lb { position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--h-fg); }
 .lb::backdrop { background: transparent; }
-.lb :focus-visible { outline-color: var(--on-photo); }
-/* see-through: the page stays faintly visible, blurred, behind the photo */
-.lb-bg { position: absolute; inset: 0; background: rgba(var(--scrim), 0.55); -webkit-backdrop-filter: blur(18px) saturate(1.1); backdrop-filter: blur(18px) saturate(1.1); opacity: 0; transition: opacity 0.65s var(--ease); }
+.lb :focus-visible { outline-color: var(--h-fg); }
+/* fully clear (Ahmed): the page shows as it is behind the photo; the controls take the page's own text colour */
+.lb-bg { position: absolute; inset: 0; background: transparent; opacity: 0; transition: opacity 0.65s var(--ease); }
 .lb.on .lb-bg { opacity: 1; }
 .lb-stage { position: absolute; inset: calc(64px + env(safe-area-inset-top)) 0 calc(96px + env(safe-area-inset-bottom)); touch-action: none; }
 .lb-img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: min(94vw, 900px); max-height: 100%; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }
 /* the photo count is read out to screen readers only (Ahmed: no count on screen) */
 .lb-n { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.lb .x.lb-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: var(--gutter); margin: 0; color: inherit; background: none; border-color: color-mix(in srgb, var(--on-photo) 55%, transparent); transition: transform 0.16s var(--ease); }
-.lb-nav { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 48px; height: 48px; display: grid; place-items: center; padding: 0; background: none; color: inherit; border: 1px solid color-mix(in srgb, var(--on-photo) 55%, transparent); border-radius: 50%; transition: transform 0.16s var(--ease), opacity 0.2s; }
+.lb .x.lb-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: var(--gutter); margin: 0; color: inherit; background: var(--h-bg); border-color: color-mix(in srgb, var(--h-fg) 55%, transparent); transition: transform 0.16s var(--ease); }
+.lb-nav { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 48px; height: 48px; display: grid; place-items: center; padding: 0; background: none; color: inherit; border: 1px solid color-mix(in srgb, var(--h-fg) 55%, transparent); border-radius: 50%; background: var(--h-bg); transition: transform 0.16s var(--ease), opacity 0.2s; }
 .lb .x svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
 .lb-nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .lb-prev { left: calc(50% - 60px); }
@@ -543,7 +545,7 @@ html.lb-open { overflow: hidden; }
 .lb-nav:active, .lb .x.lb-x:active { transform: scale(0.94); }
 .lb-nav[disabled] { opacity: 0.28; cursor: default; }
 @media (hover: hover) and (pointer: fine) {
-  .lb-nav:not([disabled]):hover, .lb .x.lb-x:hover { background: color-mix(in srgb, var(--on-photo) 14%, transparent); }
+  .lb-nav:not([disabled]):hover, .lb .x.lb-x:hover { background: color-mix(in srgb, var(--h-fg) 10%, var(--h-bg)); }
 }
 @media (min-width: 900px) {
   .lb-nav { top: 50%; bottom: auto; margin-top: -24px; }
