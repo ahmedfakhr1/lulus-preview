@@ -325,7 +325,7 @@ html.vt .pill .thumb { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.15,
 @media (hover: hover) and (pointer: fine) { .toc-row:hover .t { text-decoration: underline; text-underline-offset: 4px; } }
 
 /* cover and back cover (walnut in both moods) */
-.pg-cover, .pg-back { background: var(--accent); color: var(--paper); }
+.pg-cover, .pg-back { background: var(--cover, var(--accent)); color: var(--paper); }
 /* the cover is her logo made into a book: the season's colour with her wordmark in cream, framed in cream */
 .pg-cover .cover-in, .pg-cover .cover-in::before, .pg-back .back-in, .pg-back .back-in::before { border-color: color-mix(in srgb, var(--paper) 72%, transparent); }
 .pg-back .back-btn { border-color: var(--paper); }
