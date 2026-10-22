@@ -242,26 +242,38 @@
     Array.prototype.forEach.call(room.querySelectorAll('.fr'), function (f) {
       var im = f.querySelector('img'), box = f.querySelector('.fr-in');
       if (!im || !box) return;
-      var open = function () {
-        /* let go of the press softly; the frame gives so little that the photo still grows from where it is */
-        box.classList.remove('press');
-        collect();
-        for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); break; }
-        if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
+      /* a finger on a photo makes it give a little the moment it lands; the press plays out for a moment
+         before it lets go and before the photo opens, so even a quick tap shows it; a scroll lifts it again */
+      var IN = 420, held = 0, px = 0, py = 0, t0 = 0;
+      var since = function () { return t0 ? performance.now() - t0 : IN; };
+      var lift = function (now) {
+        clearTimeout(held);
+        if (now) { box.classList.remove('press'); return; }
+        held = setTimeout(function () { box.classList.remove('press'); }, Math.max(0, IN - since()));
       };
-      /* a finger on a photo makes it give a little the moment it lands, as a button does; a scroll lifts it again */
-      var held = 0, px = 0, py = 0;
-      var lift = function () { clearTimeout(held); box.classList.remove('press'); };
+      var open = function () {
+        var go = function () {
+          box.classList.remove('press'); t0 = 0;
+          collect();
+          for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); break; }
+        };
+        if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
+        var wait = Math.max(0, IN - since());
+        if (wait) setTimeout(go, wait); else go();
+      };
       box.addEventListener('pointerdown', function (e) {
         if (e.pointerType === 'mouse' && e.button) return;
-        px = e.clientX; py = e.clientY;
+        px = e.clientX; py = e.clientY; t0 = performance.now();
         clearTimeout(held);
         box.classList.add('press');
       });
       box.addEventListener('pointermove', function (e) {
-        if (box.classList.contains('press') && (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10)) lift();
+        if (box.classList.contains('press') && (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10)) lift(true);
       });
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { box.addEventListener(t, lift); });
+      box.addEventListener('pointerup', function () { lift(); });
+      box.addEventListener('pointercancel', function () { lift(true); });
+      /* a finger always 'leaves' as it lifts, so only a mouse leaving counts */
+      box.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') lift(true); });
       box.setAttribute('role', 'button'); box.tabIndex = 0; box.setAttribute('aria-haspopup', 'dialog');
       box.setAttribute('aria-label', 'Open photo: ' + im.alt);
       box.addEventListener('click', open);
