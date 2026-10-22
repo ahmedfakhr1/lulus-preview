@@ -295,6 +295,13 @@
       i.addEventListener('input', function () { if (i.getAttribute('aria-invalid') === 'true') check(i); });
     });
 
+    /* an iPhone shows nothing in an empty date or time field: mark the page so a hint can sit on them, and take it off once a value is chosen */
+    if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('ios');
+    [fDate, fTime].forEach(function (i) {
+      var sync = function () { i.parentNode.classList.toggle('filled', i.value !== ''); };
+      i.addEventListener('input', sync); i.addEventListener('change', sync); sync();
+    });
+
     /* the date picker follows the browser's language (mm/dd on US English); show the choice day first as well */
     var dayFirst = document.getElementById('r-date-d');
     var showDay = function () {

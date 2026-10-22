@@ -158,10 +158,9 @@ html:not(.js) .bar { position: static; }
 .field input[type='date'], .field input[type='time'] { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; height: 52px; text-align: left; }
 .field input[type='date']::-webkit-date-and-time-value, .field input[type='time']::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; margin: 0; }
 .field input[type='date']::-webkit-datetime-edit, .field input[type='time']::-webkit-datetime-edit { padding: 0; }
-@supports (-webkit-touch-callout: none) {
-  /* on an iPhone an empty date or time shows nothing at all, so say what it is */
-  .field input[type='date']:not(:focus):invalid::before, .field input[type='time']:not(:focus):invalid::before { content: attr(data-ph); color: var(--muted-paper); }
-}
+/* an iPhone shows nothing in an empty date or time field, so a hint sits on it (iPhone only, gone once a value is chosen) */
+.field .ph { display: none; position: relative; margin-top: -52px; height: 52px; padding: 0 15px; align-items: center; font-size: 1.0625rem; color: var(--muted-paper); pointer-events: none; }
+.ios .field:not(.filled) .ph { display: flex; }
 .row2 .field { min-width: 0; }
 .err { margin-top: 6px; font-size: 0.875rem; color: #8a1c1c; }
 .step { display: flex; align-items: center; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r); width: max-content; }
