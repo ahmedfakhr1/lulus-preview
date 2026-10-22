@@ -152,18 +152,28 @@ html:not(.js) .bar { position: static; }
   border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r);
   font-size: 1.0625rem; color: var(--ink);
 }
-.field input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* the time is a list of half-hour slots, so it is a select that looks like the other fields */
+.field select {
+  width: 100%; height: 52px; padding: 0 38px 0 14px; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r);
+  -webkit-appearance: none; appearance: none; font-size: 1.0625rem; color: var(--ink); background-color: transparent;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.field select:invalid { color: var(--muted-paper); }
+.field select option { color: #1b1b1b; background: #fff; }
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.field select[aria-invalid='true'] { border-color: #8a1c1c; border-width: 2px; }
 .field input[aria-invalid='true'] { border-color: #8a1c1c; border-width: 2px; }
 .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s2); }
 /* date and time fields: an iPhone gives them their own height, width and an empty face, so they are set outright */
-.field input[type='date'], .field input[type='time'] { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; height: 52px; text-align: left; }
-.field input[type='date']::-webkit-date-and-time-value, .field input[type='time']::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; margin: 0; }
-.field input[type='date']::-webkit-datetime-edit, .field input[type='time']::-webkit-datetime-edit { padding: 0; }
+.field input[type='date'] { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; height: 52px; text-align: left; }
+.field input[type='date']::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; margin: 0; }
+.field input[type='date']::-webkit-datetime-edit { padding: 0; }
 /* an iPhone shows nothing in an empty date or time field, so a hint sits on it (iPhone only, gone once a value is chosen) */
 .field .ph { display: none; position: relative; margin-top: -52px; height: 52px; padding: 0 15px; align-items: center; font-size: 1.0625rem; color: var(--muted-paper); pointer-events: none; }
 .ios .field .ph { display: flex; }
 .ios .field.filled .ph { color: var(--ink); }
-.ios .field input[type='date'], .ios .field input[type='time'] { color: transparent; -webkit-text-fill-color: transparent; }
+.ios .field input[type='date'] { color: transparent; -webkit-text-fill-color: transparent; }
 .row2 .field { min-width: 0; }
 .err { margin-top: 6px; font-size: 0.875rem; color: #8a1c1c; }
 .step { display: flex; align-items: center; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r); width: max-content; }

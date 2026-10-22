@@ -279,6 +279,18 @@
     var guests = 2;
     if (L.today) fDate.min = L.today;
 
+    /* a table is booked on the half hour: every slot from opening (9:00 am) to the last one before midnight */
+    var slot = function (h, m) { return (h < 10 ? '0' : '') + h + ':' + (m ? '30' : '00'); };
+    fTime.innerHTML = '<option value="">Choose a time</option>';
+    for (var hh = 9; hh < 24; hh++) {
+      for (var mm = 0; mm < 60; mm += 30) {
+        var opt = document.createElement('option');
+        opt.value = slot(hh, mm);
+        opt.textContent = ((hh % 12) || 12) + ':' + (mm ? '30' : '00') + ' ' + (hh < 12 ? 'AM' : 'PM');
+        fTime.appendChild(opt);
+      }
+    }
+
     var showErr = function (input, on) {
       var e = document.getElementById(input.id + '-e');
       input.setAttribute('aria-invalid', on ? 'true' : 'false');
@@ -353,11 +365,11 @@
         .format(new Date(Date.UTC(1970, 0, 1, +p[0], +p[1]))).replace(/[  ]/g, ' ');
     };
 
-    /* an iPhone shows nothing in an empty date or time field and sets a chosen value at the top of the box, so there the field's own
-       text is hidden and the box carries our own: "Choose a date" until a value is picked, then the value, centred (the picker still
-       opens from the field, which lies under the text) */
+    /* an iPhone shows nothing in an empty date field and sets a chosen value at the top of the box, so there the field's own text is
+       hidden and the box carries our own: "Choose a date" until a value is picked, then the value, centred (the picker still opens
+       from the field, which lies under the text) */
     if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('ios');
-    [[fDate, fmtDate, 'Choose a date'], [fTime, fmtTime, 'Choose a time']].forEach(function (f) {
+    [[fDate, fmtDate, 'Choose a date']].forEach(function (f) {
       var input = f[0], ph = input.parentNode.querySelector('.ph');
       var sync = function () {
         input.parentNode.classList.toggle('filled', input.value !== '');
