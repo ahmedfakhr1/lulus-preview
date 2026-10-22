@@ -649,32 +649,57 @@
   }
 
   /* ------------------------------------------------------------ the sound of a page
-     Real recordings of a book's pages turning (audio/flip-1..4.wav, CC0, see audio/README.md), one picked at
-     random for each turn and played a touch faster or slower and softer or louder, so no two turns are the same.
-     They are fetched and decoded as soon as the page opens (decoding needs no touch), and the audio is woken
-     by the first tap, click or key: a phone counts only those, not a finger going down, as permission to play.
-     Off with reduced motion, and the button beside the controls turns it off for the visit. */
+     Real recordings of a book's pages turning (audio/flip-1..4.wav, CC0, see audio/README.md), all levelled to
+     the same loudness and cut to the same length, one picked at random for each turn and played at one fixed,
+     quiet volume, so every turn sounds the same weight. They are fetched and decoded as soon as the page opens.
+     A phone lets a page make sound only after a tap, so the audio is woken on the first tap, click or key (by
+     playing a silent blip inside that gesture, which is what iPhones require) and the listeners stay until it
+     really is awake. A turn that begins before that plays the moment the audio wakes. Off with reduced motion,
+     and the button beside the controls turns it off for the visit. */
   var audio = { ctx: null, bufs: [], loading: false, last: -1, on: store('lulus-snd') !== 'off' };
   var sndBtn = document.getElementById('snd');
   var FLIPS = ['audio/flip-1.wav', 'audio/flip-2.wav', 'audio/flip-3.wav', 'audio/flip-4.wav'];
+  var WAKE = ['touchend', 'pointerup', 'click', 'keydown'];
   function audioCtx() {
     if (!audio.ctx) {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       try { audio.ctx = new AC(); } catch (e) { return null; }
+      audio.ctx.onstatechange = function () { if (audio.ctx.state === 'running') sleepWake(false); };
     }
-    if (audio.ctx.state !== 'running') { try { audio.ctx.resume(); } catch (e) {} }
     return audio.ctx;
   }
   function loadFlips(ctx) {
     if (audio.loading || !window.fetch) return;
     audio.loading = true;
+    var left = FLIPS.length;
     FLIPS.forEach(function (url) {
+      var done = function () { if (--left === 0 && !audio.bufs.length) audio.loading = false; };   /* nothing decoded: try again on the next wake */
       fetch(url).then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (ab) {
-        if (!ab) return;
+        if (!ab) { done(); return; }
         /* the callback form works in every browser that has the Web Audio API */
-        ctx.decodeAudioData(ab, function (buf) { audio.bufs.push(buf); }, function () {});
-      }).catch(function () {});
+        ctx.decodeAudioData(ab, function (buf) { audio.bufs.push(buf); done(); }, done);
+      }).catch(done);
+    });
+  }
+  /* one tap, click or key: wake the audio from inside the gesture, with a silent blip, and make sure the sounds are loaded */
+  function wake() {
+    if (!audio.on) return;
+    var ctx = audioCtx();
+    if (!ctx) return;
+    try { ctx.resume(); } catch (e) {}
+    try {
+      var blip = ctx.createBufferSource();
+      blip.buffer = ctx.createBuffer(1, 1, 22050);
+      blip.connect(ctx.destination);
+      blip.start(0);
+    } catch (e) {}
+    loadFlips(ctx);
+  }
+  function sleepWake(on) {
+    WAKE.forEach(function (ev) {
+      if (on) document.addEventListener(ev, wake, { passive: true, capture: true });
+      else document.removeEventListener(ev, wake, { capture: true });
     });
   }
   function flipSound() {
@@ -690,16 +715,18 @@
     var play = function () {
       var src = ctx.createBufferSource(), g = ctx.createGain(), soft = ctx.createBiquadFilter();
       src.buffer = audio.bufs[k];
-      src.playbackRate.value = 0.98 + Math.random() * 0.1;
-      /* quiet, with the hiss rolled off: a page, not a clap */
+      src.playbackRate.value = 0.99 + Math.random() * 0.04;
+      /* quiet and the same every time, with the hiss rolled off: a page, not a clap */
       soft.type = 'lowpass'; soft.frequency.value = 4200;
-      g.gain.value = 0.16 + Math.random() * 0.06;
+      g.gain.value = 0.3;
       src.connect(soft); soft.connect(g); g.connect(ctx.destination);
       src.start();
     };
-    /* still asleep (the turn began on a finger going down): play the moment it wakes */
     if (ctx.state === 'running') play();
-    else if (ctx.resume) { try { ctx.resume().then(function () { if (ctx.state === 'running') play(); }, function () {}); } catch (e) {} }
+    else {
+      /* still asleep: play the moment it wakes */
+      try { ctx.resume().then(function () { if (ctx.state === 'running') play(); }, function () {}); } catch (e) {}
+    }
   }
   function paintSnd() {
     if (!sndBtn) return;
@@ -707,15 +734,17 @@
     sndBtn.setAttribute('title', audio.on ? 'Page-turn sound: on' : 'Page-turn sound: off');
   }
   /* ready before the first turn: fetch and decode now, wake on the first tap, click or key */
-  if (audio.on) { var c0 = audioCtx(); if (c0) loadFlips(c0); }
-  ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (ev) {
-    document.addEventListener(ev, function () { if (audio.on) { var c = audioCtx(); if (c) loadFlips(c); } }, { passive: true, capture: true });
-  });
+  if (audio.on) { var c0 = audioCtx(); if (c0) { loadFlips(c0); if (c0.state !== 'running') sleepWake(true); } }
   if (sndBtn) sndBtn.addEventListener('click', function () {
     audio.on = !audio.on;
     store('lulus-snd', audio.on ? 'on' : 'off');
     paintSnd();
-    if (audio.on) flipSound();
+    if (audio.on) {
+      var c1 = audioCtx();
+      if (c1 && c1.state !== 'running') sleepWake(true);
+      wake();
+      flipSound();
+    }
   });
   paintSnd();
 
