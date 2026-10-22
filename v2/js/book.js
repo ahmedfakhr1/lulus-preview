@@ -186,10 +186,10 @@
      fill is from the average, so no page is a couple of stragglers. A break inside a category costs a little,
      so pages begin on a category where they can; and a page that carries a category over is mostly that
      category's own items, never a short tail followed by a new category. Returns null if no deal fits. */
-  function deal(head, cont, blocks, cap, n) {
+  function deal(head, cont, alt, blocks, cap, n) {
     var m = blocks.length, pre = [0], i, j, k;
     for (i = 0; i < m; i++) pre.push(pre[i] + blocks[i].h);
-    var mean = (head.h + (n - 1) * cont.h + pre[m]) / n / cap;
+    var mean = (head.h + (n - 1) * (cont.h + alt.h) / 2 + pre[m]) / n / cap;
     var INF = 1e9, best = [], from = [];
     for (k = 0; k <= n; k++) {
       best.push([]); from.push([]);
@@ -200,7 +200,8 @@
       for (i = k; i <= m; i++) {
         for (j = k - 1; j < i; j++) {
           if (best[k - 1][j] >= INF) continue;
-          var load = (k === 1 ? head.h : cont.h) + pre[i] - pre[j];
+          var lead = k === 1 ? head : blocks[j].cat ? alt : cont;
+          var load = lead.h + pre[i] - pre[j];
           if (load > cap + 0.5) continue;
           var dev = load / cap - mean, cost = dev * dev;
           if (j > 0 && !blocks[j].cat) {
@@ -217,7 +218,8 @@
     var out = [], end = m;
     for (k = n; k >= 1; k--) {
       j = from[k][end];
-      out.unshift({ lead: k === 1 ? head : cont, items: blocks.slice(j, end), h: (k === 1 ? head.h : cont.h) + pre[end] - pre[j] });
+      var ld = k === 1 ? head : blocks[j].cat ? alt : cont;
+      out.unshift({ lead: ld, items: blocks.slice(j, end), h: ld.h + pre[end] - pre[j] });
       end = j;
     }
     return out;
@@ -226,10 +228,12 @@
   /* Split one list of blocks into pages. Items are atomic: they never split. The fewest pages that fit are
      counted first, then the blocks are dealt out evenly over that many (see deal).
      Returns null when a single block cannot fit a page at this type size. */
-  function flow(headHtml, contHtml, entries, cap) {
+  function flow(headHtml, contHtml, entries, cap, altHtml) {
     var head = { html: headHtml, h: heightOf(headHtml) };
     var cont = { html: contHtml, h: heightOf(contHtml) };
-    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts, cat: e.cat }; });
+    /* a page that opens on a new category needs no name above it: its own small heading does the job */
+    var alt = altHtml ? { html: altHtml, h: heightOf(altHtml) } : cont;
+    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts, cat: e.cat, catTitle: e.catTitle }; });
     var i;
     for (i = 0; i < blocks.length; i++) {
       if (head.h + blocks[i].h > cap || cont.h + blocks[i].h > cap) return null;
@@ -238,7 +242,8 @@
     blocks.forEach(function (b) {
       if (cur.items.length && cur.h + b.h > cap + 0.5) {
         pages.push(cur);
-        cur = { lead: cont, items: [], h: cont.h };
+        var ld = b.cat ? alt : cont;
+        cur = { lead: ld, items: [], h: ld.h };
       }
       cur.items.push(b); cur.h += b.h;
     });
@@ -246,7 +251,7 @@
 
     /* the same number of pages, dealt out evenly */
     if (pages.length > 1) {
-      var dealt = deal(head, cont, blocks, cap, pages.length);
+      var dealt = deal(head, cont, alt, blocks, cap, pages.length - 1) || deal(head, cont, alt, blocks, cap, pages.length);
       if (dealt) pages = dealt;
     }
 
@@ -281,11 +286,21 @@
         gs.items.forEach(function (it, idx) {
           var html = itemHTML(it);
           if (k > 0 && idx === 0) html = subHTML(gs) + html;
-          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null, cat: idx === 0 });
+          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null, cat: idx === 0, catTitle: gs.title });
         });
       });
-      var fl = flow(headHTML(sec), runHTML(group.length > 1 ? '' : sec.title), entries, cap);
+      /* a page that carries on a category names it in a small heading, so the reader always knows where they are;
+         measured with the longest name of the run, so the real one never makes the page taller than it was counted */
+      var longest = group.reduce(function (a, g) { return g.title.length > a.length ? g.title : a; }, '');
+      var fl = flow(headHTML(sec), runHTML(group.length > 1 ? longest : sec.title), entries, cap, group.length > 1 ? runHTML('') : null);
       if (!fl) return null;
+      if (group.length > 1) {
+        fl.forEach(function (p, k) {
+          if (k === 0) return;
+          var first = p.items[0];
+          p.lead = { html: runHTML(first && !first.cat ? first.catTitle : ''), h: p.lead.h };
+        });
+      }
       fl.forEach(function (p, k) {
         no += 1;
         var has = k === 0 ? [sec.id] : [];
@@ -673,11 +688,13 @@
     if (n > 1 && k === audio.last) k = (k + 1) % n;
     audio.last = k;
     var play = function () {
-      var src = ctx.createBufferSource(), g = ctx.createGain();
+      var src = ctx.createBufferSource(), g = ctx.createGain(), soft = ctx.createBiquadFilter();
       src.buffer = audio.bufs[k];
-      src.playbackRate.value = 0.94 + Math.random() * 0.14;
-      g.gain.value = 0.55 + Math.random() * 0.15;
-      src.connect(g); g.connect(ctx.destination);
+      src.playbackRate.value = 0.98 + Math.random() * 0.1;
+      /* quiet, with the hiss rolled off: a page, not a clap */
+      soft.type = 'lowpass'; soft.frequency.value = 4200;
+      g.gain.value = 0.16 + Math.random() * 0.06;
+      src.connect(soft); soft.connect(g); g.connect(ctx.destination);
       src.start();
     };
     /* still asleep (the turn began on a finger going down): play the moment it wakes */

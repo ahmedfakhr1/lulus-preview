@@ -1,6 +1,6 @@
 # Page-turn sounds
 
-`flip-1.wav` to `flip-4.wav` are real recordings of a book's pages turning, trimmed, mixed to mono and
+`flip-1.wav` to `flip-4.wav` are real recordings of a book's pages turning, trimmed to the first 0.44 seconds, faded out, mixed to mono and
 reduced to 22.05 kHz to keep each file small. They are chosen at random for each page turn
 (js/book.js, `flipSound`).
 
