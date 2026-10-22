@@ -157,7 +157,7 @@
   /* The hero photo: one portrait photo per season, shown at most as wide as its own pixels allow
      (see .hero-media in home.css). heroW / heroH come from the file itself at build time. */
   function heroHTML() {
-    if (!season.heroImage) return '<i class="ph-img" role="img" aria-label="Photo to come"></i>';
+    if (!season.heroImage) return '<i class="ph-img" aria-hidden="true"></i>';
     var alt = (season.heroAlt || '').replace(/"/g, '&quot;');
     var dims = season.heroW && season.heroH ? ' width="' + season.heroW + '" height="' + season.heroH + '"' : '';
     var focus = season.heroFocus ? ' style="object-position:' + season.heroFocus.replace(/"/g, '') + '"' : '';
@@ -183,7 +183,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/menu.css?v=aee7e5f4">
+<link rel="stylesheet" href="css/menu.css?v=f1f55969">
 </head>
 <body class="menu" data-wa="201210514222" data-logo="img/logo.svg" data-footnote="All prices are subject to 14% VAT and 12% service charge. Drinks are subject to 12% service charge. Exclusively served in-house for your dine-in experience.">
 <a class="skip" href="#book">Skip to the menu</a>
@@ -531,7 +531,7 @@ Add cheese (30 EGP) or smoked salmon and cream cheese (230 EGP), 160</li>
   </form>
 </dialog>
 
-<script src="js/app.js?v=1200d91f" defer></script>
+<script src="js/app.js?v=66296806" defer></script>
 <script src="js/book.js?v=34bb4ea3" defer></script>
 </body>
 </html>

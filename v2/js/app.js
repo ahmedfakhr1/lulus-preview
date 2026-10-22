@@ -339,15 +339,18 @@
       });
     });
 
-    var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    /* the message to the restaurant is always English, whatever the phone's language: "Sun 5 Oct 2026", "7:05 PM" */
     var fmtDate = function (v) {
-      var p = v.split('-'); var d = new Date(+p[0], +p[1] - 1, +p[2]);
-      return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+      var p = v.split('-');
+      return new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+        .formatToParts(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])))
+        .filter(function (x) { return x.type !== 'literal'; })
+        .map(function (x) { return x.value; }).join(' ');
     };
     var fmtTime = function (v) {
-      var p = v.split(':'); var h = +p[0]; var m = p[1];
-      return ((h % 12) || 12) + ':' + m + ' ' + (h < 12 ? 'AM' : 'PM');
+      var p = v.split(':');
+      return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' })
+        .format(new Date(Date.UTC(1970, 0, 1, +p[0], +p[1]))).replace(/[  ]/g, ' ');
     };
 
     form.addEventListener('submit', function (e) {
