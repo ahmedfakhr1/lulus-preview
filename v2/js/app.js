@@ -249,18 +249,17 @@
         for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); break; }
         if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
       };
-      /* a mouse pressing a photo makes it give a little, as a button does */
+      /* a finger on a photo makes it give a little the moment it lands, as a button does; a scroll lifts it again */
       var held = 0, px = 0, py = 0;
       var lift = function () { clearTimeout(held); box.classList.remove('press'); };
       box.addEventListener('pointerdown', function (e) {
-        /* on phones a photo does not move under the finger at all (Ahmed); only a mouse press gives a little */
-        if (e.pointerType !== 'mouse' || e.button) return;
+        if (e.pointerType === 'mouse' && e.button) return;
         px = e.clientX; py = e.clientY;
         clearTimeout(held);
-        held = setTimeout(function () { box.classList.add('press'); }, 90);
+        box.classList.add('press');
       });
       box.addEventListener('pointermove', function (e) {
-        if (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10) lift();
+        if (box.classList.contains('press') && (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10)) lift();
       });
       ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { box.addEventListener(t, lift); });
       box.setAttribute('role', 'button'); box.tabIndex = 0; box.setAttribute('aria-haspopup', 'dialog');

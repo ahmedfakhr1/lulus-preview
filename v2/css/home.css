@@ -506,11 +506,12 @@ a, button { touch-action: manipulation; }
 html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo, html[data-mood='evening'] .story-h { color: var(--accent); }
 
 /* ---------- gallery lightbox: a photo full on the page, the rest of the season a swipe away ---------- */
-.fr-in[role='button'] { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; transition: transform 0.7s var(--ease); }
+.fr-in[role='button'] { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; touch-action: manipulation; transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
 /* resting a finger on a photo: the frame gives a little and a soft shade comes over it, so it feels pressable */
-.fr-in[role='button']::after { content: ''; position: absolute; inset: 0; background: rgba(var(--scrim), 0.14); opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease); }
-.fr-in.press { transform: scale(0.985); transition-duration: 0.5s; }
-.fr-in.press::after { opacity: 1; transition-duration: 0.5s; }
+.fr-in[role='button']::after { content: ''; position: absolute; inset: 0; background: rgba(var(--scrim), 0.16); opacity: 0; pointer-events: none; transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
+/* in quickly so it answers the finger at once, out slowly so it settles back softly */
+.fr-in.press { transform: scale(0.975); transition-duration: 0.22s; }
+.fr-in.press::after { opacity: 1; transition-duration: 0.22s; }
 .fr-in.rel { transition: none; }
 .fr-in.rel::after { transition: none; }
 /* a mouse over a photo: it drifts closer inside its frame and a faint shade settles, so it reads as something to open */
