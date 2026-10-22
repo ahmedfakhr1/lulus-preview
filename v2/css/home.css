@@ -388,14 +388,13 @@ html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-ac
 .invite { display: flex; justify-content: center; }
 .invite-card {
   position: relative; width: min(100%, 380px);
-  background: var(--paper); color: var(--ink); padding: 48px 28px 16px; text-align: center;
+  background: var(--paper); color: var(--ink); padding: 26px 28px 8px; text-align: center;
   border: 1px solid var(--hair-paper); border-radius: var(--r);
   transition: transform 0.35s var(--ease);
 }
 .invite-card :focus-visible { outline-color: var(--ink); }
 .invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
-.invite-seal { position: absolute; top: -28px; left: 50%; width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; box-shadow: 0 0 0 4px var(--paper); }
-.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 10px; }
+.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 6px; padding: 0 4px; text-align: left; }
 .invite-acts { list-style: none; margin: 0; padding: 0; position: relative; }
 .invite-acts li + li { border-top: 1px solid var(--hair-paper); }
 .invite-acts a {
