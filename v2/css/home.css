@@ -394,6 +394,8 @@ html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-ac
 }
 .invite-card :focus-visible { outline-color: var(--ink); }
 .invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
+/* the hours sit right under the address, same voice, so the two read as one line of information */
+.invite-hours { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin: -2px 0 8px; padding: 0 4px; text-align: left; }
 .invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 6px; padding: 0 4px; text-align: left; }
 .invite-acts { list-style: none; margin: 0; padding: 0; position: relative; }
 .invite-acts li + li { border-top: 1px solid var(--hair-paper); }
