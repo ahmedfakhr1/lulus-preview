@@ -20,12 +20,15 @@
   var SEASON = LU.season;
   var LOGO = document.body.getAttribute('data-logo') || 'img/logo.png';
   var FOOT = document.body.getAttribute('data-footnote') || '';
+  /* the small print under every page of the menu, as on the owner's PDFs: food carries VAT and service, drinks service only */
+  var FOOD_NOTE = 'All prices are subject to 14% VAT and 12% service charge.';
+  var DRINKS_NOTE = 'All prices are subject to 12% service charge.';
   var WA = document.body.getAttribute('data-wa') || '';
   var RESERVE_URL = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('Hello LÜLU’S, I’d like to reserve a table.');
 
   var mqReduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   function reduced() { return mqReduce.matches; }
-  /* a phone on its side: short and wide. The same rule drives the compact styles in book.css. */
+  /* a phone on its side: short and wide. The same rule drives the compact styles in menu.css. */
   var mqCompact = window.matchMedia ? window.matchMedia('(max-height: 479px) and (orientation: landscape)') : { matches: false };
 
   /* ------------------------------------------------------------ state */
@@ -147,7 +150,7 @@
     var cw = root.clientWidth, ch = root.clientHeight;
     var vw = doc.clientWidth || window.innerWidth, vh = doc.clientHeight || window.innerHeight;
     var spread = compact || (vw >= 900 && vh >= 480);
-    var mx = compact ? 6 : spread ? 28 : 10, my = compact ? 5 : spread ? 18 : 8;
+    var mx = compact ? 6 : spread ? 28 : 8, my = compact ? 5 : spread ? 18 : 6;
     var H = Math.floor(ch - 2 * my);
     var maxW = spread ? (cw - 2 * mx) / 2 : (cw - 2 * mx);
     /* on its side a phone has width to spare, so the pages get a squarer shape and fit more lines across */
@@ -182,12 +185,58 @@
     return mBlocks.getBoundingClientRect().height <= cap + 0.5;
   }
 
-  /* Split one list of blocks into pages. Items are atomic: they never split.
+  /* Deal the blocks out over n pages so they come out about equally full: the cost of a page is how far its
+     fill is from the average, so no page is a couple of stragglers. A break inside a category costs a little,
+     so pages begin on a category where they can; and a page that carries a category over is mostly that
+     category's own items, never a short tail followed by a new category. Returns null if no deal fits. */
+  function deal(head, cont, alt, blocks, cap, n) {
+    var m = blocks.length, pre = [0], i, j, k;
+    for (i = 0; i < m; i++) pre.push(pre[i] + blocks[i].h);
+    var mean = (head.h + (n - 1) * (cont.h + alt.h) / 2 + pre[m]) / n / cap;
+    var INF = 1e9, best = [], from = [];
+    for (k = 0; k <= n; k++) {
+      best.push([]); from.push([]);
+      for (i = 0; i <= m; i++) { best[k].push(INF); from[k].push(-1); }
+    }
+    best[0][0] = 0;
+    for (k = 1; k <= n; k++) {
+      for (i = k; i <= m; i++) {
+        for (j = k - 1; j < i; j++) {
+          if (best[k - 1][j] >= INF) continue;
+          var lead = k === 1 ? head : blocks[j].cat ? alt : cont;
+          var load = lead.h + pre[i] - pre[j];
+          if (load > cap + 0.5) continue;
+          var dev = load / cap - mean, cost = dev * dev;
+          if (j > 0 && !blocks[j].cat) {
+            cost += 0.06;
+            var t = j;
+            while (t < i && !blocks[t].cat) t++;
+            if (t < i && pre[t] - pre[j] < 0.45 * cap) cost += 1;
+          }
+          if (best[k - 1][j] + cost < best[k][i]) { best[k][i] = best[k - 1][j] + cost; from[k][i] = j; }
+        }
+      }
+    }
+    if (best[n][m] >= INF) return null;
+    var out = [], end = m;
+    for (k = n; k >= 1; k--) {
+      j = from[k][end];
+      var ld = k === 1 ? head : blocks[j].cat ? alt : cont;
+      out.unshift({ lead: ld, items: blocks.slice(j, end), h: ld.h + pre[end] - pre[j] });
+      end = j;
+    }
+    return out;
+  }
+
+  /* Split one list of blocks into pages. Items are atomic: they never split. The fewest pages that fit are
+     counted first, then the blocks are dealt out evenly over that many (see deal).
      Returns null when a single block cannot fit a page at this type size. */
-  function flow(headHtml, contHtml, entries, cap) {
+  function flow(headHtml, contHtml, entries, cap, altHtml) {
     var head = { html: headHtml, h: heightOf(headHtml) };
     var cont = { html: contHtml, h: heightOf(contHtml) };
-    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts }; });
+    /* a page that opens on a new category needs no name above it: its own small heading does the job */
+    var alt = altHtml ? { html: altHtml, h: heightOf(altHtml) } : cont;
+    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts, cat: e.cat, catTitle: e.catTitle }; });
     var i;
     for (i = 0; i < blocks.length; i++) {
       if (head.h + blocks[i].h > cap || cont.h + blocks[i].h > cap) return null;
@@ -196,23 +245,17 @@
     blocks.forEach(function (b) {
       if (cur.items.length && cur.h + b.h > cap + 0.5) {
         pages.push(cur);
-        cur = { lead: cont, items: [], h: cont.h };
+        var ld = b.cat ? alt : cont;
+        cur = { lead: ld, items: [], h: ld.h };
       }
       cur.items.push(b); cur.h += b.h;
     });
     pages.push(cur);
 
-    /* no lonely last page: a last page of one item, or of two after a page of five or more, borrows from
-       the one before while both stay within the page */
-    var n = pages.length;
-    if (n > 1) {
-      var last = pages[n - 1], prev = pages[n - 2];
-      while (prev.items.length > 3 && (last.items.length < 2 || (last.items.length < 3 && prev.items.length > 4))) {
-        var mv = prev.items[prev.items.length - 1];
-        if (last.h + mv.h > cap) break;
-        prev.items.pop(); prev.h -= mv.h;
-        last.items.unshift(mv); last.h += mv.h;
-      }
+    /* the same number of pages, dealt out evenly */
+    if (pages.length > 1) {
+      var dealt = deal(head, cont, alt, blocks, cap, pages.length - 1) || deal(head, cont, alt, blocks, cap, pages.length);
+      if (dealt) pages = dealt;
     }
 
     /* verify with the real browser layout; push the last block on if a page still overflows */
@@ -246,17 +289,27 @@
         gs.items.forEach(function (it, idx) {
           var html = itemHTML(it);
           if (k > 0 && idx === 0) html = subHTML(gs) + html;
-          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null });
+          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null, cat: idx === 0, catTitle: gs.title });
         });
       });
-      var fl = flow(headHTML(sec), runHTML(group.length > 1 ? '' : sec.title), entries, cap);
+      /* a page that carries on a category names it in a small heading, so the reader always knows where they are;
+         measured with the longest name of the run, so the real one never makes the page taller than it was counted */
+      var longest = group.reduce(function (a, g) { return g.title.length > a.length ? g.title : a; }, '');
+      var fl = flow(headHTML(sec), runHTML(group.length > 1 ? longest : sec.title), entries, cap, group.length > 1 ? runHTML('') : null);
       if (!fl) return null;
+      if (group.length > 1) {
+        fl.forEach(function (p, k) {
+          if (k === 0) return;
+          var first = p.items[0];
+          p.lead = { html: runHTML(first && !first.cat ? first.catTitle : ''), h: p.lead.h };
+        });
+      }
       fl.forEach(function (p, k) {
         no += 1;
         var has = k === 0 ? [sec.id] : [];
         p.items.forEach(function (b) { if (b.starts) has.push(b.starts); });
         secPages.push({
-          kind: 'sec', sec: sec.id, has: has, title: sec.title, no: no, first: k === 0,
+          kind: 'sec', sec: sec.id, pack: sec.pack, has: has, title: (p.items[0] && p.items[0].catTitle) || sec.title, no: no, first: k === 0,
           from: p.items.length ? p.items[0].ref : 0,
           to: p.items.length ? p.items[p.items.length - 1].ref : 0,
           blocks: [p.lead.html].concat(p.items.map(function (b) { return b.html; }))
@@ -325,15 +378,16 @@
         '<p>' + esc(FOOT) + '</p>' +
         '<div class="back-links"><button class="back-btn" type="button" data-goto="contents">Contents</button>' +
         '<a class="back-btn" href="' + esc(RESERVE_URL) + '" data-reserve>Reserve a table</a></div></div>';
-    } else if (p.kind === 'end' && !p.blocks) {
+    } else if (p.kind === 'end') {
       el.setAttribute('aria-hidden', 'true');
       el.innerHTML = '<div class="end-in">' + logoImg('end-wm', 56, true) + '</div>';
     } else if (p.kind === 'blank') {
       el.setAttribute('aria-hidden', 'true');
     } else {
-      el.setAttribute('aria-label', p.kind === 'toc' || p.kind === 'end' ? 'Contents' : p.title + ', page ' + p.no);
+      el.setAttribute('aria-label', p.kind === 'toc' ? 'Contents' : p.title + ', page ' + p.no);
       el.innerHTML = '<div class="pg-in"><div class="blocks">' + p.blocks.join('') + '</div></div>' +
-        (p.no ? '<span class="pg-no">' + p.no + '</span>' : '');
+        (p.no ? '<span class="pg-no">' + p.no + '</span>' : '') +
+        (p.kind === 'sec' ? '<p class="pg-fn">' + (p.pack === 'drinks' ? DRINKS_NOTE : FOOD_NOTE) + '</p>' : '');
     }
     p.el = el;
     return el;
@@ -577,6 +631,7 @@
     if (reduced() || (opts && opts.instant)) { fadeTo(pos, opts && opts.instant); return; }
     busy = true;
     stage.setAttribute('data-motion', 'turn');
+    flipSound();
     setupTurn(S.pos, pos);
     var far = Math.abs(pos - S.pos) > 1;
     animate(far ? FAR_MS : TURN_MS, easeTurn, pathAt, function () { finishTurn(true); });
@@ -596,6 +651,101 @@
       b.oncancel = function () { busy = false; };
     };
   }
+
+  /* ------------------------------------------------------------ the sound of a page
+     Real recordings of a book's pages turning (audio/flip-1..4.wav, CC0, see audio/README.md), all levelled to
+     the same loudness and cut to the same length, one picked at random for each turn and played at one fixed,
+     quiet volume, so every turn sounds the same weight.
+     The recordings are decoded as soon as the page opens, with a throwaway offline context that needs no touch
+     (a decoded buffer plays in any context). The audio that actually plays is created, or woken, from inside the
+     very first touch of whatever the visitor does (finger down, finger up, click, key), which is what phones
+     require. A swipe begins with a finger going down, so the audio is already awake by the time the page turns.
+     The listeners stay for good: a phone may put the audio to sleep again between gestures, and every touch
+     wakes it. Off with reduced motion, and the button beside the controls turns it off for the visit. */
+  var audio = { ctx: null, bufs: [], loading: false, last: -1, on: store('lulus-snd') !== 'off' };
+  var sndBtn = document.getElementById('snd');
+  var FLIPS = ['audio/flip-1.wav', 'audio/flip-2.wav', 'audio/flip-3.wav', 'audio/flip-4.wav'];
+  var WAKE = ['touchstart', 'pointerdown', 'touchend', 'pointerup', 'click', 'keydown'];
+  function loadFlips() {
+    if (audio.loading || !window.fetch) return;
+    var OC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    var dec = null;
+    try { dec = OC ? new OC(1, 1, 22050) : null; } catch (e) { dec = null; }
+    if (!dec) { if (!audio.ctx) return; dec = audio.ctx; }   /* no offline context: decode in the real one once it exists */
+    audio.loading = true;
+    var left = FLIPS.length;
+    FLIPS.forEach(function (url) {
+      var done = function () { if (--left === 0 && !audio.bufs.length) audio.loading = false; };   /* nothing decoded: try again later */
+      fetch(url).then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (ab) {
+        if (!ab) { done(); return; }
+        /* the callback form works in every browser that has the Web Audio API */
+        dec.decodeAudioData(ab, function (buf) { audio.bufs.push(buf); done(); }, done);
+      }).catch(done);
+    });
+  }
+  /* from inside a touch, click or key: create the audio if it does not exist yet, wake it if it sleeps, and play a
+     silent blip so the browser counts it as started */
+  function wake() {
+    if (!audio.on) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!audio.ctx) {
+      if (!AC) return;
+      try { audio.ctx = new AC(); } catch (e) { return; }
+    }
+    var ctx = audio.ctx;
+    if (ctx.state !== 'running') {
+      try { ctx.resume(); } catch (e) {}
+      try {
+        var blip = ctx.createBufferSource();
+        blip.buffer = ctx.createBuffer(1, 1, 22050);
+        blip.connect(ctx.destination);
+        blip.start(0);
+      } catch (e) {}
+    }
+    if (!audio.bufs.length) loadFlips();
+  }
+  function flipSound() {
+    if (!audio.on || reduced()) return;
+    var ctx = audio.ctx;
+    if (!ctx) return;
+    var n = audio.bufs.length;
+    if (!n) { loadFlips(); return; }
+    var k = Math.floor(Math.random() * n);
+    if (n > 1 && k === audio.last) k = (k + 1) % n;
+    audio.last = k;
+    var play = function () {
+      var src = ctx.createBufferSource(), g = ctx.createGain(), soft = ctx.createBiquadFilter();
+      src.buffer = audio.bufs[k];
+      src.playbackRate.value = 0.99 + Math.random() * 0.04;
+      /* quiet and the same every time, with the hiss rolled off: a page, not a clap */
+      soft.type = 'lowpass'; soft.frequency.value = 4200;
+      g.gain.value = 0.3;
+      src.connect(soft); soft.connect(g); g.connect(ctx.destination);
+      src.start();
+    };
+    if (ctx.state === 'running') play();
+    else {
+      /* asleep: play the moment it wakes, if that is now (a tap that comes much later must not set off an old turn) */
+      var asked = performance.now();
+      try { ctx.resume().then(function () { if (ctx.state === 'running' && performance.now() - asked < 600) play(); }, function () {}); } catch (e) {}
+    }
+  }
+  function paintSnd() {
+    if (!sndBtn) return;
+    sndBtn.setAttribute('aria-pressed', String(audio.on));
+    sndBtn.setAttribute('title', audio.on ? 'Page-turn sound: on' : 'Page-turn sound: off');
+  }
+  /* decode now, and wake or create the audio from the first touch of anything, and every touch after it */
+  if (audio.on) loadFlips();
+  /* not passive: WebKit does not count a touch as permission to play when its listener is passive */
+  WAKE.forEach(function (ev) { document.addEventListener(ev, wake, { passive: false, capture: true }); });
+  if (sndBtn) sndBtn.addEventListener('click', function () {
+    audio.on = !audio.on;
+    store('lulus-snd', audio.on ? 'on' : 'off');
+    paintSnd();
+    if (audio.on) { wake(); flipSound(); }
+  });
+  paintSnd();
 
   /* ------------------------------------------------------------ gestures
      One finger at 1x: the corner comes to the finger and then stays under it. Two fingers, or a page that
@@ -704,6 +854,7 @@
     var gone = progressOf(turn.F);
     var vdir = -vx;                                /* px per ms in the direction of turning */
     var commit = (gone > 0.3 || vdir > 0.4) && vdir > -0.4;
+    if (commit) flipSound();
     var tgt = commit ? turn.rest : turn.O;
     var F0 = turn.F;
     var ex = tgt.x - F0.x, ey = tgt.y - F0.y, dist = Math.hypot(ex, ey);
@@ -854,7 +1005,7 @@
   }
   function hashFor() {
     var vp = visiblePages();
-    for (var i = 0; i < vp.length; i++) if (vp[i].kind === 'sec') return vp[i].sec;
+    for (var i = 0; i < vp.length; i++) if (vp[i].kind === 'sec') return vp[i].has.length ? vp[i].has[0] : vp[i].sec;
     for (var j = 0; j < vp.length; j++) if (vp[j].kind === 'toc') return S.service;
     return '';
   }
@@ -897,7 +1048,7 @@
     prevBtn.disabled = S.pos <= 0;
     nextBtn.disabled = S.pos >= lastPos();
     var vp = visiblePages();
-    var onToc = vp.some(function (p) { return (p.kind === 'toc' && p.first) || (p.kind === 'end' && p.blocks); });
+    var onToc = vp.some(function (p) { return p.kind === 'toc' && p.first; });
     tocBtn.disabled = onToc;
     var nums = vp.filter(function (p) { return p.kind === 'sec'; }).map(function (p) { return p.no; });
     var total = S.pages.filter(function (p) { return p.kind === 'sec'; }).length;
