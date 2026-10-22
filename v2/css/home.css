@@ -305,7 +305,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 /* the headline: a quiet tracked line in Jost, then her wordmark drawing itself in the season's colour, as if new */
 .room-head .display { margin-top: 14px; font-family: var(--font-body); font-style: normal; font-weight: 400; font-size: clamp(0.9375rem, 3.9vw, 1.25rem); letter-spacing: 0.26em; text-indent: 0.26em; text-transform: uppercase; line-height: 1.4; text-wrap: balance; }
 .rh-t { display: block; }
-.room-head .wm-draw { width: min(74vw, 400px); margin: clamp(16px, 3.4vw, 26px) auto 0; color: var(--pop-night, var(--h-acc)); }
+.room-head .wm-draw { width: min(56vw, 300px); margin: clamp(16px, 3.4vw, 26px) auto 0; color: var(--pop-night, var(--h-acc)); }
 html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-acc)); }
 .js .wm-draw path { fill-opacity: 0; stroke: currentColor; stroke-width: 7; stroke-linejoin: round; stroke-dasharray: 1 2; stroke-dashoffset: 1; }
 .js .display.in .wm-draw path {
