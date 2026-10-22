@@ -25,7 +25,7 @@
 
   var mqReduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   function reduced() { return mqReduce.matches; }
-  /* a phone on its side: short and wide. The same rule drives the compact styles in book.css. */
+  /* a phone on its side: short and wide. The same rule drives the compact styles in menu.css. */
   var mqCompact = window.matchMedia ? window.matchMedia('(max-height: 479px) and (orientation: landscape)') : { matches: false };
 
   /* ------------------------------------------------------------ state */
@@ -325,13 +325,13 @@
         '<p>' + esc(FOOT) + '</p>' +
         '<div class="back-links"><button class="back-btn" type="button" data-goto="contents">Contents</button>' +
         '<a class="back-btn" href="' + esc(RESERVE_URL) + '" data-reserve>Reserve a table</a></div></div>';
-    } else if (p.kind === 'end' && !p.blocks) {
+    } else if (p.kind === 'end') {
       el.setAttribute('aria-hidden', 'true');
       el.innerHTML = '<div class="end-in">' + logoImg('end-wm', 56, true) + '</div>';
     } else if (p.kind === 'blank') {
       el.setAttribute('aria-hidden', 'true');
     } else {
-      el.setAttribute('aria-label', p.kind === 'toc' || p.kind === 'end' ? 'Contents' : p.title + ', page ' + p.no);
+      el.setAttribute('aria-label', p.kind === 'toc' ? 'Contents' : p.title + ', page ' + p.no);
       el.innerHTML = '<div class="pg-in"><div class="blocks">' + p.blocks.join('') + '</div></div>' +
         (p.no ? '<span class="pg-no">' + p.no + '</span>' : '');
     }
@@ -897,7 +897,7 @@
     prevBtn.disabled = S.pos <= 0;
     nextBtn.disabled = S.pos >= lastPos();
     var vp = visiblePages();
-    var onToc = vp.some(function (p) { return (p.kind === 'toc' && p.first) || (p.kind === 'end' && p.blocks); });
+    var onToc = vp.some(function (p) { return p.kind === 'toc' && p.first; });
     tocBtn.disabled = onToc;
     var nums = vp.filter(function (p) { return p.kind === 'sec'; }).map(function (p) { return p.no; });
     var total = S.pages.filter(function (p) { return p.kind === 'sec'; }).length;

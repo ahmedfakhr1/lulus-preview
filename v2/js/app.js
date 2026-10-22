@@ -21,7 +21,8 @@
      are ready, for at most 2.5 s (that cap lives in <head>, so a slow script cannot hold it); a tap or any key lifts it at once. */
   var docEl = document.documentElement;
   var veil = document.getElementById('veil');
-  var photos = Array.prototype.slice.call(document.querySelectorAll('main img, .foot img'));
+  /* only the photos on screen for this season: other seasons' frames are hidden and stay unfetched */
+  var photos = Array.prototype.slice.call(document.querySelectorAll('main img, .foot img')).filter(function (img) { return img.getClientRects().length > 0; });
   function ready(img) {
     var loaded = img.complete && img.naturalWidth ? Promise.resolve() : new Promise(function (res) {
       img.addEventListener('load', res, { once: true });
