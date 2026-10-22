@@ -90,6 +90,169 @@
     });
   }
 
+  /* ---- gallery lightbox: a photo full on the page, the rest of the season's gallery a swipe away ----
+     It opens from the photo's own place on the page and closes back into it; swipe, arrows or the keys move along,
+     a swipe down or a tap on the dark ground closes. Only transform and opacity move; reduced motion fades. */
+  var room = document.getElementById('room');
+  if (room && document.createElement('dialog').showModal) {
+    var ICON = function (d) { return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + d + '"/></svg>'; };
+    var lb = document.createElement('dialog');
+    lb.className = 'lb';
+    lb.setAttribute('aria-label', 'Photo gallery');
+    lb.innerHTML = '<div class="lb-bg"></div><div class="lb-stage"></div><p class="lb-n" aria-live="polite"></p>' +
+      '<button class="x lb-x" type="button" aria-label="Close">' + ICON('M18 6l-12 12M6 6l12 12') + '</button>' +
+      '<button class="lb-nav lb-prev" type="button" aria-label="Previous photo">' + ICON('M15 6l-6 6l6 6') + '</button>' +
+      '<button class="lb-nav lb-next" type="button" aria-label="Next photo">' + ICON('M9 6l6 6l-6 6') + '</button>';
+    document.body.appendChild(lb);
+    var lbBg = lb.querySelector('.lb-bg'), lbStage = lb.querySelector('.lb-stage'), lbN = lb.querySelector('.lb-n');
+    var lbPrev = lb.querySelector('.lb-prev'), lbNext = lb.querySelector('.lb-next');
+    var shots = [], at = 0, cur = null, closing = false, d0 = null;
+    var EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    var calm = function () { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || !lb.animate; };
+    var collect = function () {
+      shots = [];
+      Array.prototype.forEach.call(room.querySelectorAll('.fr'), function (f) {
+        var im = f.querySelector('img');
+        if (im && f.getClientRects().length) shots.push({ box: f.querySelector('.fr-in'), src: im.currentSrc || im.src, alt: im.alt });
+      });
+    };
+    var make = function (i) {
+      var im = document.createElement('img');
+      im.className = 'lb-img'; im.alt = shots[i].alt; im.draggable = false; im.src = shots[i].src;
+      lbStage.appendChild(im);
+      return im;
+    };
+    var whenReady = function (im, fn) {
+      if (im.complete && im.naturalWidth) fn();
+      else { im.addEventListener('load', fn, { once: true }); im.addEventListener('error', fn, { once: true }); }
+    };
+    var label = function () {
+      lbN.textContent = (at + 1) + ' / ' + shots.length;
+      lbPrev.disabled = !shots[at - 1]; lbNext.disabled = !shots[at + 1];
+      [at - 1, at + 1].forEach(function (k) { if (shots[k]) { var p = new Image(); p.src = shots[k].src; } });
+    };
+    /* the transform that lays the full photo exactly over its thumbnail */
+    var toThumb = function (im, box) {
+      var t = box.getBoundingClientRect(), f = im.getBoundingClientRect();
+      if (!f.width || t.bottom < 0 || t.top > window.innerHeight) return null;
+      im.style.transformOrigin = '0 0';
+      return 'translate(' + (t.left - f.left) + 'px,' + (t.top - f.top) + 'px) scale(' + (t.width / f.width) + ',' + (t.height / f.height) + ')';
+    };
+    var openAt = function (i) {
+      collect();
+      if (!shots[i]) return;
+      at = i; closing = false;
+      document.documentElement.classList.add('lb-open');
+      lb.showModal();
+      cur = make(at); label();
+      lb.classList.add('on');
+      var im = cur;
+      whenReady(im, function () {
+        if (calm()) { if (lb.animate) im.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140 }); return; }
+        var from = toThumb(im, shots[at].box);
+        if (from) im.animate([{ transform: from }, { transform: 'none' }], { duration: 460, easing: EASE });
+        else im.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 });
+      });
+    };
+    var go = function (d, dragX) {
+      var n = at + d;
+      if (!shots[n] || closing) return;
+      at = n;
+      var old = cur; cur = make(at); label();
+      if (calm()) { if (old) old.remove(); return; }
+      var dist = Math.min(80, window.innerWidth * 0.12);
+      cur.animate([{ opacity: 0, transform: 'translateX(' + (d * dist) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE });
+      if (old) {
+        var a = old.animate([{ opacity: 1, transform: 'translateX(' + (dragX || 0) + 'px)' }, { opacity: 0, transform: 'translateX(' + (-d * dist) + 'px)' }], { duration: 300, easing: EASE, fill: 'forwards' });
+        a.onfinish = function () { old.remove(); };
+      }
+    };
+    var close = function () {
+      if (closing || !lb.open) return;
+      closing = true;
+      lbBg.style.opacity = '';
+      lb.classList.remove('on');
+      var done = function () { try { lb.close(); } catch (e) {} };
+      if (calm() || !cur) { setTimeout(done, 120); return; }
+      cur.style.transform = '';
+      var back = toThumb(cur, shots[at].box);
+      var a = back ? cur.animate([{ transform: 'none' }, { transform: back }], { duration: 400, easing: EASE, fill: 'forwards' })
+                   : cur.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
+      a.onfinish = done;
+    };
+    lb.addEventListener('cancel', function (e) { e.preventDefault(); close(); });
+    lb.addEventListener('close', function () {
+      var box = shots[at] && shots[at].box;
+      lbStage.innerHTML = ''; cur = null; closing = false; d0 = null;
+      lb.classList.remove('on'); lbBg.style.opacity = '';
+      document.documentElement.classList.remove('lb-open');
+      if (box) box.focus({ preventScroll: true });
+    });
+    lb.querySelector('.lb-x').addEventListener('click', close);
+    lbPrev.addEventListener('click', function () { go(-1); });
+    lbNext.addEventListener('click', function () { go(1); });
+    lb.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    });
+
+    /* a finger or the mouse moves the photo: sideways to turn to the next, down to put it away */
+    lbStage.addEventListener('pointerdown', function (e) {
+      if (e.button || !cur) return;
+      d0 = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, dx: 0, dy: 0, mode: '' };
+    });
+    lbStage.addEventListener('pointermove', function (e) {
+      if (!d0 || e.pointerId !== d0.id || !cur) return;
+      d0.dx = e.clientX - d0.x; d0.dy = e.clientY - d0.y;
+      if (!d0.mode) {
+        if (Math.abs(d0.dx) < 8 && Math.abs(d0.dy) < 8) return;
+        d0.mode = Math.abs(d0.dx) > Math.abs(d0.dy) ? 'x' : 'y';
+        try { lbStage.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      if (d0.mode === 'x') {
+        var edge = (d0.dx > 0 && !shots[at - 1]) || (d0.dx < 0 && !shots[at + 1]);
+        cur.style.transform = 'translateX(' + (d0.dx * (edge ? 0.25 : 1)).toFixed(1) + 'px)';
+      } else {
+        cur.style.transform = 'translateY(' + d0.dy.toFixed(1) + 'px)';
+        lbBg.style.opacity = Math.max(0.15, 1 - Math.abs(d0.dy) / 420).toFixed(2);
+      }
+    });
+    var release = function (e) {
+      if (!d0 || e.pointerId !== d0.id) return;
+      var s = d0; d0 = null;
+      if (!s.mode) { if (e.target === lbStage) close(); return; }
+      var v = s.dx / Math.max(1, e.timeStamp - s.t);
+      var held = cur.style.transform;
+      cur.style.transform = '';
+      if (s.mode === 'x') {
+        var d = (s.dx < -50 || v < -0.5) ? 1 : (s.dx > 50 || v > 0.5) ? -1 : 0;
+        if (d && shots[at + d]) { go(d, s.dx); return; }
+        cur.animate([{ transform: held || 'none' }, { transform: 'none' }], { duration: 320, easing: EASE });
+      } else if (Math.abs(s.dy) > 110) {
+        close();
+      } else {
+        lbBg.style.opacity = '';
+        cur.animate([{ transform: held || 'none' }, { transform: 'none' }], { duration: 320, easing: EASE });
+      }
+    };
+    lbStage.addEventListener('pointerup', release);
+    lbStage.addEventListener('pointercancel', release);
+
+    /* every photo on show is a button: Enter or Space opens it like a tap */
+    Array.prototype.forEach.call(room.querySelectorAll('.fr'), function (f) {
+      var im = f.querySelector('img'), box = f.querySelector('.fr-in');
+      if (!im || !box) return;
+      var open = function () {
+        collect();
+        for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); return; }
+      };
+      box.setAttribute('role', 'button'); box.tabIndex = 0; box.setAttribute('aria-haspopup', 'dialog');
+      box.setAttribute('aria-label', 'Open photo: ' + im.alt);
+      box.addEventListener('click', open);
+      box.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    });
+  }
+
   /* ---- reserve sheet ---- */
   var dlg = document.getElementById('reserve');
   var form = document.getElementById('reserve-form');

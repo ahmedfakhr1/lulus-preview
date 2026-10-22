@@ -147,7 +147,7 @@
     var cw = root.clientWidth, ch = root.clientHeight;
     var vw = doc.clientWidth || window.innerWidth, vh = doc.clientHeight || window.innerHeight;
     var spread = compact || (vw >= 900 && vh >= 480);
-    var mx = compact ? 6 : spread ? 28 : 10, my = compact ? 5 : spread ? 18 : 8;
+    var mx = compact ? 6 : spread ? 28 : 8, my = compact ? 5 : spread ? 18 : 6;
     var H = Math.floor(ch - 2 * my);
     var maxW = spread ? (cw - 2 * mx) / 2 : (cw - 2 * mx);
     /* on its side a phone has width to spare, so the pages get a squarer shape and fit more lines across */
@@ -182,12 +182,54 @@
     return mBlocks.getBoundingClientRect().height <= cap + 0.5;
   }
 
-  /* Split one list of blocks into pages. Items are atomic: they never split.
+  /* Deal the blocks out over n pages so they come out about equally full: the cost of a page is how far its
+     fill is from the average, so no page is a couple of stragglers. A break inside a category costs a little,
+     so pages begin on a category where they can; and a page that carries a category over is mostly that
+     category's own items, never a short tail followed by a new category. Returns null if no deal fits. */
+  function deal(head, cont, blocks, cap, n) {
+    var m = blocks.length, pre = [0], i, j, k;
+    for (i = 0; i < m; i++) pre.push(pre[i] + blocks[i].h);
+    var mean = (head.h + (n - 1) * cont.h + pre[m]) / n / cap;
+    var INF = 1e9, best = [], from = [];
+    for (k = 0; k <= n; k++) {
+      best.push([]); from.push([]);
+      for (i = 0; i <= m; i++) { best[k].push(INF); from[k].push(-1); }
+    }
+    best[0][0] = 0;
+    for (k = 1; k <= n; k++) {
+      for (i = k; i <= m; i++) {
+        for (j = k - 1; j < i; j++) {
+          if (best[k - 1][j] >= INF) continue;
+          var load = (k === 1 ? head.h : cont.h) + pre[i] - pre[j];
+          if (load > cap + 0.5) continue;
+          var dev = load / cap - mean, cost = dev * dev;
+          if (j > 0 && !blocks[j].cat) {
+            cost += 0.06;
+            var t = j;
+            while (t < i && !blocks[t].cat) t++;
+            if (t < i && pre[t] - pre[j] < 0.45 * cap) cost += 1;
+          }
+          if (best[k - 1][j] + cost < best[k][i]) { best[k][i] = best[k - 1][j] + cost; from[k][i] = j; }
+        }
+      }
+    }
+    if (best[n][m] >= INF) return null;
+    var out = [], end = m;
+    for (k = n; k >= 1; k--) {
+      j = from[k][end];
+      out.unshift({ lead: k === 1 ? head : cont, items: blocks.slice(j, end), h: (k === 1 ? head.h : cont.h) + pre[end] - pre[j] });
+      end = j;
+    }
+    return out;
+  }
+
+  /* Split one list of blocks into pages. Items are atomic: they never split. The fewest pages that fit are
+     counted first, then the blocks are dealt out evenly over that many (see deal).
      Returns null when a single block cannot fit a page at this type size. */
   function flow(headHtml, contHtml, entries, cap) {
     var head = { html: headHtml, h: heightOf(headHtml) };
     var cont = { html: contHtml, h: heightOf(contHtml) };
-    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts }; });
+    var blocks = entries.map(function (e) { return { html: e.html, h: heightOf(e.html), ref: e.ref, starts: e.starts, cat: e.cat }; });
     var i;
     for (i = 0; i < blocks.length; i++) {
       if (head.h + blocks[i].h > cap || cont.h + blocks[i].h > cap) return null;
@@ -202,17 +244,10 @@
     });
     pages.push(cur);
 
-    /* no lonely last page: a last page of one item, or of two after a page of five or more, borrows from
-       the one before while both stay within the page */
-    var n = pages.length;
-    if (n > 1) {
-      var last = pages[n - 1], prev = pages[n - 2];
-      while (prev.items.length > 3 && (last.items.length < 2 || (last.items.length < 3 && prev.items.length > 4))) {
-        var mv = prev.items[prev.items.length - 1];
-        if (last.h + mv.h > cap) break;
-        prev.items.pop(); prev.h -= mv.h;
-        last.items.unshift(mv); last.h += mv.h;
-      }
+    /* the same number of pages, dealt out evenly */
+    if (pages.length > 1) {
+      var dealt = deal(head, cont, blocks, cap, pages.length);
+      if (dealt) pages = dealt;
     }
 
     /* verify with the real browser layout; push the last block on if a page still overflows */
@@ -246,7 +281,7 @@
         gs.items.forEach(function (it, idx) {
           var html = itemHTML(it);
           if (k > 0 && idx === 0) html = subHTML(gs) + html;
-          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null });
+          entries.push({ html: html, ref: gi++, starts: k > 0 && idx === 0 ? gs.id : null, cat: idx === 0 });
         });
       });
       var fl = flow(headHTML(sec), runHTML(group.length > 1 ? '' : sec.title), entries, cap);
@@ -577,6 +612,7 @@
     if (reduced() || (opts && opts.instant)) { fadeTo(pos, opts && opts.instant); return; }
     busy = true;
     stage.setAttribute('data-motion', 'turn');
+    flipSound();
     setupTurn(S.pos, pos);
     var far = Math.abs(pos - S.pos) > 1;
     animate(far ? FAR_MS : TURN_MS, easeTurn, pathAt, function () { finishTurn(true); });
@@ -596,6 +632,69 @@
       b.oncancel = function () { busy = false; };
     };
   }
+
+  /* ------------------------------------------------------------ the sound of a page
+     A soft rustle of paper, made on the spot (nothing to download): filtered noise with a quick lift and a long
+     fall, a little different each time. A phone allows sound only after a touch, so the first touch or key
+     wakes it. Off with reduced motion, and the button beside the controls turns it off for the visit. */
+  var audio = { ctx: null, noise: null, on: store('lulus-snd') !== 'off' };
+  var sndBtn = document.getElementById('snd');
+  function audioCtx() {
+    if (!audio.ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { audio.ctx = new AC(); } catch (e) { return null; }
+    }
+    if (audio.ctx.state === 'suspended') { try { audio.ctx.resume(); } catch (e) {} }
+    return audio.ctx;
+  }
+  function noiseBuffer(ctx) {
+    if (!audio.noise) {
+      var len = Math.floor(ctx.sampleRate * 0.9), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0), last = 0;
+      for (var i = 0; i < len; i++) { last = last * 0.55 + (Math.random() * 2 - 1) * 0.45; d[i] = last; }
+      audio.noise = buf;
+    }
+    return audio.noise;
+  }
+  function flipSound() {
+    if (!audio.on || reduced()) return;
+    var ctx = audioCtx();
+    if (!ctx) return;
+    var t = ctx.currentTime + 0.01, v = 0.85 + Math.random() * 0.3;
+    var src = ctx.createBufferSource();
+    src.buffer = noiseBuffer(ctx);
+    src.playbackRate.value = 0.9 + Math.random() * 0.2;
+    var band = ctx.createBiquadFilter();
+    band.type = 'bandpass'; band.Q.value = 0.7;
+    band.frequency.setValueAtTime(1400 * v, t);
+    band.frequency.exponentialRampToValueAtTime(3800, t + 0.22);
+    band.frequency.exponentialRampToValueAtTime(2300, t + 0.5);
+    var hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 600;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.13 * v, t + 0.07);   /* the lift */
+    g.gain.exponentialRampToValueAtTime(0.04 * v, t + 0.26);
+    g.gain.exponentialRampToValueAtTime(0.07 * v, t + 0.42);   /* the sheet landing */
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.62);
+    src.connect(band); band.connect(hp); hp.connect(g); g.connect(ctx.destination);
+    src.start(t, Math.random() * 0.2, 0.7);
+  }
+  function paintSnd() {
+    if (!sndBtn) return;
+    sndBtn.setAttribute('aria-pressed', String(audio.on));
+    sndBtn.setAttribute('title', audio.on ? 'Page-turn sound: on' : 'Page-turn sound: off');
+  }
+  ['pointerdown', 'keydown'].forEach(function (ev) {
+    document.addEventListener(ev, function () { if (audio.on) audioCtx(); }, { passive: true });
+  });
+  if (sndBtn) sndBtn.addEventListener('click', function () {
+    audio.on = !audio.on;
+    store('lulus-snd', audio.on ? 'on' : 'off');
+    paintSnd();
+    if (audio.on) flipSound();
+  });
+  paintSnd();
 
   /* ------------------------------------------------------------ gestures
      One finger at 1x: the corner comes to the finger and then stays under it. Two fingers, or a page that
@@ -704,6 +803,7 @@
     var gone = progressOf(turn.F);
     var vdir = -vx;                                /* px per ms in the direction of turning */
     var commit = (gone > 0.3 || vdir > 0.4) && vdir > -0.4;
+    if (commit) flipSound();
     var tgt = commit ? turn.rest : turn.O;
     var F0 = turn.F;
     var ex = tgt.x - F0.x, ey = tgt.y - F0.y, dist = Math.hypot(ex, ey);
@@ -854,7 +954,7 @@
   }
   function hashFor() {
     var vp = visiblePages();
-    for (var i = 0; i < vp.length; i++) if (vp[i].kind === 'sec') return vp[i].sec;
+    for (var i = 0; i < vp.length; i++) if (vp[i].kind === 'sec') return vp[i].has.length ? vp[i].has[0] : vp[i].sec;
     for (var j = 0; j < vp.length; j++) if (vp[j].kind === 'toc') return S.service;
     return '';
   }
