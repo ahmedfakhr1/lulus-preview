@@ -634,59 +634,65 @@
   }
 
   /* ------------------------------------------------------------ the sound of a page
-     A soft rustle of paper, made on the spot (nothing to download): filtered noise with a quick lift and a long
-     fall, a little different each time. A phone allows sound only after a touch, so the first touch or key
-     wakes it. Off with reduced motion, and the button beside the controls turns it off for the visit. */
-  var audio = { ctx: null, noise: null, on: store('lulus-snd') !== 'off' };
+     Real recordings of a book's pages turning (audio/flip-1..4.wav, CC0, see audio/README.md), one picked at
+     random for each turn and played a touch faster or slower and softer or louder, so no two turns are the same.
+     They are fetched and decoded as soon as the page opens (decoding needs no touch), and the audio is woken
+     by the first tap, click or key: a phone counts only those, not a finger going down, as permission to play.
+     Off with reduced motion, and the button beside the controls turns it off for the visit. */
+  var audio = { ctx: null, bufs: [], loading: false, last: -1, on: store('lulus-snd') !== 'off' };
   var sndBtn = document.getElementById('snd');
+  var FLIPS = ['audio/flip-1.wav', 'audio/flip-2.wav', 'audio/flip-3.wav', 'audio/flip-4.wav'];
   function audioCtx() {
     if (!audio.ctx) {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       try { audio.ctx = new AC(); } catch (e) { return null; }
     }
-    if (audio.ctx.state === 'suspended') { try { audio.ctx.resume(); } catch (e) {} }
+    if (audio.ctx.state !== 'running') { try { audio.ctx.resume(); } catch (e) {} }
     return audio.ctx;
   }
-  function noiseBuffer(ctx) {
-    if (!audio.noise) {
-      var len = Math.floor(ctx.sampleRate * 0.9), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0), last = 0;
-      for (var i = 0; i < len; i++) { last = last * 0.55 + (Math.random() * 2 - 1) * 0.45; d[i] = last; }
-      audio.noise = buf;
-    }
-    return audio.noise;
+  function loadFlips(ctx) {
+    if (audio.loading || !window.fetch) return;
+    audio.loading = true;
+    FLIPS.forEach(function (url) {
+      fetch(url).then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (ab) {
+        if (!ab) return;
+        /* the callback form works in every browser that has the Web Audio API */
+        ctx.decodeAudioData(ab, function (buf) { audio.bufs.push(buf); }, function () {});
+      }).catch(function () {});
+    });
   }
   function flipSound() {
     if (!audio.on || reduced()) return;
     var ctx = audioCtx();
     if (!ctx) return;
-    var t = ctx.currentTime + 0.01, v = 0.85 + Math.random() * 0.3;
-    var src = ctx.createBufferSource();
-    src.buffer = noiseBuffer(ctx);
-    src.playbackRate.value = 0.9 + Math.random() * 0.2;
-    var band = ctx.createBiquadFilter();
-    band.type = 'bandpass'; band.Q.value = 0.7;
-    band.frequency.setValueAtTime(1400 * v, t);
-    band.frequency.exponentialRampToValueAtTime(3800, t + 0.22);
-    band.frequency.exponentialRampToValueAtTime(2300, t + 0.5);
-    var hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 600;
-    var g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.13 * v, t + 0.07);   /* the lift */
-    g.gain.exponentialRampToValueAtTime(0.04 * v, t + 0.26);
-    g.gain.exponentialRampToValueAtTime(0.07 * v, t + 0.42);   /* the sheet landing */
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.62);
-    src.connect(band); band.connect(hp); hp.connect(g); g.connect(ctx.destination);
-    src.start(t, Math.random() * 0.2, 0.7);
+    loadFlips(ctx);
+    var n = audio.bufs.length;
+    if (!n) return;
+    var k = Math.floor(Math.random() * n);
+    if (n > 1 && k === audio.last) k = (k + 1) % n;
+    audio.last = k;
+    var play = function () {
+      var src = ctx.createBufferSource(), g = ctx.createGain();
+      src.buffer = audio.bufs[k];
+      src.playbackRate.value = 0.94 + Math.random() * 0.14;
+      g.gain.value = 0.55 + Math.random() * 0.15;
+      src.connect(g); g.connect(ctx.destination);
+      src.start();
+    };
+    /* still asleep (the turn began on a finger going down): play the moment it wakes */
+    if (ctx.state === 'running') play();
+    else if (ctx.resume) { try { ctx.resume().then(function () { if (ctx.state === 'running') play(); }, function () {}); } catch (e) {} }
   }
   function paintSnd() {
     if (!sndBtn) return;
     sndBtn.setAttribute('aria-pressed', String(audio.on));
     sndBtn.setAttribute('title', audio.on ? 'Page-turn sound: on' : 'Page-turn sound: off');
   }
-  ['pointerdown', 'keydown'].forEach(function (ev) {
-    document.addEventListener(ev, function () { if (audio.on) audioCtx(); }, { passive: true });
+  /* ready before the first turn: fetch and decode now, wake on the first tap, click or key */
+  if (audio.on) { var c0 = audioCtx(); if (c0) loadFlips(c0); }
+  ['touchend', 'pointerup', 'click', 'keydown'].forEach(function (ev) {
+    document.addEventListener(ev, function () { if (audio.on) { var c = audioCtx(); if (c) loadFlips(c); } }, { passive: true, capture: true });
   });
   if (sndBtn) sndBtn.addEventListener('click', function () {
     audio.on = !audio.on;
