@@ -506,11 +506,11 @@ a, button { touch-action: manipulation; }
 html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo, html[data-mood='evening'] .story-h { color: var(--accent); }
 
 /* ---------- gallery lightbox: a photo full on the page, the rest of the season a swipe away ---------- */
-.fr-in[role='button'] { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; transition: transform 0.38s var(--ease); }
+.fr-in[role='button'] { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; transition: transform 0.7s var(--ease); }
 /* resting a finger on a photo: the frame gives a little and a soft shade comes over it, so it feels pressable */
-.fr-in[role='button']::after { content: ''; position: absolute; inset: 0; background: rgba(var(--scrim), 0.22); opacity: 0; pointer-events: none; transition: opacity 0.3s var(--ease); }
-.fr-in.press { transform: scale(0.965); transition-duration: 0.14s; }
-.fr-in.press::after { opacity: 1; transition-duration: 0.14s; }
+.fr-in[role='button']::after { content: ''; position: absolute; inset: 0; background: rgba(var(--scrim), 0.14); opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease); }
+.fr-in.press { transform: scale(0.985); transition-duration: 0.5s; }
+.fr-in.press::after { opacity: 1; transition-duration: 0.5s; }
 .fr-in.rel { transition: none; }
 .fr-in.rel::after { transition: none; }
 /* a mouse over a photo: it drifts closer inside its frame and a faint shade settles, so it reads as something to open */
@@ -526,7 +526,7 @@ html.lb-open { overflow: hidden; }
 .lb { position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--on-photo); }
 .lb::backdrop { background: transparent; }
 .lb :focus-visible { outline-color: var(--on-photo); }
-.lb-bg { position: absolute; inset: 0; background: rgb(var(--scrim)); opacity: 0; transition: opacity 0.4s var(--ease); }
+.lb-bg { position: absolute; inset: 0; background: rgb(var(--scrim)); opacity: 0; transition: opacity 0.65s var(--ease); }
 .lb.on .lb-bg { opacity: 1; }
 .lb-stage { position: absolute; inset: calc(64px + env(safe-area-inset-top)) 0 calc(96px + env(safe-area-inset-bottom)); touch-action: none; }
 .lb-img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: min(94vw, 900px); max-height: 100%; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }

@@ -150,7 +150,7 @@
       whenReady(im, function () {
         if (calm()) { if (lb.animate) im.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140 }); return; }
         var from = toThumb(im, shots[at].box);
-        if (from) im.animate([{ transform: from }, { transform: 'none' }], { duration: 460, easing: EASE });
+        if (from) im.animate([{ transform: from }, { transform: 'none' }], { duration: 720, easing: EASE });
         else im.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240 });
       });
     };
@@ -161,9 +161,9 @@
       var old = cur; cur = make(at); label();
       if (calm()) { if (old) old.remove(); return; }
       var dist = Math.min(80, window.innerWidth * 0.12);
-      cur.animate([{ opacity: 0, transform: 'translateX(' + (d * dist) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE });
+      cur.animate([{ opacity: 0, transform: 'translateX(' + (d * dist) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 560, easing: EASE });
       if (old) {
-        var a = old.animate([{ opacity: 1, transform: 'translateX(' + (dragX || 0) + 'px)' }, { opacity: 0, transform: 'translateX(' + (-d * dist) + 'px)' }], { duration: 300, easing: EASE, fill: 'forwards' });
+        var a = old.animate([{ opacity: 1, transform: 'translateX(' + (dragX || 0) + 'px)' }, { opacity: 0, transform: 'translateX(' + (-d * dist) + 'px)' }], { duration: 420, easing: EASE, fill: 'forwards' });
         a.onfinish = function () { old.remove(); };
       }
     };
@@ -176,8 +176,8 @@
       if (calm() || !cur) { setTimeout(done, 120); return; }
       cur.style.transform = '';
       var back = toThumb(cur, shots[at].box);
-      var a = back ? cur.animate([{ transform: 'none' }, { transform: back }], { duration: 400, easing: EASE, fill: 'forwards' })
-                   : cur.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
+      var a = back ? cur.animate([{ transform: 'none' }, { transform: back }], { duration: 600, easing: EASE, fill: 'forwards' })
+                   : cur.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' });
       a.onfinish = done;
     };
     lb.addEventListener('cancel', function (e) { e.preventDefault(); close(); });
@@ -243,11 +243,10 @@
       var im = f.querySelector('img'), box = f.querySelector('.fr-in');
       if (!im || !box) return;
       var open = function () {
-        /* let go of the press at once, so the photo grows from where the frame really is */
-        box.classList.remove('press'); box.classList.add('rel');
+        /* let go of the press softly; the frame gives so little that the photo still grows from where it is */
+        box.classList.remove('press');
         collect();
         for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); break; }
-        requestAnimationFrame(function () { box.classList.remove('rel'); });
         if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
       };
       /* a finger resting on a photo makes it give a little, as a button does; a scroll lifts it again */
@@ -257,7 +256,7 @@
         if (e.pointerType === 'mouse' && e.button) return;
         px = e.clientX; py = e.clientY;
         clearTimeout(held);
-        held = setTimeout(function () { box.classList.add('press'); }, 60);
+        held = setTimeout(function () { box.classList.add('press'); }, 90);
       });
       box.addEventListener('pointermove', function (e) {
         if (Math.abs(e.clientX - px) > 10 || Math.abs(e.clientY - py) > 10) lift();
