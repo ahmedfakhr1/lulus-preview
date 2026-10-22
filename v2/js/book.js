@@ -665,7 +665,7 @@
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       try { audio.ctx = new AC(); } catch (e) { return null; }
-      audio.ctx.onstatechange = function () { if (audio.ctx.state === 'running') sleepWake(false); };
+      audio.ctx.onstatechange = function () { if (audio.ctx.state === 'running') { sleepWake(false); if (sndBtn) sndBtn.classList.remove('wait'); } };
     }
     return audio.ctx;
   }
@@ -724,14 +724,18 @@
     };
     if (ctx.state === 'running') play();
     else {
-      /* still asleep: play the moment it wakes */
-      try { ctx.resume().then(function () { if (ctx.state === 'running') play(); }, function () {}); } catch (e) {}
+      /* still asleep: play the moment it wakes, if that is now (a tap that comes much later must not set off an old turn).
+         On an iPhone only a tap or click can wake it, never a swipe, so the speaker button asks for one. */
+      var asked = performance.now();
+      if (sndBtn) sndBtn.classList.add('wait');
+      try { ctx.resume().then(function () { if (ctx.state === 'running' && performance.now() - asked < 600) play(); }, function () {}); } catch (e) {}
     }
   }
   function paintSnd() {
     if (!sndBtn) return;
     sndBtn.setAttribute('aria-pressed', String(audio.on));
     sndBtn.setAttribute('title', audio.on ? 'Page-turn sound: on' : 'Page-turn sound: off');
+    if (!audio.on) sndBtn.classList.remove('wait');
   }
   /* ready before the first turn: fetch and decode now, wake on the first tap, click or key */
   if (audio.on) { var c0 = audioCtx(); if (c0) { loadFlips(c0); if (c0.state !== 'running') sleepWake(true); } }
