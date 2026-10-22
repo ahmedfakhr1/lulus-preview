@@ -20,6 +20,9 @@
   var SEASON = LU.season;
   var LOGO = document.body.getAttribute('data-logo') || 'img/logo.png';
   var FOOT = document.body.getAttribute('data-footnote') || '';
+  /* the small print under every page of the menu, as on the owner's PDFs: food carries VAT and service, drinks service only */
+  var FOOD_NOTE = 'All prices are subject to 14% VAT and 12% service charge.';
+  var DRINKS_NOTE = 'All prices are subject to 12% service charge.';
   var WA = document.body.getAttribute('data-wa') || '';
   var RESERVE_URL = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('Hello LÜLU’S, I’d like to reserve a table.');
 
@@ -306,7 +309,7 @@
         var has = k === 0 ? [sec.id] : [];
         p.items.forEach(function (b) { if (b.starts) has.push(b.starts); });
         secPages.push({
-          kind: 'sec', sec: sec.id, has: has, title: sec.title, no: no, first: k === 0,
+          kind: 'sec', sec: sec.id, pack: sec.pack, has: has, title: (p.items[0] && p.items[0].catTitle) || sec.title, no: no, first: k === 0,
           from: p.items.length ? p.items[0].ref : 0,
           to: p.items.length ? p.items[p.items.length - 1].ref : 0,
           blocks: [p.lead.html].concat(p.items.map(function (b) { return b.html; }))
@@ -383,7 +386,8 @@
     } else {
       el.setAttribute('aria-label', p.kind === 'toc' ? 'Contents' : p.title + ', page ' + p.no);
       el.innerHTML = '<div class="pg-in"><div class="blocks">' + p.blocks.join('') + '</div></div>' +
-        (p.no ? '<span class="pg-no">' + p.no + '</span>' : '');
+        (p.no ? '<span class="pg-no">' + p.no + '</span>' : '') +
+        (p.kind === 'sec' ? '<p class="pg-fn">' + (p.pack === 'drinks' ? DRINKS_NOTE : FOOD_NOTE) + '</p>' : '');
     }
     p.el = el;
     return el;
