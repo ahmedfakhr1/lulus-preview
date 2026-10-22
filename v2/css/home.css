@@ -562,8 +562,9 @@ html.lb-open { overflow: hidden; }
 .motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: color-mix(in srgb, var(--ink) 5%, var(--h-bg)); }
 .mt-list { list-style: none; margin: 28px auto 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; gap: 18px 24px; }
 .mt { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 6vw, 1.875rem); line-height: 1.2; white-space: nowrap; }
-.mt { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.mt-list { gap: 30px 24px; }
+.mt { display: flex; flex-direction: column; align-items: center; }
+.mt-list { gap: 26px 20px; }
+.mt-rule { width: min(150px, 36vw); margin-top: 6px; gap: 10px; }
 /* line icons in the season colour, the three atelier ones plus three in the same thin line */
 .mt-ic { display: block; flex: none; width: 28px; height: 28px; fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 .mt-ic[viewBox="0 0 24 24"] { stroke-width: 1; }
