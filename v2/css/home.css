@@ -574,3 +574,6 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 /* line icons in the season colour, the three atelier ones plus three in the same thin line */
 .mt-ic { display: block; flex: none; width: 28px; height: 28px; fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 .mt-ic[viewBox="0 0 24 24"] { stroke-width: 1; }
+/* in the motion section the app link follows the six names closely, not after the long atelier wait */
+.js .motion .at-app.rv { transition-delay: 0.25s; }
+@media (prefers-reduced-motion: reduce) { .js .motion .at-app.rv { transition: none; } }
