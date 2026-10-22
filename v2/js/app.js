@@ -249,11 +249,12 @@
         for (var i = 0; i < shots.length; i++) if (shots[i].box === box) { openAt(i); break; }
         if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
       };
-      /* a finger resting on a photo makes it give a little, as a button does; a scroll lifts it again */
+      /* a mouse pressing a photo makes it give a little, as a button does */
       var held = 0, px = 0, py = 0;
       var lift = function () { clearTimeout(held); box.classList.remove('press'); };
       box.addEventListener('pointerdown', function (e) {
-        if (e.pointerType === 'mouse' && e.button) return;
+        /* on phones a photo does not move under the finger at all (Ahmed); only a mouse press gives a little */
+        if (e.pointerType !== 'mouse' || e.button) return;
         px = e.clientX; py = e.clientY;
         clearTimeout(held);
         held = setTimeout(function () { box.classList.add('press'); }, 90);
