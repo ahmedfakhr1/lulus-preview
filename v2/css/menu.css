@@ -405,12 +405,6 @@ html[data-mood='morning'] .pill [data-svc='morning']:focus-visible, html[data-mo
 .bn-count { font-size: 0.875rem; font-variant-numeric: tabular-nums; color: var(--c-fg); white-space: nowrap; }
 /* the page-turn sound: a speaker, with a slash when it is off */
 .bn-snd[aria-pressed='true'] .snd-x, .bn-snd[aria-pressed='false'] .snd-w { display: none; }
-/* sound is on but the phone has not been tapped yet, so it cannot play: the speaker breathes until any tap wakes it */
-.bn-snd { position: relative; }
-.bn-snd::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 1px solid currentColor; opacity: 0; pointer-events: none; }
-.bn-snd.wait::after { animation: snd-wait 1.8s ease-in-out infinite; }
-@keyframes snd-wait { 0% { opacity: 0.6; transform: scale(0.8); } 70%, 100% { opacity: 0; transform: scale(1.25); } }
-@media (prefers-reduced-motion: reduce) { .bn-snd.wait::after { animation: none; opacity: 0.5; transform: none; } }
 
 /* no-script fallback list */
 .plain { background: var(--paper); color: var(--ink); padding: var(--s4) var(--gutter); }
