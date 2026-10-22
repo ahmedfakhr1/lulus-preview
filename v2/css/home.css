@@ -208,7 +208,7 @@ html {
   --h-hair: var(--hair-desk);
   --h-acc: var(--accent);
   --h-foot: var(--page-night);
-  --grain: 0.036;
+  --grain: 0.016;
   --slow: cubic-bezier(0.22, 0.61, 0.24, 1);
 }
 html[data-mood='morning'] {
