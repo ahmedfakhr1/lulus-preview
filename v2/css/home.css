@@ -49,7 +49,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 72px; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   background: var(--bg);
@@ -151,28 +151,9 @@ html:not(.js) .bar { position: static; }
   border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r);
   font-size: 1.0625rem; color: var(--ink);
 }
-/* the time is a list of half-hour slots, so it is a select that looks like the other fields */
-.field select {
-  width: 100%; height: 52px; padding: 0 38px 0 14px; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r);
-  -webkit-appearance: none; appearance: none; font-size: 1.0625rem; color: var(--ink); background-color: transparent;
-  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
-  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat;
-}
-.field select:invalid { color: var(--muted-paper); }
-.field select option { color: #1b1b1b; background: #fff; }
-.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.field select[aria-invalid='true'] { border-color: #8a1c1c; border-width: 2px; }
+.field input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .field input[aria-invalid='true'] { border-color: #8a1c1c; border-width: 2px; }
-.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s2); }
-/* date and time fields: an iPhone gives them their own height, width and an empty face, so they are set outright */
-.field input[type='date'] { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; height: 52px; text-align: left; }
-.field input[type='date']::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; margin: 0; }
-.field input[type='date']::-webkit-datetime-edit { padding: 0; }
-/* an iPhone shows nothing in an empty date or time field, so a hint sits on it (iPhone only, gone once a value is chosen) */
-.field .ph { display: none; position: relative; margin-top: -52px; height: 52px; padding: 0 15px; align-items: center; font-size: 1.0625rem; color: var(--muted-paper); pointer-events: none; }
-.ios .field .ph { display: flex; }
-.ios .field.filled .ph { color: var(--ink); }
-.ios .field input[type='date'] { color: transparent; -webkit-text-fill-color: transparent; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
 .row2 .field { min-width: 0; }
 .err { margin-top: 6px; font-size: 0.875rem; color: #8a1c1c; }
 .step { display: flex; align-items: center; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r); width: max-content; }
@@ -321,19 +302,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
   padding: clamp(72px, 16vw, 140px) var(--gutter) 0; max-width: 1080px; margin: 0 auto;
 }
 .room-head { padding: clamp(96px, 20vw, 200px) var(--gutter) 0; text-align: center; }
-/* the headline: a quiet tracked line in Jost, then her wordmark drawing itself in the season's colour, as if new */
-.room-head .display { margin-top: 14px; font-family: var(--font-body); font-style: normal; font-weight: 400; font-size: clamp(0.9375rem, 3.9vw, 1.25rem); letter-spacing: 0.26em; text-indent: 0.26em; text-transform: uppercase; line-height: 1.4; text-wrap: balance; }
-.rh-t { display: block; }
-.room-head .wm-draw { width: min(56vw, 300px); margin: clamp(16px, 3.4vw, 26px) auto 0; color: var(--pop-night, var(--h-acc)); }
-html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-acc)); }
-.js .wm-draw path { fill-opacity: 0; stroke: currentColor; stroke-width: 7; stroke-linejoin: round; stroke-dasharray: 1 2; stroke-dashoffset: 1; }
-.js .display.in .wm-draw path {
-  animation: wm-trace 1.5s cubic-bezier(0.55, 0.05, 0.25, 1) calc(0.35s + var(--i) * 0.24s) forwards,
-             wm-fill 1s ease calc(1.2s + var(--i) * 0.24s) forwards;
-}
-@keyframes wm-trace { to { stroke-dashoffset: 0; } }
-@keyframes wm-fill { to { fill-opacity: 1; stroke-opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .js .wm-draw path { fill-opacity: 1; stroke: none; animation: none !important; } }
+.room-head .display { margin-top: 10px; }
 .room-line { margin: clamp(40px, 8vw, 72px) auto 0; padding: 0 var(--gutter); max-width: 34ch; text-align: center; font-family: var(--font-display); font-size: clamp(1.375rem, 5vw, 2rem); line-height: 1.25; text-wrap: balance; }
 .room-line span { display: inline-block; }
 .room-line em { font-style: italic; color: var(--acc-day); }
@@ -407,15 +376,14 @@ html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-ac
 .invite { display: flex; justify-content: center; }
 .invite-card {
   position: relative; width: min(100%, 380px);
-  background: var(--paper); color: var(--ink); padding: 26px 28px 8px; text-align: center;
+  background: var(--paper); color: var(--ink); padding: 48px 28px 16px; text-align: center;
   border: 1px solid var(--hair-paper); border-radius: var(--r);
   transition: transform 0.35s var(--ease);
 }
 .invite-card :focus-visible { outline-color: var(--ink); }
 .invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
-/* the hours sit right under the address, same voice, so the two read as one line of information */
-.invite-hours { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin: -2px 0 8px; padding: 0 4px; text-align: left; }
-.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 6px; padding: 0 4px; text-align: left; }
+.invite-seal { position: absolute; top: -28px; left: 50%; width: 56px; height: 56px; margin-left: -28px; border-radius: 50%; box-shadow: 0 0 0 4px var(--paper); }
+.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 10px; }
 .invite-acts { list-style: none; margin: 0; padding: 0; position: relative; }
 .invite-acts li + li { border-top: 1px solid var(--hair-paper); }
 .invite-acts a {
@@ -505,55 +473,21 @@ a, button { touch-action: manipulation; }
 /* her wordmark takes the season's colour wherever the ground is dark: the whole Evening page and the footer */
 html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo, html[data-mood='evening'] .story-h { color: var(--accent); }
 
-/* ---------- gallery lightbox: a photo full on the page, the rest of the season a swipe away ---------- */
-.fr-in[role='button'] { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; transition: transform 0.38s var(--ease); }
-/* resting a finger on a photo: the frame gives a little and a soft shade comes over it, so it feels pressable */
-.fr-in[role='button']::after { content: ''; position: absolute; inset: 0; background: rgba(var(--scrim), 0.22); opacity: 0; pointer-events: none; transition: opacity 0.3s var(--ease); }
-.fr-in.press { transform: scale(0.965); transition-duration: 0.14s; }
-.fr-in.press::after { opacity: 1; transition-duration: 0.14s; }
-.fr-in.rel { transition: none; }
-.fr-in.rel::after { transition: none; }
-/* a mouse over a photo: it drifts closer inside its frame and a faint shade settles, so it reads as something to open */
-.js .room .fr.rv .fr-in[role='button'] img { transition: opacity 1.4s ease, filter 1.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s var(--ease); transition-delay: calc(var(--d, 0) * 140ms), calc(var(--d, 0) * 140ms), 0s; }
-@media (hover: hover) and (pointer: fine) {
-  .fr-in[role='button']:hover img { transform: scale(1.05); }
-  .fr-in[role='button']:hover::after { opacity: 0.32; }
-  .fr-in[role='button']:hover.press::after { opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) { .fr-in[role='button'], .fr-in.press { transition: none; transform: none; } .fr-in[role='button']:hover img { transform: none; } }
-.fr-in[role='button']:focus-visible { outline: 2px solid var(--h-fg); outline-offset: -4px; }
-html.lb-open { overflow: hidden; }
-.lb { position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--on-photo); }
-.lb::backdrop { background: transparent; }
-.lb :focus-visible { outline-color: var(--on-photo); }
-.lb-bg { position: absolute; inset: 0; background: rgb(var(--scrim)); opacity: 0; transition: opacity 0.4s var(--ease); }
-.lb.on .lb-bg { opacity: 1; }
-.lb-stage { position: absolute; inset: calc(64px + env(safe-area-inset-top)) 0 calc(96px + env(safe-area-inset-bottom)); touch-action: none; }
-.lb-img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: min(94vw, 900px); max-height: 100%; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }
-.lb-n { position: absolute; top: calc(24px + env(safe-area-inset-top)); left: 0; right: 0; text-align: center; font-family: var(--font-display); font-style: italic; font-size: 1.125rem; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; pointer-events: none; }
-.lb .x.lb-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: var(--gutter); margin: 0; color: inherit; background: none; border-color: color-mix(in srgb, var(--on-photo) 55%, transparent); transition: transform 0.16s var(--ease); }
-.lb-nav { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 48px; height: 48px; display: grid; place-items: center; padding: 0; background: none; color: inherit; border: 1px solid color-mix(in srgb, var(--on-photo) 55%, transparent); border-radius: 50%; transition: transform 0.16s var(--ease), opacity 0.2s; }
-.lb-nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.lb-prev { left: calc(50% - 60px); }
-.lb-next { left: calc(50% + 12px); }
-.lb-nav:active, .lb .x.lb-x:active { transform: scale(0.94); }
-.lb-nav[disabled] { opacity: 0.28; cursor: default; }
-@media (hover: hover) and (pointer: fine) {
-  .lb-nav:not([disabled]):hover, .lb .x.lb-x:hover { background: color-mix(in srgb, var(--on-photo) 14%, transparent); }
-}
+/* ---------- Lülu's in motion: a band in the season's first colour (from v1, which she liked) ---------- */
+.motion { margin-top: clamp(112px, 24vw, 240px); background: var(--band); color: var(--band-fg); padding: clamp(64px, 12vw, 130px) 0; }
+.motion-grid { display: grid; gap: 36px; }
+.motion-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.5rem, 10vw, 4.5rem); line-height: 1.05; letter-spacing: -0.01em; }
+.mlist { list-style: none; margin: 0; padding: 0; }
+.mrow { display: flex; align-items: center; gap: clamp(14px, 2vw, 24px); padding: clamp(10px, 1.4vw, 18px) 0; border-top: 1px solid currentColor; transition: padding-left 0.45s var(--slow); }
+.mrow:last-child { border-bottom: 1px solid currentColor; }
+.mdot { width: clamp(14px, 1.6vw, 22px); aspect-ratio: 1; border-radius: 50%; border: 2px solid currentColor; flex: none; transition: background-color 0.3s; }
+@media (hover: hover) and (pointer: fine) { .mrow:hover { padding-left: 14px; } .mrow:hover .mdot { background: currentColor; } }
+.mword { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.375rem, 10vw, 5rem); line-height: 1.04; letter-spacing: -0.012em; }
+.mapp { background: var(--paper); color: var(--ink); padding: clamp(22px, 5vw, 34px); }
+.mapp h3 { font-family: var(--font-body, inherit); font-weight: 600; font-size: 1.375rem; line-height: 1.15; }
+.mapp p { margin: 10px 0 20px; max-width: 40ch; line-height: 1.55; }
+.mapp .mapp-btn { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 @media (min-width: 900px) {
-  .lb-nav { top: 50%; bottom: auto; margin-top: -24px; }
-  .lb-prev { left: 28px; }
-  .lb-next { left: auto; right: 28px; }
+  .motion-grid { grid-template-columns: 1fr 1.15fr; grid-template-areas: "head list" "app list"; align-content: start; gap: 36px 72px; }
+  .motion-h { grid-area: head; } .mlist { grid-area: list; } .mapp { grid-area: app; align-self: end; }
 }
-
-/* ---------- the atelier, one by one: each offering (name, line and sign together) fades in as a single unit ---------- */
-.at:nth-child(2) { --n: 1; }
-.at:nth-child(3) { --n: 2; }
-/* close together, so each follows the one before it quickly */
-.js .at.rv { transition: opacity 0.9s var(--slow), transform 0.9s var(--slow); transition-delay: calc(var(--n, 0) * 0.28s); }
-/* the link under them is the fourth beat: it comes in after the last offering, never before */
-.at-app { --n: 3; }
-.js .at-app.rv { transition-delay: calc(var(--n) * 0.28s + 0.1s); }
-@media (min-width: 900px) { .js .at.rv { transition-delay: calc(var(--n, 0) * 0.34s); } .js .at-app.rv { transition-delay: calc(var(--n) * 0.34s + 0.1s); } }
-@media (prefers-reduced-motion: reduce) { .js .at.rv, .js .at-app.rv { opacity: 1; transform: none; transition: none; } }
