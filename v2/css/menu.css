@@ -161,7 +161,9 @@ html:not(.js) .bar { position: static; }
 .field input[type='date']::-webkit-datetime-edit, .field input[type='time']::-webkit-datetime-edit { padding: 0; }
 /* an iPhone shows nothing in an empty date or time field, so a hint sits on it (iPhone only, gone once a value is chosen) */
 .field .ph { display: none; position: relative; margin-top: -52px; height: 52px; padding: 0 15px; align-items: center; font-size: 1.0625rem; color: var(--muted-paper); pointer-events: none; }
-.ios .field:not(.filled) .ph { display: flex; }
+.ios .field .ph { display: flex; }
+.ios .field.filled .ph { color: var(--ink); }
+.ios .field input[type='date'], .ios .field input[type='time'] { color: transparent; -webkit-text-fill-color: transparent; }
 .row2 .field { min-width: 0; }
 .err { margin-top: 6px; font-size: 0.875rem; color: #8a1c1c; }
 .step { display: flex; align-items: center; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r); width: max-content; }

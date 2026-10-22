@@ -295,13 +295,6 @@
       i.addEventListener('input', function () { if (i.getAttribute('aria-invalid') === 'true') check(i); });
     });
 
-    /* an iPhone shows nothing in an empty date or time field: mark the page so a hint can sit on them, and take it off once a value is chosen */
-    if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('ios');
-    [fDate, fTime].forEach(function (i) {
-      var sync = function () { i.parentNode.classList.toggle('filled', i.value !== ''); };
-      i.addEventListener('input', sync); i.addEventListener('change', sync); sync();
-    });
-
     /* the date picker follows the browser's language (mm/dd on US English); show the choice day first as well */
     var dayFirst = document.getElementById('r-date-d');
     var showDay = function () {
@@ -359,6 +352,19 @@
       return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'UTC' })
         .format(new Date(Date.UTC(1970, 0, 1, +p[0], +p[1]))).replace(/[  ]/g, ' ');
     };
+
+    /* an iPhone shows nothing in an empty date or time field and sets a chosen value at the top of the box, so there the field's own
+       text is hidden and the box carries our own: "Choose a date" until a value is picked, then the value, centred (the picker still
+       opens from the field, which lies under the text) */
+    if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('ios');
+    [[fDate, fmtDate, 'Choose a date'], [fTime, fmtTime, 'Choose a time']].forEach(function (f) {
+      var input = f[0], ph = input.parentNode.querySelector('.ph');
+      var sync = function () {
+        input.parentNode.classList.toggle('filled', input.value !== '');
+        if (ph) ph.textContent = input.value ? f[1](input.value) : f[2];
+      };
+      input.addEventListener('input', sync); input.addEventListener('change', sync); sync();
+    });
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
