@@ -532,5 +532,8 @@ html.lb-open { overflow: hidden; }
 .at:nth-child(3) { --n: 2; }
 /* close together, so each follows the one before it quickly */
 .js .at.rv { transition: opacity 0.9s var(--slow), transform 0.9s var(--slow); transition-delay: calc(var(--n, 0) * 0.28s); }
-@media (min-width: 900px) { .js .at.rv { transition-delay: calc(var(--n, 0) * 0.34s); } }
-@media (prefers-reduced-motion: reduce) { .js .at.rv { opacity: 1; transform: none; transition: none; } }
+/* the link under them is the fourth beat: it comes in after the last offering, never before */
+.at-app { --n: 3; }
+.js .at-app.rv { transition-delay: calc(var(--n) * 0.28s + 0.1s); }
+@media (min-width: 900px) { .js .at.rv { transition-delay: calc(var(--n, 0) * 0.34s); } .js .at-app.rv { transition-delay: calc(var(--n) * 0.34s + 0.1s); } }
+@media (prefers-reduced-motion: reduce) { .js .at.rv, .js .at-app.rv { opacity: 1; transform: none; transition: none; } }
