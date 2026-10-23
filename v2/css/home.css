@@ -266,7 +266,7 @@ body.home::after {
 }
 
 /* the photo surfaces from the dark, then the seal, then the words */
-.hero-media img { transform-origin: 60% 50%; animation: surface 1.6s var(--slow) both, kb 28s ease-in-out 1.6s infinite alternate; }
+.hero-media img { transform-origin: 60% 50%; animation: surface 1.6s var(--slow) both, kb 28s ease-in-out 1.6s 2 alternate; }
 /* a slow drift closer, as on the Mosaïque hero */
 @keyframes kb { from { transform: scale(1); } to { transform: scale(1.1); } }
 .hero-seal, .place, .hero-cta { animation: rise 0.9s var(--slow) both; }
@@ -414,8 +414,8 @@ html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-ac
 .invite-card :focus-visible { outline-color: var(--ink); }
 .invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
 /* the hours sit right under the address, same voice, so the two read as one line of information */
-.invite-hours { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin: -2px 0 8px; padding: 0 4px; text-align: left; }
-.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 75%, transparent); margin-bottom: 6px; padding: 0 4px; text-align: left; }
+.invite-hours { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 84%, transparent); margin: -2px 0 8px; padding: 0 4px; text-align: left; }
+.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 84%, transparent); margin-bottom: 6px; padding: 0 4px; text-align: left; }
 .invite-acts { list-style: none; margin: 0; padding: 0; position: relative; }
 .invite-acts li + li { border-top: 1px solid var(--hair-paper); }
 .invite-acts a {
@@ -440,11 +440,11 @@ html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-ac
 .foot-in { display: grid; gap: var(--s5); justify-items: center; }
 .foot-logo { width: 120px; color: var(--paper); line-height: 0; }
 .foot-cols { display: grid; gap: var(--s4); justify-items: center; }
-.foot-h { font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.88; }
+.foot-h { font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 8px; color: color-mix(in srgb, var(--paper) 90%, transparent); }
 .foot-col { display: flex; flex-direction: column; align-items: center; }
 .foot-col a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; font-size: 0.9375rem; }
 .foot-col a:hover, .foot-col a:focus-visible { color: var(--paper); text-decoration: underline; text-underline-offset: 4px; }
-.credit { font-size: 0.75rem; letter-spacing: 0.02em; font-weight: 400; opacity: 0.88; width: 100%; padding-top: var(--s4); border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); }
+.credit { font-size: 0.75rem; letter-spacing: 0.02em; font-weight: 400; color: color-mix(in srgb, var(--paper) 90%, transparent); width: 100%; padding-top: var(--s4); border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); }
 @media (min-width: 900px) {
   /* the seal on the left, Follow and Get the app spread out across the width, each reading from the left */
   .foot { text-align: left; }
@@ -526,7 +526,7 @@ html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[
 html.lb-open { overflow: hidden; }
 /* with the viewer open the top bar fades away, so the close button never sits on Reserve */
 html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s var(--ease); }
-.lb { position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--h-fg); }
+.lb { overscroll-behavior: contain; position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--h-fg); }
 .lb::backdrop { background: transparent; }
 .lb :focus-visible { outline-color: var(--h-fg); }
 /* clear, no tint (Ahmed), only a light blur on the page behind the photo; the controls take the page's own text colour */
@@ -565,7 +565,7 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 @media (prefers-reduced-motion: reduce) { .js .at.rv, .js .at-app.rv { opacity: 1; transform: none; transition: none; } }
 
 /* ---------- Lülu's in motion: the v1 list she liked, set quietly like the old atelier trio ---------- */
-.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: color-mix(in srgb, var(--ink) 5%, transparent); } /* see-through tint, so the page grain shows here as everywhere */
+.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: color-mix(in srgb, var(--ink) 3.5%, transparent); } /* see-through tint, so the page grain shows here as everywhere */
 .mt-list { list-style: none; margin: 28px auto 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; gap: 18px 24px; }
 .mt { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 6vw, 1.875rem); line-height: 1.2; white-space: nowrap; }
 .mt { display: flex; flex-direction: column; align-items: center; }
@@ -577,3 +577,5 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 /* in the motion section the app link follows the six names closely, not after the long atelier wait */
 .js .motion .at-app.rv { transition-delay: 0.25s; }
 @media (prefers-reduced-motion: reduce) { .js .motion .at-app.rv { transition: none; } }
+/* on the tinted band the label and link sit a touch darker than the page's muted text, so they keep 4.5:1 */
+.motion .at-h, .motion .at-app .link { color: color-mix(in srgb, var(--h-muted) 80%, var(--h-fg)); }
