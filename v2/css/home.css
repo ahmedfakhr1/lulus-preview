@@ -250,6 +250,8 @@ body.home::after {
   position: relative; width: 100%; max-width: 540px; aspect-ratio: 4 / 3; overflow: hidden; background: rgb(var(--scrim));
 }
 .hero-media:empty { display: none; }
+/* a shade in the season's first colour rising from the bottom edge, where the photo meets the logo (option E) */
+.hero-media::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--ink) 55%, transparent), transparent 60%); }
 .hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
 .hero-body { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 var(--gutter) 8px; }
 /* the first screen on a phone is only the photo and the seal with Reserve and Menu; the room begins below it */
