@@ -558,7 +558,8 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 @media (prefers-reduced-motion: reduce) { .js .at.rv, .js .at-app.rv { opacity: 1; transform: none; transition: none; } }
 
 /* ---------- Lülu's in motion: the v1 list she liked, set quietly like the old atelier trio ---------- */
-.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: color-mix(in srgb, var(--ink) 3.5%, transparent); } /* see-through tint, so the page grain shows here as everywhere */
+.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: var(--ink); color: var(--paper); position: relative; isolation: isolate; } /* the page's one bold moment: the deep season colour (Ahmed, option D) */
+.motion::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url(../img/grain.png) 0 0 / 128px 128px repeat; opacity: calc(var(--grain) * 1.6); }
 .mt-list { list-style: none; margin: 28px auto 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; gap: 18px 24px; }
 .mt { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 6vw, 1.875rem); line-height: 1.2; white-space: nowrap; }
 .mt { display: flex; flex-direction: column; align-items: center; }
@@ -571,4 +572,7 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 .js .motion .at-app.rv { transition-delay: 0.25s; }
 @media (prefers-reduced-motion: reduce) { .js .motion .at-app.rv { transition: none; } }
 /* on the tinted band the label and link sit a touch darker than the page's muted text, so they keep 4.5:1 */
-.motion .at-h, .motion .at-app .link { color: color-mix(in srgb, var(--h-muted) 80%, var(--h-fg)); }
+.motion .at-h, .motion .at-app .link { color: color-mix(in srgb, var(--paper) 86%, transparent); }
+.motion .mt-ic { stroke: var(--paper); }
+.motion .at-rule::before, .motion .at-rule::after { background: color-mix(in srgb, var(--paper) 35%, transparent); }
+.motion :focus-visible { outline-color: var(--paper); }
