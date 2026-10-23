@@ -281,6 +281,24 @@
     });
   }
 
+  /* ---- Find them in the app: a press that plays out for a moment even on a quick tap ---- */
+  Array.prototype.forEach.call(document.querySelectorAll('.motion .at-app .link'), function (l) {
+    var t0 = 0, held = 0, HOLD = 380;
+    var off = function (now) { clearTimeout(held); held = setTimeout(function () { l.classList.remove('press'); }, now ? 0 : Math.max(0, HOLD - (performance.now() - t0))); };
+    l.addEventListener('pointerdown', function (e) { if (e.pointerType === 'mouse' && e.button) return; t0 = performance.now(); clearTimeout(held); l.classList.add('press'); });
+    l.addEventListener('pointerup', function () { off(); });
+    l.addEventListener('pointercancel', function () { off(true); });
+    l.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') off(true); });
+    /* the store opens once the press has shown, not in the same instant */
+    l.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || l.target === '_blank' || !t0) return;
+      var wait = Math.max(0, 300 - (performance.now() - t0));
+      if (!wait) return;
+      e.preventDefault();
+      setTimeout(function () { window.location.href = l.href; }, wait);
+    });
+  });
+
   /* ---- reserve sheet ---- */
   var dlg = document.getElementById('reserve');
   var form = document.getElementById('reserve-form');

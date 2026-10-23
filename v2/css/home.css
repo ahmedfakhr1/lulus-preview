@@ -576,3 +576,10 @@ html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s v
 .motion .mt-ic { stroke: var(--paper); }
 .motion .at-rule::before, .motion .at-rule::after { background: color-mix(in srgb, var(--paper) 35%, transparent); }
 .motion :focus-visible { outline-color: var(--paper); }
+/* Find them in the app: under a finger the word dips a little and its line draws in from both ends, then eases back */
+.motion .at-app .link { position: relative; border-bottom: 0; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1); -webkit-tap-highlight-color: transparent; }
+.motion .at-app .link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px; background: currentColor; transform-origin: 50% 50%; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.motion .at-app .link.press { transform: scale(0.96); opacity: 0.75; transition-duration: 0.35s; }
+.motion .at-app .link.press::after { transform: scaleX(0.35); transition-duration: 0.35s; }
+@media (hover: hover) and (pointer: fine) { .motion .at-app .link:hover::after { transform: scaleX(0.6); } }
+@media (prefers-reduced-motion: reduce) { .motion .at-app .link, .motion .at-app .link::after { transition: none; } }
