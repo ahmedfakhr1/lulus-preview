@@ -16,8 +16,9 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/bodonimoda-normal-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/bodonimoda-italic-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/jost-normal-latin.woff2">
-<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
-<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="img/icon-fall.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32-fall.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon-fall.png">
 <script>/* Season picker. Inlined in <head> by the build so the right palette is on screen
    before first paint. Seasons are data (data/seasons.json); every season ships with
    the page and the browser picks by today's date in Africa/Cairo.
@@ -151,6 +152,15 @@
   if (service !== 'morning' && service !== 'evening') { var hr = cairoHour(); service = hr >= 5 && hr < 17 ? 'morning' : 'evening'; }
   doc.setAttribute('data-mood', service);
 
+  /* the tab icon: her L on the season's lead colour */
+  (function () {
+    var k = (season.id || '').split('-')[0];
+    if (!k || k === 'default') k = 'fall';
+    var set = function (sel, f) { var l = document.querySelector(sel); if (l) l.setAttribute('href', 'img/' + f); };
+    set('link[rel="icon"][type="image/svg+xml"]', 'icon-' + k + '.svg');
+    set('link[rel="icon"][type="image/png"]', 'favicon-32-' + k + '.png');
+    set('link[rel="apple-touch-icon"]', 'apple-touch-icon-' + k + '.png');
+  })();
   var meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', /^menu/.test(location.pathname.split('/').pop() || '') ? (service === 'morning' ? hex(deskDay) : hex(deskNight)) : (service === 'morning' ? c.bg : hex(deskNight)));
 
