@@ -250,8 +250,6 @@ body.home::after {
   position: relative; width: 100%; max-width: 540px; aspect-ratio: 4 / 3; overflow: hidden; background: rgb(var(--scrim));
 }
 .hero-media:empty { display: none; }
-/* a shade in the season's first colour rising from the bottom edge, where the photo meets the logo (option E) */
-.hero-media::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--ink) 55%, transparent), transparent 60%); }
 .hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
 .hero-body { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 var(--gutter) 8px; }
 /* the first screen on a phone is only the photo and the seal with Reserve and Menu; the room begins below it */
@@ -328,14 +326,7 @@ html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.ve
 .rh-t { display: block; }
 .room-head .wm-draw { width: min(56vw, 300px); margin: clamp(16px, 3.4vw, 26px) auto 0; color: var(--pop-night, var(--h-acc)); }
 html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-acc)); }
-.js .wm-draw path { fill-opacity: 0; stroke: currentColor; stroke-width: 7; stroke-linejoin: round; stroke-dasharray: 1 2; stroke-dashoffset: 1; }
-.js .display.in .wm-draw path {
-  animation: wm-trace 1.5s cubic-bezier(0.55, 0.05, 0.25, 1) calc(0.35s + var(--i) * 0.24s) forwards,
-             wm-fill 1s ease calc(1.2s + var(--i) * 0.24s) forwards;
-}
-@keyframes wm-trace { to { stroke-dashoffset: 0; } }
-@keyframes wm-fill { to { fill-opacity: 1; stroke-opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .js .wm-draw path { fill-opacity: 1; stroke: none; animation: none !important; } }
+/* the wordmark is simply there, fading in with its heading like everything else */
 .room-line { margin: clamp(40px, 8vw, 72px) auto 0; padding: 0 var(--gutter); max-width: 34ch; text-align: center; font-family: var(--font-display); font-size: clamp(1.375rem, 5vw, 2rem); line-height: 1.25; text-wrap: balance; }
 .room-line span { display: inline-block; }
 .room-line em { font-style: italic; color: var(--acc-day); }
