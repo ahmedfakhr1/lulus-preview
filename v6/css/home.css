@@ -162,3 +162,8 @@ html:not([data-mode="night"]) .err{color:#a8321f}
 @media(min-width:720px){.sheet{inset:0;margin:auto;width:480px;max-height:90dvh;border-radius:16px}.sheet form{padding:32px}.sheet form::before{display:none}}
 html[data-mode="night"] .sheet{color-scheme:dark}
 @media(prefers-reduced-motion:reduce){.sheet[open]{animation:none}}
+
+/* at the top the bar carries only the logo; the nav arrives when the hero buttons leave */
+.bar-nav{transition:opacity .3s,visibility .3s}
+.js .bar:not(.on) .bar-nav{opacity:0;visibility:hidden}
+@media(prefers-reduced-motion:reduce){.bar-nav{transition:none}}

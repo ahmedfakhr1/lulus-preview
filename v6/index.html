@@ -130,7 +130,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/home.css?v=6l">
+<link rel="stylesheet" href="css/home.css?v=6m">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -281,5 +281,15 @@
 
 <script>LULUS.fill();</script>
 <script src="js/reserve.js?v=1" defer></script>
+<script>
+/* Menu and Reserve sit in the bar only once the hero's own buttons have scrolled out of view */
+(function () {
+  var bar = document.querySelector('.bar'), act = document.querySelector('.hero-act');
+  if (!bar || !act || !('IntersectionObserver' in window)) { if (bar) bar.classList.add('on'); return; }
+  new IntersectionObserver(function (es) {
+    bar.classList.toggle('on', !es[0].isIntersecting);
+  }, { rootMargin: '-65px 0px 0px 0px' }).observe(act);
+})();
+</script>
 </body>
 </html>
