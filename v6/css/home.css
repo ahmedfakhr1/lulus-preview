@@ -118,6 +118,9 @@ html[data-mode="night"] body::after{opacity:.02}
 /* our story */
 .story{padding:0 0 clamp(64px,10vw,120px);text-align:center}
 .story .small{font-family:var(--font-d);font-style:italic;font-weight:400;font-size:1.125rem;color:var(--mute);margin-bottom:14px}
+.story-ph{width:min(100%,28rem);margin:0 auto;display:grid;gap:14px;justify-items:center}
+.story-ph i{display:block;height:10px;width:100%;border-radius:5px;background:var(--line)}
+.story-ph i:last-child{width:62%}
 .story-tx{font-family:var(--font-d);font-size:clamp(1.375rem,3vw,2.125rem);line-height:1.3;max-width:34ch;margin:0 auto;text-wrap:balance}
 
 /* reserve sheet */
