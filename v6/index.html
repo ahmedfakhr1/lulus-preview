@@ -69,21 +69,42 @@
   var fg = ratio(ink, bg0) >= 7 ? ink : deep;
   var bandBg = lum(acc2) < lum(ink) ? acc2 : ink;
   while (ratio(paper, bandBg) < 4.5) bandBg = mix(bandBg, black, 0.85);
-  var V = {
-    '--bg': hex(bg0), '--fg': hex(fg), '--mute': hex(muteOf(fg, bg0)), '--line': hex(mix(fg, bg0, 0.2)),
-    '--hot': hex(pick([acc2, ink, acc], bg0, 4.5, fg)),
-    '--band': hex(bandBg), '--band-fg': hex(paper), '--band-mute': hex(muteOf(paper, bandBg)), '--band-line': hex(mix(paper, bandBg, 0.3)),
-    '--band-hot': hex(pick([acc, acc2, paper], bandBg, 4.5, paper))
-  };
-  V['--tile'] = hex(mix(acc, bg0, 0.5));
-  for (var k in V) doc.style.setProperty(k, V[k]);
+  var nightBg = mix(ink, black, 0.44);
+
+  /* Day or night, by the hour in Cairo: night from 17:00 to 04:59. ?mode=day|night previews either. */
+  function cairoHour() {
+    try { return parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', hour12: false }).format(new Date()), 10) % 24; }
+    catch (e) { return new Date().getHours(); }
+  }
+  var forced = '';
+  try { forced = (new URLSearchParams(location.search).get('mode') || '').toLowerCase(); } catch (e) {}
+  function currentMode() {
+    if (forced === 'day' || forced === 'night') return forced;
+    var h = cairoHour();
+    return h >= 17 || h < 5 ? 'night' : 'day';
+  }
+  function apply() {
+    var mode = currentMode(), night = mode === 'night';
+    var bg = night ? nightBg : bg0, f = night ? paper : fg;
+    var V = {
+      '--bg': hex(bg), '--fg': hex(f), '--mute': hex(muteOf(f, bg)), '--line': hex(mix(f, bg, night ? 0.2 : 0.2)),
+      '--hot': hex(pick(night ? [acc, acc2, paper] : [acc2, ink, acc], bg, 4.5, f)),
+      '--band': hex(bandBg), '--band-fg': hex(paper), '--band-mute': hex(muteOf(paper, bandBg)), '--band-line': hex(mix(paper, bandBg, 0.3)),
+      '--band-hot': hex(pick([acc, acc2, paper], bandBg, 4.5, paper)),
+      '--tile': hex(mix(acc, bg, night ? 0.32 : 0.5))
+    };
+    for (var k in V) doc.style.setProperty(k, V[k]);
+    doc.setAttribute('data-mode', mode);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', hex(bg));
+  }
+  apply();
+  setInterval(function () { if (currentMode() !== doc.getAttribute('data-mode')) apply(); }, 60000);
   doc.setAttribute('data-season', season.id);
   var kk = season.id.split('-')[0];
   function setIcon(sel, f) { var l = document.querySelector(sel); if (l) l.setAttribute('href', 'img/' + f); }
   setIcon('link[rel="icon"]', 'favicon-32-' + kk + '.png');
   setIcon('link[rel="apple-touch-icon"]', 'apple-touch-icon-' + kk + '.png');
-  var m = document.querySelector('meta[name="theme-color"]');
-  if (m) m.setAttribute('content', c.bg);
 
   var F = { summer: '50% 38%', spring: '50% 72%', ramadan: '50% 55%', valentine: '50% 45%', fall: '50% 25%', winter: '50% 25%' };
   window.LULUS = {
@@ -109,7 +130,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/home.css?v=6c">
+<link rel="stylesheet" href="css/home.css?v=6d">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
