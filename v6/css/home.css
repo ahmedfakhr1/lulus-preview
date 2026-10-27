@@ -4,7 +4,7 @@
 
 :root{
   --bg:#fdf9f3;--fg:#4a3010;--mute:#6b4f26;--line:#e1d3bd;--hot:#7a0000;
-  --band:#7a0000;--band-fg:#fefcfa;--band-mute:#f0dcc9;--band-line:#a33a35;--band-hot:#db983e;
+  --tile:#e9c999;--band:#7a0000;--band-fg:#fefcfa;--band-mute:#f0dcc9;--band-line:#a33a35;--band-hot:#db983e;
   --font-d:'Bodoni Moda',Georgia,serif;--font-b:'Jost',system-ui,sans-serif;
   --gutter:clamp(20px,5vw,64px);--ease:cubic-bezier(.22,1,.36,1);
 }
@@ -89,3 +89,8 @@ a{color:inherit;text-decoration:none}
 .credit{margin-top:4px;color:var(--mute);font-size:.9375rem}
 
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+
+.tile{aspect-ratio:4/5;border-radius:4px;background:var(--tile)}
+.hero-plain{display:grid;place-items:center;height:calc(100svh - 150px);min-height:340px;max-height:780px;background:var(--band);color:var(--band-fg)}
+.hero-plain .wm{width:min(560px,60vw)}
+@media(min-width:900px){.col figcaption{min-height:3.4em}}
