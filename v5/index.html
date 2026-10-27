@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LÜLU’S | All-day brasserie, EDNC by SODIC, New Cairo</title>
+<meta name="description" content="All-day brasserie at EDNC by SODIC, New Cairo. Breakfast, lunch and dinner, a bakery, matcha, Pilates and a nail studio. Reserve on WhatsApp or order from the app.">
+<meta name="theme-color" content="#fdf3dc">
+<meta property="og:title" content="LÜLU’S | All-day brasserie, New Cairo">
+<meta property="og:image" content="img/og.jpg">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/bodonimoda-normal-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/bodonimoda-italic-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/jost-normal-latin.woff2">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32-fall.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon-fall.png">
+<style>html.fl body{opacity:0}body{transition:opacity .25s ease}</style>
+<script>(function(){var d=document.documentElement;d.classList.add('fl','js');function r(){d.classList.remove('fl')}setTimeout(r,1200);if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('400 1em "Bodoni Moda"'),document.fonts.load('italic 400 1em "Bodoni Moda"'),document.fonts.load('400 1em Jost')]).then(r,r)}else r()})()</script>
+<script>
+/* Season palettes (from her colour palette PDFs). The browser picks by today's date in Africa/Cairo; ?season=<id> previews one. */
+(function () {
+  var SEASONS = [
+    { id: 'summer-2026', name: 'Summer 2026', start: '2026-06-01', end: '2026-09-14', c: { bg: '#f5fbff', paper: '#fbfeff', ink: '#0449a6', accent: '#5dc4ff', accent2: '#2b93ff' },
+      hero: ['hero-summer.webp', 'hero-summer-tall.webp', 'A LÜLU’S summer table: fried calamari, salmon, mashed potatoes and lemons', 1080, 720],
+      st: [['room-summer-2.webp', 'An iced LÜLU’S matcha'], ['room-summer-1.webp', 'A guest with a burrata salad'], ['hero-summer-tall.webp', 'A LÜLU’S summer table: fried calamari, salmon, mashed potatoes and lemons']] },
+    { id: 'fall-2026', name: 'Fall 2026', start: '2026-09-15', end: '2026-11-30', c: { bg: '#fdf9f3', paper: '#fefcfa', ink: '#66461c', accent: '#db983e', accent2: '#7a0000' },
+      hero: ['hero-fall.webp', 'hero-fall-tall.webp', 'A guest with a table of LÜLU’S croissants and brioches', 1620, 1080],
+      st: [['hero-fall-tall.webp', 'A guest with a table of LÜLU’S croissants and brioches'], ['room-fall-3.webp', 'A guest at the LÜLU’S shelves'], ['room-fall-1.webp', 'Sticky toffee madeleine with vanilla ice cream']] },
+    { id: 'winter-2026', name: 'Winter 2026', start: '2026-12-01', end: '2027-01-31', c: { bg: '#fdfaf6', paper: '#fefdfb', ink: '#a00303', accent: '#ddac6a', accent2: '#0e4b02' },
+      hero: ['hero-fall.webp', 'hero-fall-tall.webp', 'A guest with a table of LÜLU’S croissants and brioches', 1620, 1080],
+      st: [['hero-fall-tall.webp', 'A guest with a table of LÜLU’S croissants and brioches'], ['room-fall-3.webp', 'A guest at the LÜLU’S shelves'], ['room-fall-1.webp', 'Sticky toffee madeleine with vanilla ice cream']] },
+    { id: 'valentine-2027', name: 'Valentine 2027', start: '2027-02-01', end: '2027-02-07', c: { bg: '#fffcfe', paper: '#fffeff', ink: '#a40000', accent: '#ffc6f4', accent2: '#701818' },
+      hero: ['hero-valentine.webp', 'hero-valentine-tall.webp', 'A heart-shaped pizza on a LÜLU’S table', 1620, 1080],
+      st: [['room-valentine-2.webp', 'A guest with a matcha among the bakes'], ['hero-valentine-tall.webp', 'A heart-shaped pizza on a LÜLU’S table'], ['room-valentine-1.webp', 'A red heart dessert']],
+      dish: ['Ti Amo', 'Our Valentine’s limited edition. A glossy heart made to steal yours.'] },
+    { id: 'ramadan-2027', name: 'Ramadan 2027', start: '2027-02-08', end: '2027-03-09', c: { bg: '#fefcf9', paper: '#fffefd', ink: '#674a1f', accent: '#dfa143', accent2: '#a40407' },
+      hero: ['hero-ramadan.webp', 'hero-ramadan-tall.webp', 'A LÜLU’S Ramadan table set with palm plates and gold cutlery', 1620, 1080],
+      st: [['room-ramadan-2.webp', 'Coffee served on a tray at LÜLU’S'], ['hero-ramadan-tall.webp', 'A LÜLU’S Ramadan table set with palm plates and gold cutlery'], ['room-ramadan-1.webp', 'Shakshouka, pizza and fries on a Ramadan table']],
+      dish: ['Date Me in Cairo', 'Our limited edition Ramadan dessert, made for sharing after iftar.'] },
+    { id: 'spring-2027', name: 'Spring 2027', start: '2027-03-10', end: '2027-05-31', c: { bg: '#fff2fe', paper: '#fffaff', ink: '#6b1263', accent: '#ff2bec', accent2: '#ffe38e' },
+      hero: ['hero-spring.webp', 'hero-spring-tall.webp', 'Two friends under the LÜLU’S sign on a sunny day', 1620, 1080],
+      st: [['hero-spring-tall.webp', 'Two friends under the LÜLU’S sign on a sunny day'], ['room-spring-4.webp', 'Salmon, pizza and bakes on a LÜLU’S table'], ['room-spring-2.webp', 'A guest twirling pasta at LÜLU’S']] }
+  ];
+  var doc = document.documentElement;
+  function cairoToday() {
+    try {
+      var p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()), o = {};
+      for (var i = 0; i < p.length; i++) o[p[i].type] = p[i].value;
+      return o.year + '-' + o.month + '-' + o.day;
+    } catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+  function rgb(h) { h = h.replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+  function mix(a, b, p) { return [a[0] * p + b[0] * (1 - p), a[1] * p + b[1] * (1 - p), a[2] * p + b[2] * (1 - p)]; }
+  function hex(c) { var s = '#'; for (var i = 0; i < 3; i++) { var v = Math.round(Math.max(0, Math.min(255, c[i]))).toString(16); s += v.length < 2 ? '0' + v : v; } return s; }
+  function lum(x) { return x.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce(function (a, v, i) { return a + v * [0.2126, 0.7152, 0.0722][i]; }, 0); }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function pick(list, ground, min, fb) { for (var i = 0; i < list.length; i++) if (ratio(list[i], ground) >= min) return list[i]; return fb; }
+
+  var today = cairoToday(), q = '';
+  try { q = (new URLSearchParams(location.search).get('season') || '').toLowerCase(); } catch (e) {}
+  var season = null, i;
+  if (q) for (i = 0; i < SEASONS.length && !season; i++) if (SEASONS[i].id === q || SEASONS[i].id.indexOf(q + '-') === 0) season = SEASONS[i];
+  if (!season) for (i = 0; i < SEASONS.length; i++) if (SEASONS[i].start <= today && today <= SEASONS[i].end) { season = SEASONS[i]; break; }
+  if (!season) season = SEASONS[1];
+
+  /* the day, in this season's colours: morning = her page colour, afternoon = her accent, evening = her deepest colour, night = that colour darkened */
+  var c = season.c, black = [0, 0, 0], paper = rgb(c.paper), ink = rgb(c.ink), acc = rgb(c.accent), acc2 = rgb(c.accent2), bg0 = rgb(c.bg);
+  var deep = mix(ink, black, 0.7);
+  function onText(bg) { return ratio(paper, bg) >= ratio(deep, bg) ? paper : deep; }
+  function tone(bg, fg, hots) {
+    return { '--bg': hex(bg), '--fg': hex(fg), '--mute': hex(mix(fg, bg, 0.84)), '--line': hex(mix(fg, bg, 0.26)),
+      '--hot': hex(pick(hots, bg, 3, fg)) };
+  }
+  var morningFg = ratio(ink, bg0) >= 7 ? ink : deep;
+  var eveBg = lum(acc2) < lum(ink) ? acc2 : ink;
+  while (ratio(paper, eveBg) < 4.5) eveBg = mix(eveBg, black, 0.85);
+  var nightBg = mix(ink, black, 0.44);
+  var TONES = {
+    morning: tone(bg0, morningFg, [acc2, ink, acc]),
+    noon: tone(acc, onText(acc), [acc2, ink, deep, paper]),
+    evening: tone(eveBg, paper, [acc, acc2, paper]),
+    night: tone(nightBg, paper, [acc, acc2, paper])
+  };
+  var tick = TONES.evening;
+  var THEME = { morning: c.bg, noon: c.accent, evening: hex(eveBg), night: hex(nightBg) };
+  function apply(t) {
+    var v = TONES[t];
+    for (var k in v) doc.style.setProperty(k, v[k]);
+    doc.style.setProperty('--hot-on', hex(onText(rgb(v['--hot']))));
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', THEME[t]);
+  }
+  doc.style.setProperty('--tick-bg', tick['--bg']);
+  doc.style.setProperty('--tick-fg', tick['--fg']);
+  apply('morning');
+  doc.setAttribute('data-season', season.id);
+
+  var k = season.id.split('-')[0];
+  function set(sel, f) { var l = document.querySelector(sel); if (l) l.setAttribute('href', 'img/' + f); }
+  set('link[rel="icon"]', 'favicon-32-' + k + '.png');
+  set('link[rel="apple-touch-icon"]', 'apple-touch-icon-' + k + '.png');
+
+  window.LULUS = {
+    season: season,
+    setTone: apply,
+    fill: function () {
+      var h = season.hero, el = document.getElementById('hero-media');
+      var F = { summer: '50% 38%', spring: '50% 78%', ramadan: '50% 60%', valentine: '50% 45%', fall: '50% 18%', winter: '50% 18%' };
+      if (el && !el.firstChild) el.innerHTML = '<picture class="hero-photo"><source media="(max-width: 799px)" srcset="img/' + h[1] + '"><img src="img/' + h[0] + '" alt="' + h[2] + '" width="' + h[3] + '" height="' + h[4] + '" fetchpriority="high" style="--f:' + F[season.id.split('-')[0]] + '"></picture>';
+      for (var n = 0; n < 3; n++) {
+        var im = document.getElementById('st' + (n + 1));
+        if (im) { im.src = 'img/' + season.st[n][0]; im.alt = season.st[n][1]; }
+      }
+      if (season.dish) {
+        var d = document.getElementById('dish-extra');
+        if (d) d.innerHTML = '<b>' + season.dish[0] + '</b><span>' + season.dish[1] + '</span>';
+      }
+    }
+  };
+})();
+</script>
+<link rel="stylesheet" href="css/home.css?v=5a">
+</head>
+<body data-tone="morning">
+
+<header class="nav">
+  <a class="nav-name" href="#top" aria-label="LÜLU’S, top"><span class="wm" role="img" aria-label="LÜLU’S"></span></a>
+  <nav class="nav-links" aria-label="Main">
+    <a href="menu.html">Menu</a>
+    <a href="#day">The day</a>
+    <a href="#cannes">Cannes</a>
+    <a href="#visit">Visit</a>
+    <a class="pill" href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table.">Reserve</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" data-tone="morning">
+    <div id="hero-media"></div>
+    <script>LULUS.fill();</script>
+    <noscript><picture class="hero-photo"><img src="img/hero-fall.webp" alt="A guest with a table of LÜLU’S croissants and brioches" width="1620" height="1080"></picture></noscript>
+    <div class="hero-body">
+      <h1 class="hero-wm"><span class="vh">LÜLU’S</span><span class="wm" aria-hidden="true"></span></h1>
+      <div class="hero-row">
+        <p class="hero-line">All-day brasserie. <br class="br-m">Bakery, matcha, pasta and a table that stays.</p>
+        <p class="hero-place">EDNC by SODIC, New Cairo<br>Daily, 9 am to midnight</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <p><span>The green flag you have been looking for.</span><i></i><span>Always on the roll. A little French, a little LÜLU’S, a little too good to share.</span><i></i><span>Not to start drama, but beef carpaccio wins every time.</span><i></i><span>Not every day is the same, good thing the drinks aren’t either.</span><i></i><span>Truffle doesn’t ask for attention. It arrives, takes over, and somehow everyone agrees.</span><i></i></p>
+      <p><span>The green flag you have been looking for.</span><i></i><span>Always on the roll. A little French, a little LÜLU’S, a little too good to share.</span><i></i><span>Not to start drama, but beef carpaccio wins every time.</span><i></i><span>Not every day is the same, good thing the drinks aren’t either.</span><i></i><span>Truffle doesn’t ask for attention. It arrives, takes over, and somehow everyone agrees.</span><i></i></p>
+    </div>
+  </div>
+
+  <section class="stage" id="day" data-tone="morning" aria-labelledby="s1">
+    <div class="wrap split">
+      <figure class="ph ph-tall"><img id="st1" src="img/hero-fall-tall.webp" alt="A guest with a matcha among the morning bakes" loading="lazy"></figure>
+      <div class="stage-tx">
+        <h2 id="s1" class="h2">Start with something sweet. Order something fresh. Don’t forget something iced.</h2>
+        <ul class="dishes">
+          <li><a href="menu.html"><b>Les Oeufs Truffle</b><span>Golden, layered and quietly indulgent.</span></a></li>
+          <li><a href="menu.html"><b>Choco Bomb Croissant</b><span>Flaky layers, melted chocolate and a dense brownie core.</span></a></li>
+          <li><a href="menu.html"><b>Raffaello Matcha</b><span>Clean energy, smooth taste, an everyday ritual.</span></a></li>
+          <li><a href="menu.html"><b>Mango Matcha</b><span>The drink you adjust the day around.</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" data-tone="noon" aria-labelledby="s2">
+    <div class="wrap split flip">
+      <figure class="ph ph-tall"><img id="st2" src="img/room-fall-3.webp" alt="A guest with a burrata salad" loading="lazy"></figure>
+      <div class="stage-tx">
+        <h2 id="s2" class="h2">For days that need something crunchy, zesty, and slightly more exciting than your plans.</h2>
+        <ul class="dishes">
+          <li><a href="menu.html"><b>Chicken Caesar Roll</b><span>Golden chicken, parmesan and creamy Caesar in every bite.</span></a></li>
+          <li><a href="menu.html"><b>Smoky Turkey Crunch Roll</b><span>Tender turkey, melted cheese, a rich smoky finish.</span></a></li>
+          <li><a href="menu.html"><b>Lox Roll</b><span>Smoked salmon and creamy cheese in buttery brioche.</span></a></li>
+          <li><a href="menu.html"><b>Peach or raspberry iced tea</b><span>Cold, bright and brewed right.</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" data-tone="evening" aria-labelledby="s3">
+    <div class="wrap split">
+      <figure class="ph ph-tall"><img id="st3" src="img/room-fall-1.webp" alt="A guest twirling pasta" loading="lazy"></figure>
+      <div class="stage-tx">
+        <h2 id="s3" class="h2">Ordering at LÜLU’S? Make it something to share.</h2>
+        <ul class="dishes">
+          <li><a href="menu.html"><b>Pasta Rosa</b><span>Our best seller. Rich rigatoni, a secret-simmered sauce, a generous finish of parmesan.</span></a></li>
+          <li><a href="menu.html"><b>Beef Carpaccio</b><span>New on the menu, with the Fried Calamari.</span></a></li>
+          <li><a href="menu.html"><b>White anchovies</b><span>On crispy brioche and on pizza, next to fresh truffle.</span></a></li>
+          <li><a id="dish-extra" href="menu.html"><b>Lemon Trompe L’oeil</b><span>Lemon ganache, lemon mojito marmalade, joconde sponge, white chocolate glaze.</span></a></li>
+        </ul>
+        <p class="more"><a class="pill pill-line" href="menu.html">Open the full menu</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="night" data-tone="night" aria-labelledby="mo">
+    <div class="wrap">
+      <h2 class="h2 centre" id="mo">LÜLU’S in motion</h2>
+      <ul class="motion">
+        <li>Games</li><li>Workshops</li><li>Talks</li><li>Pilates</li><li>Retail corner</li><li>Nail studio</li>
+      </ul>
+      <p class="centre app-line">Book a class, order for pickup and earn LÜCOINS in the LÜLU’S app. Drinks, pastries and bakery picks are on Talabat.</p>
+      <p class="centre"><a class="pill" href="https://apps.apple.com/app/id6757676939">Get the app</a></p>
+    </div>
+  </section>
+
+  <section class="night cannes" id="cannes" data-tone="night" aria-labelledby="cn">
+    <div class="wrap">
+      <p class="small centre">Beyond expectations</p>
+      <h2 class="display centre" id="cn">On se voit à Cannes</h2>
+      <p class="centre lead">Bijoux by LÜLU’S is our new chapter on the French Riviera.</p>
+      <p class="centre"><a class="pill pill-line" href="https://www.instagram.com/bijouxbylulus/">@bijouxbylulus</a></p>
+    </div>
+  </section>
+
+  <section class="night visit" id="visit" data-tone="night" aria-labelledby="vs">
+    <div class="wrap visit-grid">
+      <div>
+        <h2 class="h2" id="vs">A table is waiting.</h2>
+        <p class="lead">EDNC by SODIC, New Cairo<br>Daily, 9 am to midnight</p>
+      </div>
+      <ul class="acts">
+        <li><a href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table.">Reserve on WhatsApp</a></li>
+        <li><a href="https://www.google.com/maps/place/L%C3%9CLU%27S,+New+Cairo+1,+Cairo+Governorate+4728114/@30.0164839,31.5138554,16z">Find us on Google Maps</a></li>
+        <li><a href="tel:+201210514222">Call +20 121 051 4222</a></li>
+        <li><a href="https://www.instagram.com/lulusinmotion/">Instagram @lulusinmotion</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="foot" data-tone="night">
+  <div class="wrap">
+    <p class="foot-wm"><span class="wm" role="img" aria-label="LÜLU’S"></span></p>
+    <p class="credit">Website concept by Ahmed Fakhreldin.</p>
+  </div>
+</footer>
+
+<nav class="dock" aria-label="Quick actions">
+  <a href="https://wa.me/201210514222?text=Hello%20L%C3%9CLU%E2%80%99S%2C%20I%E2%80%99d%20like%20to%20reserve%20a%20table.">Reserve</a>
+  <a href="menu.html">Menu</a>
+  <a href="https://apps.apple.com/app/id6757676939">Order</a>
+</nav>
+
+<script src="js/home.js?v=5a" defer></script>
+</body>
+</html>
