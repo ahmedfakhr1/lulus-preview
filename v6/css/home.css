@@ -114,10 +114,6 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 html[data-mode="night"] body::after{opacity:.02}
 .band{position:relative;isolation:isolate}
 .band::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:url(../img/grain.png) 0 0/128px 128px repeat;opacity:.05}
-/* her flower, faint, behind the day strip */
-.day{position:relative;isolation:isolate}
-.day::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--flora) 0 0/360px 360px repeat;opacity:.12}
-html[data-mode="night"] .day::before{opacity:.1}
 
 /* our story */
 .story{padding:0 0 clamp(64px,10vw,120px);text-align:center}

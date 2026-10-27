@@ -83,20 +83,6 @@
     var h = cairoHour();
     return h >= 17 || h < 5 ? 'night' : 'day';
   }
-  /* a flower seen from above in three shades of the season colour, scattered and tiled (as on her seasonal pages) */
-  function floraTile(bg) {
-    var f1 = hex(mix(acc, bg, 0.5)), f2 = c.accent, f3 = hex(mix(acc2, ink, 0.25));
-    function flower(x, y, r, kk2) {
-      var g = '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(' + kk2 + ')">', j;
-      for (j = 0; j < 5; j++) g += '<path d="M0 -4C-26 -20 -22 -50 -6 -46C-2 -45 0 -40 0 -38C0 -40 2 -45 6 -46C22 -50 26 -20 0 -4Z" fill="' + f1 + '" transform="rotate(' + (j * 72) + ')"/>';
-      for (j = 0; j < 5; j++) g += '<path d="M0 -2C-12 -10 -10 -26 0 -24C10 -26 12 -10 0 -2Z" fill="' + f2 + '" transform="rotate(' + (j * 72) + ')"/>';
-      return g + '<circle r="6" fill="' + f3 + '"/></g>';
-    }
-    var spots = [[52, 60, 8, 0.5], [196, 38, 47, 0.38], [300, 120, 20, 0.56], [128, 168, 63, 0.44], [40, 262, 34, 0.4], [232, 250, 12, 0.5], [318, 318, 55, 0.34], [150, 318, 28, 0.36]];
-    var t = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360">';
-    for (var q2 = 0; q2 < spots.length; q2++) t += flower(spots[q2][0], spots[q2][1], spots[q2][2], spots[q2][3]);
-    return t + '</svg>';
-  }
   function apply() {
     var mode = currentMode(), night = mode === 'night';
     var bg = night ? nightBg : bg0, f = night ? paper : fg;
@@ -107,7 +93,6 @@
       '--band-hot': hex(pick([acc, acc2, paper], bandBg, 4.5, paper)),
       '--tile': hex(mix(acc, bg, night ? 0.32 : 0.5))
     };
-    V['--flora'] = 'url("data:image/svg+xml,' + encodeURIComponent(floraTile(bg)) + '")';
     for (var k in V) doc.style.setProperty(k, V[k]);
     doc.setAttribute('data-mode', mode);
     var m = document.querySelector('meta[name="theme-color"]');
@@ -145,7 +130,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/home.css?v=6j">
+<link rel="stylesheet" href="css/home.css?v=6k">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
