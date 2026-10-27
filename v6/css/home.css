@@ -36,11 +36,15 @@ a{color:inherit;text-decoration:none}
 .btn-line-band{background:transparent;color:var(--band-fg)}
 
 /* hero: the photo, full size */
-.hero-media img{width:100%;height:calc(100svh - 150px);min-height:340px;max-height:780px;object-fit:cover;object-position:var(--f,50% 30%)}
-.hero-row{display:grid;gap:20px;padding-top:clamp(24px,4vw,44px);padding-bottom:clamp(40px,6vw,72px)}
-.hero-line{font-family:var(--font-d);font-size:clamp(1.375rem,2.6vw,2rem);line-height:1.25;max-width:30ch}
-.hero-place{margin-top:8px;color:var(--mute)}
-.hero-act{margin-top:20px;display:flex;flex-wrap:wrap;gap:12px}
+/* the first screen is always complete: bar, photo and the line with its buttons fit in one screen, the photo takes what is left */
+.hero{display:flex;flex-direction:column;height:calc(100svh - 65px);min-height:500px;max-height:980px}
+.hero-media{position:relative;flex:1 1 0;min-height:200px}
+.hero-media picture{position:absolute;inset:0;display:block}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:var(--f,50% 30%)}
+.hero-row{display:grid;gap:12px;padding-top:clamp(16px,3.5vw,32px);padding-bottom:clamp(18px,3.5vw,32px);flex:none}
+.hero-line{font-family:var(--font-d);font-size:clamp(1.25rem,2.6vw,2rem);line-height:1.2;max-width:30ch}
+.hero-place{margin-top:6px;color:var(--mute);font-size:.9375rem}
+.hero-act{margin-top:14px;display:flex;flex-wrap:wrap;gap:12px}
 
 /* one type scale: h2 for sections, h3 for the three parts of the day */
 .h2{font-family:var(--font-d);font-weight:400;font-size:clamp(1.75rem,3.4vw,2.5rem);line-height:1.15;letter-spacing:-.005em;text-wrap:balance}
@@ -90,9 +94,16 @@ a{color:inherit;text-decoration:none}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 
 .tile{aspect-ratio:4/5;border-radius:4px;background:var(--tile)}
-.hero-plain{display:grid;place-items:center;height:calc(100svh - 150px);min-height:340px;max-height:780px;background:var(--band);color:var(--band-fg)}
-.hero-plain .wm{width:min(560px,60vw)}
+.hero-plain{display:grid;place-items:center;position:absolute;inset:0;background:var(--band);color:var(--band-fg)}
+.hero-plain .wm{width:60%;max-width:560px}
 html{color-scheme:light}
 html[data-mode="night"]{color-scheme:dark}
 body{transition:background-color .6s,color .6s}
 @media(prefers-reduced-motion:reduce){body{transition:none}}
+/* phones held sideways: photo and text side by side so the first screen stays complete */
+@media(max-height:500px) and (orientation:landscape){
+  .hero{flex-direction:row;min-height:0;height:calc(100svh - 65px)}
+  .hero-media{flex:1.3 1 0;min-height:0}
+  .hero-row{flex:1 1 0;align-content:center;padding:12px var(--gutter)}
+  .hero-line{font-size:1.25rem}
+}
