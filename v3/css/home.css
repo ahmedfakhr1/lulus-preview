@@ -1,0 +1,596 @@
+/* Shared base: fonts, tokens, buttons, header bar, reserve sheet. */
+@font-face {
+  font-family: 'Bodoni Moda';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url(../fonts/bodonimoda-normal-latin.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Bodoni Moda';
+  font-style: italic;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url(../fonts/bodonimoda-italic-latin.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../fonts/jost-normal-latin.woff2) format('woff2');
+}
+
+:root {
+  /* Season tokens: written in <head> by the season picker. These are the brand defaults. */
+  --bg: #fdf2d5;
+  --ink: #583f22;
+  --accent: #d29a50;
+  --accent2: #d1852f;
+  --paper: #fdf2d5;
+  --muted: #6e5b42;
+  --muted-paper: #6e5b42;
+  --hair: #d8cdb6;
+  --hair-paper: #d8cdb6;
+  --tint: #f2e0bb;
+  --tint2: #f0d9b2;
+  --desk: #241a0d;
+  --scrim: 39,28,15;
+
+  --on-photo: #fbf5e6;
+  --font-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', 'Times New Roman', serif;
+  --font-body: 'Jost', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+
+  --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 48px; --s6: 72px; --s7: 112px;
+  --gutter: 20px;
+  --r: 2px;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --z-bar: 20; --z-sheet: 40;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 72px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-weight: 400; text-wrap: balance; }
+p { text-wrap: pretty; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 12px; top: -80px; z-index: 99; background: var(--ink); color: var(--paper); padding: 12px 16px; border-radius: var(--r); }
+.skip:focus { top: 12px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 28px;
+  border: 1px solid transparent; border-radius: var(--r);
+  font-family: var(--font-body); font-weight: 500; font-size: 0.8125rem;
+  letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+  background: var(--ink); color: var(--paper);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.16s var(--ease);
+}
+.btn:active { transform: scale(0.97); }
+.btn-sm { min-height: 44px; padding: 0 20px; }
+.btn-light { background: var(--on-photo); color: rgb(var(--scrim)); }
+.btn-ghost { background: transparent; color: var(--on-photo); border-color: color-mix(in srgb, var(--on-photo) 80%, transparent); }
+.btn-line { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn-block { width: 100%; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: color-mix(in srgb, var(--ink) 86%, var(--accent)); }
+  .btn-light:hover { background: #fff; }
+  .btn-ghost:hover { background: var(--on-photo); color: rgb(var(--scrim)); }
+  .btn-line:hover { background: var(--ink); color: var(--paper); }
+}
+
+.link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-weight: 500; font-size: 0.8125rem; letter-spacing: 0.16em; text-transform: uppercase;
+  text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px;
+}
+
+/* ---------- header bar ---------- */
+.bar {
+  position: fixed; inset: 0 0 auto 0; z-index: var(--z-bar);
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 64px; padding: 10px var(--gutter);
+  background: var(--bg); color: var(--ink);
+  border-bottom: 1px solid var(--hair);
+}
+html:not(.js) .bar { position: static; }
+.js .bar { transform: translateY(-101%); visibility: hidden; transition: transform 0.35s var(--ease), visibility 0s 0.35s; }
+.js .bar.on { transform: none; visibility: visible; transition: transform 0.35s var(--ease), visibility 0s; }
+.wm { display: block; width: 100%; height: auto; overflow: visible; }
+.bar-logo { display: flex; align-items: center; min-height: 44px; width: 92px; color: inherit; }
+.bar-nav { display: flex; align-items: center; gap: var(--s1); }
+.bar-link {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
+  font-weight: 500; font-size: 0.8125rem; letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none;
+}
+
+/* ---------- reserve sheet ---------- */
+.sheet { overscroll-behavior: contain;
+  position: fixed; inset: auto 0 0 0; margin: 0; padding: 0;
+  width: 100%; max-width: none; max-height: 92dvh; overflow: auto;
+  background: var(--paper); color: var(--ink);
+  border: 0; border-radius: var(--r) var(--r) 0 0;
+  z-index: var(--z-sheet);
+}
+/* the grabber: a small bar that says the sheet can be swiped down (phones only) */
+.sheet form::before { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px; margin: -8px auto var(--s2); background: color-mix(in srgb, var(--ink) 30%, transparent); }
+@media (min-width: 900px) { .sheet form::before { display: none; } }
+.sheet::backdrop { background: rgba(var(--scrim), 0.62); }
+.sheet[open] { animation: sheet-in 0.32s var(--ease); }
+.sheet[open]::backdrop { animation: fade-in 0.25s ease-out; }
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.sheet form { padding: var(--s3) var(--gutter) calc(var(--s4) + env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; }
+.sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s2); margin-bottom: var(--s3); }
+.sheet-head h2 { font-family: var(--font-display); font-size: 2rem; line-height: 1.1; padding-top: 6px; }
+.x {
+  flex: none; width: 44px; height: 44px; display: grid; place-items: center;
+  background: none; border: 1px solid var(--hair-paper); border-radius: 50%; margin-right: -6px;
+}
+.x svg { width: 20px; height: 20px; }
+.field { margin-bottom: var(--s3); }
+.field label, .field .lbl { display: block; font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.field input {
+  width: 100%; min-height: 52px; padding: 0 14px; background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r);
+  font-size: 1.0625rem; color: var(--ink);
+}
+/* the time is a list of half-hour slots, so it is a select that looks like the other fields */
+.field select {
+  width: 100%; height: 52px; padding: 0 38px 0 14px; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r);
+  -webkit-appearance: none; appearance: none; font-size: 1.0625rem; color: var(--ink); background-color: transparent;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.field select:invalid { color: var(--muted-paper); }
+.field select option { color: #1b1b1b; background: #fff; }
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.field select[aria-invalid='true'] { border-color: #8a1c1c; border-width: 2px; }
+.field input[aria-invalid='true'] { border-color: #8a1c1c; border-width: 2px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s2); }
+/* date and time fields: an iPhone gives them their own height, width and an empty face, so they are set outright */
+.field input[type='date'] { -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; height: 52px; text-align: left; }
+.field input[type='date']::-webkit-date-and-time-value { text-align: left; min-height: 1.3em; margin: 0; }
+.field input[type='date']::-webkit-datetime-edit { padding: 0; }
+/* an iPhone shows nothing in an empty date or time field, so a hint sits on it (iPhone only, gone once a value is chosen) */
+.field .ph { display: none; position: relative; margin-top: -52px; height: 52px; padding: 0 15px; align-items: center; font-size: 1.0625rem; color: var(--muted-paper); pointer-events: none; }
+.ios .field .ph { display: flex; }
+.ios .field.filled .ph { color: var(--ink); }
+.ios .field input[type='date'] { color: transparent; -webkit-text-fill-color: transparent; }
+.row2 .field { min-width: 0; }
+.err { margin-top: 6px; font-size: 0.875rem; color: #8a1c1c; }
+.step { display: flex; align-items: center; border: 1px solid color-mix(in srgb, var(--ink) 55%, var(--paper)); border-radius: var(--r); width: max-content; }
+.step button { width: 52px; height: 52px; background: none; border: 0; font-size: 1.5rem; line-height: 1; }
+.step output { min-width: 56px; text-align: center; font-size: 1.125rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.fine { margin-top: var(--s2); font-size: 0.875rem; color: var(--muted-paper); }
+.sheet .btn { margin-top: var(--s1); }
+
+@media (min-width: 720px) {
+  :root { --gutter: 40px; }
+  .sheet { inset: 0; margin: auto; width: 480px; max-height: 90dvh; border-radius: var(--r); }
+  .sheet form { padding: var(--s4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+.day-first { margin-top: 6px; font-size: 0.875rem; min-height: 1.3em; }
+
+/* Home page: an impression of LÜLU'S rather than a story. A quiet hero (the logo, the place, Reserve and Menu),
+   then the room in fragments: details of her photos laid out loosely, with no captions and no order, drifting
+   at different depths as the page scrolls; frames that hold two photos cross-fade slowly between them. Then the
+   season as a colour and a photo, the atelier in a few words, and the invitation card.
+
+   The page follows the mood set in <head> (season.js): Evening is the night room, warm and dark, with paper
+   text; Morning is the season's own light ground with ink text. Motion is opacity and transform only. */
+
+html {
+  color-scheme: dark;
+  --h-bg: var(--desk-night);
+  --h-fg: var(--paper);
+  --h-muted: var(--muted-desk);
+  --h-hair: var(--hair-desk);
+  --h-acc: var(--accent);
+  --h-foot: var(--page-night);
+  --grain: 0.016;
+  --slow: cubic-bezier(0.22, 0.61, 0.24, 1);
+}
+html[data-mood='morning'] {
+  color-scheme: light;
+  --h-bg: var(--bg);
+  --h-fg: var(--ink);
+  --h-muted: var(--muted);
+  --h-hair: var(--hair);
+  --h-acc: var(--acc-day);
+  --h-foot: var(--ink);
+  --grain: 0.028;
+}
+body.home { background: var(--h-bg); color: var(--h-fg); }
+.home :focus-visible { outline-color: var(--h-fg); }
+
+/* a very fine paper grain on the ground only, behind the photos and the cards, drawn once and never repainted on scroll */
+body.home { isolation: isolate; }
+body.home::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: url(../img/grain.png) 0 0 / 128px 128px repeat; opacity: var(--grain);
+}
+
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+
+/* ---------- header bar ---------- */
+.home .bar { background: var(--h-bg); color: var(--h-fg); border-bottom-color: var(--h-hair); }
+.home .bar .btn { background: var(--h-fg); color: var(--h-bg); }
+@media (hover: hover) and (pointer: fine) { .home .bar .btn:hover { background: color-mix(in srgb, var(--h-fg) 86%, var(--accent)); } }
+
+.display { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 9vw, 4.5rem); line-height: 1.08; letter-spacing: -0.01em; text-wrap: balance; }
+.link { color: inherit; }
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- the hero ----------
+   The terrace at night, never shown wider than half its own pixels. On a phone it runs edge to edge and the
+   logo sits on its lower edge like a seal; on a wide screen the words take the left and the photo the right. */
+.hero { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.hero-media {
+  position: relative; width: 100%; max-width: 540px; aspect-ratio: 4 / 3; overflow: hidden; background: rgb(var(--scrim));
+}
+.hero-media:empty { display: none; }
+.hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.hero-body { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 var(--gutter) 8px; }
+/* the first screen on a phone is only the photo and the seal with Reserve and Menu; the room begins below it */
+.hero { min-height: 100vh; min-height: 100svh; }
+.hero-body { flex: 1; }
+.hero-seal { margin-top: 32px; line-height: 0; width: min(230px, 60vw); color: var(--h-fg); }
+.place { margin-top: 24px; font-weight: 500; font-size: 0.75rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--h-muted); }
+.hero-cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.hero .btn-light { background: var(--h-fg); color: var(--h-bg); border-color: var(--h-fg); }
+.hero .btn-ghost { background: transparent; color: var(--h-fg); border-color: color-mix(in srgb, var(--h-fg) 70%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .hero .btn-light:hover { background: color-mix(in srgb, var(--h-fg) 86%, var(--accent)); }
+  .hero .btn-ghost:hover { background: var(--h-fg); color: var(--h-bg); }
+}
+
+/* the photo surfaces from the dark, then the seal, then the words */
+.hero-media img { transform-origin: 60% 50%; animation: surface 1.6s var(--slow) both, kb 28s ease-in-out 1.6s 2 alternate; }
+/* a slow drift closer, as on the Mosaïque hero */
+@keyframes kb { from { transform: scale(1); } to { transform: scale(1.1); } }
+.hero-seal, .place, .hero-cta { animation: rise 0.9s var(--slow) both; }
+.hero-seal { animation-delay: 0.35s; }
+.place { animation-delay: 0.55s; }
+.hero-cta { animation-delay: 0.7s; }
+html.veiled .hero-media img, html.veiled .hero-seal, html.veiled .place, html.veiled .hero-cta { animation: none; opacity: 0; }
+@keyframes surface { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 900px), (min-width: 560px) and (orientation: landscape) {
+  .hero {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; text-align: left;
+    column-gap: clamp(32px, 6vw, 104px);
+    min-height: 100vh; min-height: 100svh;
+    padding: 96px max(var(--gutter), calc((100% - 1200px) / 2)) 64px;
+  }
+  .hero-media {
+    grid-column: 2; grid-row: 1; aspect-ratio: var(--hero-r, 1.554); max-width: none;
+    width: min(540px, 48vw, calc((100svh - 180px) * var(--hero-r, 1.554)));
+  }
+  .hero-body { grid-column: 1; grid-row: 1; align-items: flex-start; padding: 0; flex: none; }
+  .hero-seal { margin-top: 0; width: 300px; }
+  .hero-cta { justify-content: flex-start; }
+}
+/* on a 1x screen a file shows sharp at its full pixel width, so the photos may take more room there */
+@media (min-width: 900px) and (max-resolution: 1.4dppx) {
+  .hero-media { width: min(760px, 50vw, calc((100svh - 180px) * var(--hero-r, 1.554))); }
+}
+@media (max-height: 479px) and (orientation: landscape) {
+  .hero { padding-top: 72px; padding-bottom: 32px; }
+  .hero-seal { width: 180px; }
+  .place { margin-top: 10px; }
+  .hero-cta { margin-top: 18px; }
+}
+/* a phone held upright: the photo fills the screen above the seal and the two buttons, so the first screen is the place itself */
+@media (max-width: 899px) and (orientation: portrait) {
+  .hero-media { flex: 1 1 auto; aspect-ratio: auto; max-width: none; min-height: 46svh; }
+  .hero-media picture { display: contents; }
+  .hero-media img { position: absolute; inset: 0; }
+  .hero-body { flex: none; padding-bottom: 40px; }
+}
+@media (max-width: 899px) and (orientation: portrait) and (max-height: 700px) {
+  .hero-seal { margin-top: 24px; width: min(190px, 52vw); }
+  .hero-cta { margin-top: 22px; }
+}
+
+/* ---------- the room: her four best photos of the season, two by two ----------
+   Same shape for every photo, even gaps, no frames and no movement: the photos carry it. */
+.room {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+  padding: clamp(72px, 16vw, 140px) var(--gutter) 0; max-width: 1080px; margin: 0 auto;
+}
+.room-head { padding: clamp(96px, 20vw, 200px) var(--gutter) 0; text-align: center; }
+/* the headline: a quiet tracked line in Jost, then her wordmark drawing itself in the season's colour, as if new */
+.room-head .display { margin-top: 14px; font-family: var(--font-body); font-style: normal; font-weight: 400; font-size: clamp(0.9375rem, 3.9vw, 1.25rem); letter-spacing: 0.26em; text-indent: 0.26em; text-transform: uppercase; line-height: 1.4; text-wrap: balance; }
+.rh-t { display: block; }
+.room-head .wm-draw { width: min(56vw, 300px); margin: clamp(16px, 3.4vw, 26px) auto 0; color: var(--pop-night, var(--h-acc)); }
+html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-acc)); }
+/* the wordmark is simply there, fading in with its heading like everything else */
+.room-line { margin: clamp(40px, 8vw, 72px) auto 0; padding: 0 var(--gutter); max-width: 34ch; text-align: center; font-family: var(--font-display); font-size: clamp(1.375rem, 5vw, 2rem); line-height: 1.25; text-wrap: balance; }
+.room-line span { display: inline-block; }
+.room-line em { font-style: italic; color: var(--acc-day); }
+.room-head + .room { padding-top: clamp(32px, 6vw, 56px); }
+.fr { margin: 0; position: relative; }
+.fr-in { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: rgb(var(--scrim)); }
+.fr-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+@media (min-width: 900px) {
+  .room { gap: 12px; max-width: 920px; }
+}
+
+/* ---------- photos that drift inside their frame (parallax by moving, never by enlarging) ---------- */
+.px { position: relative; width: min(100%, var(--px-w, 540px)); aspect-ratio: var(--px-r, 0.8); overflow: hidden; background: var(--tint); }
+.px img { position: absolute; left: 0; top: 0; width: 100%; height: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .px img { animation: drift linear both; animation-timeline: view(); animation-range: cover; }
+    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-9.0909%); } }
+  }
+}
+
+/* ---------- the season: its own colour, its photo and its name ---------- */
+.season { display: none; margin-top: clamp(112px, 24vw, 240px); }
+.season-pane { display: none; }
+.sn {
+  display: grid; gap: 32px; background: var(--tint); color: var(--ink);
+  padding: clamp(40px, 10vw, 96px) var(--gutter) clamp(48px, 12vw, 112px);
+  --h-fg: var(--ink);
+}
+.sn :focus-visible { outline-color: var(--ink); }
+.sn-photo { justify-self: center; width: min(100%, 540px); }
+.sn-photo .px { width: 100%; }
+.sn-body { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+@media (max-width: 767px) { .sn-body { align-items: center; text-align: center; } }
+.sp-line { font-family: var(--font-display); font-style: italic; font-size: 1.25rem; }
+.sn .link { min-height: 44px; display: inline-flex; align-items: center; }
+@media (min-width: 900px) {
+  .sn { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: clamp(48px, 7vw, 120px); align-items: end; padding-left: clamp(40px, 5vw, 72px); padding-right: clamp(40px, 5vw, 72px); max-width: 1200px; margin: 0 auto; }
+  .sn-photo { grid-column: 2; grid-row: 1; justify-self: start; }
+  .sn-body { grid-column: 1; grid-row: 1; justify-self: end; padding-bottom: 8vh; }
+}
+
+/* ---------- the atelier: three names, centred like the rest of the page ---------- */
+.atelier { padding-top: clamp(112px, 24vw, 240px); text-align: center; }
+.at-h { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.0625rem; color: var(--h-muted); }
+.at-list { list-style: none; margin: 36px 0 0; padding: 0; display: grid; gap: 40px; justify-items: center; }
+.at { display: flex; flex-direction: column; align-items: center; }
+.at h3 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(1.875rem, 7vw, 3rem); line-height: 1.1; }
+.at .link { min-height: 44px; display: inline-flex; align-items: center; color: var(--h-muted); }
+.at .link { border-bottom: 0; }
+/* the line under each name, with its small drawing set in the middle like a seal */
+.at-rule { display: flex; align-items: center; gap: 12px; width: min(240px, 70vw); margin-top: 6px; }
+/* the nail studio's drawing: two hands with almond nails, drawn larger, the fingers filled with the page colour so they overlap cleanly */
+.at-ic-art { width: 46px; height: 56px; }
+.at-ic-art .sk { fill: var(--h-bg); stroke: var(--accent); stroke-width: 1.1px; vector-effect: non-scaling-stroke; }
+.at-ic-art .fl { fill: var(--h-bg); stroke: none; }
+.at-ic-art .nl { fill: var(--accent); stroke: none; }
+.at-rule::before, .at-rule::after { content: ''; flex: 1; height: 1px; background: var(--h-hair); }
+.at-ic { flex: none; width: 28px; height: 28px; fill: none; stroke: var(--accent); color: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+@media (min-width: 900px) {
+  /* three equal columns; a name that wraps grows upward, so the links and lines sit on one level */
+  .at-list { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1080px; margin-left: auto; margin-right: auto; gap: 0 clamp(32px, 4vw, 64px); align-items: stretch; }
+  .at { justify-content: flex-end; }
+  .at h3 { font-size: clamp(2rem, 2.4vw, 2.4rem); white-space: nowrap; }
+}
+
+/* ---------- the invitation ----------
+   A cream card in the season's paper: a fine inner border in the accent and the logo disc set into the top like a wax seal. */
+.invitation { padding: clamp(120px, 24vw, 240px) 0 clamp(112px, 22vw, 220px); }
+.invite { display: flex; justify-content: center; }
+.invite-card {
+  position: relative; width: min(100%, 380px);
+  background: var(--paper); color: var(--ink); padding: 26px 28px 8px; text-align: center;
+  border: 1px solid var(--hair-paper); border-radius: var(--r);
+  transition: transform 0.35s var(--ease);
+}
+.invite-card :focus-visible { outline-color: var(--ink); }
+.invite-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--accent); border-radius: 1px; pointer-events: none; }
+/* the hours sit right under the address, same voice, so the two read as one line of information */
+.invite-hours { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 84%, transparent); margin: -2px 0 8px; padding: 0 4px; text-align: left; }
+.invite-place { font-family: var(--font-body); font-weight: 400; font-size: 0.9375rem; letter-spacing: 0.01em; color: color-mix(in srgb, var(--ink) 84%, transparent); margin-bottom: 6px; padding: 0 4px; text-align: left; }
+.invite-acts { list-style: none; margin: 0; padding: 0; position: relative; }
+.invite-acts li + li { border-top: 1px solid var(--hair-paper); }
+.invite-acts a {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 4px;
+  font-family: var(--font-body); font-weight: 400; font-size: 1.0625rem; letter-spacing: 0.01em; line-height: 1.2; text-decoration: none; text-align: left;
+}
+.invite-acts svg { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s var(--ease); }
+.invite-acts .act-ic { width: 22px; height: 22px; stroke: var(--accent); stroke-width: 1.2; transition: none; }
+.invite-acts .act-tx { flex: 1; }
+@media (max-width: 420px) { .invite-acts a { font-size: 1rem; gap: 10px; } }
+.invite-acts a:active svg:last-child { transform: translateX(3px); }
+.invite-card:active { transform: translateY(-2px); }
+@media (hover: hover) and (pointer: fine) {
+  .invite-card:hover { transform: translateY(-3px); }
+  .invite-acts a:hover svg:last-child { transform: translateX(4px); }
+  .invite-acts a:hover span { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+}
+
+/* ---------- footer: centred on a phone; on a wide screen Follow, the seal and Get the app spread across the width ---------- */
+.foot { background: var(--h-foot); color: color-mix(in srgb, var(--paper) 72%, transparent); font-weight: 300; padding: var(--s6) 0 var(--s5); text-align: center; }
+.foot :focus-visible { outline-color: var(--paper); }
+.foot-in { display: grid; gap: var(--s5); justify-items: center; }
+.foot-logo { width: 120px; color: var(--paper); line-height: 0; }
+.foot-cols { display: grid; gap: var(--s4); justify-items: center; }
+.foot-h { font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 8px; color: color-mix(in srgb, var(--paper) 90%, transparent); }
+.foot-col { display: flex; flex-direction: column; align-items: center; }
+.foot-col a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; font-size: 0.9375rem; }
+.foot-col a:hover, .foot-col a:focus-visible { color: var(--paper); text-decoration: underline; text-underline-offset: 4px; }
+.credit { font-size: 0.75rem; letter-spacing: 0.02em; font-weight: 400; color: color-mix(in srgb, var(--paper) 90%, transparent); width: 100%; padding-top: var(--s4); border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); }
+@media (min-width: 900px) {
+  /* the seal on the left, Follow and Get the app spread out across the width, each reading from the left */
+  .foot { text-align: left; }
+  .foot-in { grid-template-columns: auto 1fr 1fr; align-items: start; justify-items: start; column-gap: clamp(64px, 10vw, 200px); }
+  .foot-cols { display: contents; }
+  .foot-logo { grid-column: 1; grid-row: 1; width: 130px; margin-top: 6px; }
+  .foot-col { align-items: flex-start; }
+  .foot-col:first-child { grid-column: 2; grid-row: 1; justify-self: center; }
+  .foot-col:last-child { grid-column: 3; grid-row: 1; justify-self: end; }
+  .credit { grid-column: 1 / -1; text-align: center; }
+}
+
+/* ---------- reveals: slow, opacity and transform only ---------- */
+.js .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.9s var(--slow), transform 0.9s var(--slow); }
+.js .rv.in { opacity: 1; transform: none; }
+/* the grid: each photo fades in out of a soft blur and sharpens, one after another along the row */
+.js .room .fr.rv { opacity: 1; transform: none; transition: none; }
+.js .room .fr.rv .fr-in img { opacity: 0; filter: blur(18px); transition: opacity 1.4s ease, filter 1.6s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: calc(var(--d, 0) * 140ms); }
+.js .room .fr.rv.in .fr-in img { opacity: 1; filter: blur(0); }
+
+/* ---------- the opening veil (first visit): the logo disc on the page colour, a hairline that fills as the photos arrive ---------- */
+.veil { display: none; }
+html.veiled .veil, .veil.out {
+  display: grid; place-items: center; position: fixed; inset: 0; z-index: 60; background: var(--h-bg); cursor: pointer;
+}
+.veil-in { display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.veil .wm { width: 170px; color: var(--h-fg); animation: surface 0.8s var(--slow) both; }
+.veil-line { display: block; width: 120px; height: 1px; background: var(--h-hair); overflow: hidden; }
+.veil-line i { display: block; height: 100%; background: var(--h-acc); transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.4s var(--ease); }
+.veil.out { opacity: 0; pointer-events: none; transition: opacity 0.8s var(--slow); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .rv { opacity: 1; transform: none; transition: none; }
+  .js .room .fr.rv .fr-in img { opacity: 1; filter: none; transition: none; }
+  .hero-media img, .hero-seal, .place, .hero-cta { animation: none; }
+  .js .duo .fr-b { animation: none; opacity: 0; }
+}
+
+/* photo plate: Malak turned down the guest photos, so each photo slot holds a quiet tinted plate until hers arrive */
+.ph-img { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, currentColor 7%, transparent); }
+.ph-img::after { content: 'Photo'; font-family: var(--font-body, inherit); font-style: normal; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.45; }
+.at-app { margin-top: 40px; text-align: center; }
+.at-app .link { color: var(--h-muted); }
+
+/* ---------- about: a short note, like a card left on the table ---------- */
+.story { padding: clamp(72px, 16vw, 140px) var(--gutter) 0; text-align: center; }
+.story .wrap { max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+.story-eye { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 1.0625rem; color: var(--h-muted); }
+.story-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.15; margin-top: 14px; }
+.story-tx { margin-top: 18px; font-size: 1.0625rem; line-height: 1.7; font-weight: 300; }
+.hero-media:has(.ph-img), .fr-in:has(.ph-img), .px:has(.ph-img) { background: none; }
+/* text plate: her own words go here; until then, three soft lines the width of a short paragraph */
+.tx-plate { width: min(100%, 28rem); display: grid; gap: 14px; justify-items: center; padding: 6px 0; }
+.tx-plate i { display: block; height: 10px; width: 100%; border-radius: 5px; background: color-mix(in srgb, currentColor 9%, transparent); }
+.tx-plate i:last-child { width: 62%; }
+a, button { touch-action: manipulation; }
+
+/* her wordmark takes the season's colour wherever the ground is dark: the whole Evening page and the footer */
+html[data-mood='evening'] .hero-seal, html[data-mood='evening'] .bar-logo, html[data-mood='evening'] .veil .wm, .foot-logo, html[data-mood='evening'] .story-h { color: var(--accent); }
+
+/* ---------- gallery lightbox: a photo full on the page, the rest of the season a swipe away ---------- */
+.fr-in[role='button'] { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; touch-action: manipulation; transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1); }
+/* resting a finger on a photo: the frame gives a little and a soft shade comes over it, so it feels pressable */
+.fr-in[role='button']::after { content: ''; position: absolute; inset: 0; background: rgba(var(--scrim), 0.16); opacity: 0; pointer-events: none; transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1); }
+/* starts the moment the finger lands, sinks over 0.42 s, settles back over 0.75 s */
+.fr-in.press { transform: scale(0.97); transition-duration: 0.42s; }
+.fr-in.press::after { opacity: 1; transition-duration: 0.42s; }
+.fr-in.rel { transition: none; }
+.fr-in.rel::after { transition: none; }
+/* a mouse over a photo: it drifts closer inside its frame and a faint shade settles, so it reads as something to open */
+.js .room .fr.rv .fr-in[role='button'] img { transition: opacity 1.4s ease, filter 1.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s var(--ease); transition-delay: calc(var(--d, 0) * 140ms), calc(var(--d, 0) * 140ms), 0s; }
+@media (hover: hover) and (pointer: fine) {
+  .fr-in[role='button']:hover img { transform: scale(1.05); }
+  .fr-in[role='button']:hover::after { opacity: 0.32; }
+  .fr-in[role='button']:hover.press::after { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .fr-in[role='button'], .fr-in.press { transition: none; transform: none; } .fr-in[role='button']:hover img { transform: none; } }
+.fr-in[role='button']:focus-visible { outline: 2px solid var(--h-fg); outline-offset: -4px; }
+html.lb-open { overflow: hidden; }
+/* with the viewer open the top bar fades away, so the close button never sits on Reserve */
+html.lb-open .bar { opacity: 0; pointer-events: none; transition: opacity 0.4s var(--ease); }
+.lb { overscroll-behavior: contain; position: fixed; inset: 0; margin: 0; padding: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; overflow: hidden; background: transparent; color: var(--h-fg); }
+.lb::backdrop { background: transparent; }
+.lb :focus-visible { outline-color: var(--h-fg); }
+/* clear, no tint (Ahmed), only a light blur on the page behind the photo; the controls take the page's own text colour */
+.lb-bg { position: absolute; inset: 0; background: transparent; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.65s var(--ease); }
+.lb.on .lb-bg { opacity: 1; }
+.lb-stage { position: absolute; inset: calc(64px + env(safe-area-inset-top)) 0 calc(96px + env(safe-area-inset-bottom)); touch-action: none; }
+.lb-img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: min(94vw, 900px); max-height: 100%; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform, opacity; }
+/* the photo count is read out to screen readers only (Ahmed: no count on screen) */
+.lb-n { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.lb .x.lb-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: var(--gutter); margin: 0; color: inherit; background: var(--h-bg); border-color: color-mix(in srgb, var(--h-fg) 55%, transparent); transition: transform 0.16s var(--ease); }
+.lb-nav { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); width: 48px; height: 48px; display: grid; place-items: center; padding: 0; background: none; color: inherit; border: 1px solid color-mix(in srgb, var(--h-fg) 55%, transparent); border-radius: 50%; background: var(--h-bg); transition: transform 0.16s var(--ease), opacity 0.2s; }
+.lb .x svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.lb-nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.lb-prev { left: calc(50% - 60px); }
+.lb-next { left: calc(50% + 12px); }
+.lb-nav:active, .lb .x.lb-x:active { transform: scale(0.94); }
+.lb-nav[disabled] { opacity: 0.28; cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  .lb-nav:not([disabled]):hover, .lb .x.lb-x:hover { background: color-mix(in srgb, var(--h-fg) 10%, var(--h-bg)); }
+}
+@media (min-width: 900px) {
+  .lb-nav { top: 50%; bottom: auto; margin-top: -24px; }
+  .lb-prev { left: 28px; }
+  .lb-next { left: auto; right: 28px; }
+}
+
+/* ---------- the atelier, one by one: each offering (name, line and sign together) fades in as a single unit ---------- */
+.at:nth-child(2) { --n: 1; }
+.at:nth-child(3) { --n: 2; }
+/* close together, so each follows the one before it quickly */
+.js .at.rv { transition: opacity 0.9s var(--slow), transform 0.9s var(--slow); transition-delay: calc(var(--n, 0) * 0.28s); }
+/* the link under them is the fourth beat: it comes in after the last offering, never before */
+.at-app { --n: 3; }
+.js .at-app.rv { transition-delay: calc(var(--n) * 0.28s + 0.1s); }
+@media (min-width: 900px) { .js .at.rv { transition-delay: calc(var(--n, 0) * 0.34s); } .js .at-app.rv { transition-delay: calc(var(--n) * 0.34s + 0.1s); } }
+@media (prefers-reduced-motion: reduce) { .js .at.rv, .js .at-app.rv { opacity: 1; transform: none; transition: none; } }
+
+/* ---------- Lülu's in motion: the v1 list she liked, set quietly like the old atelier trio ---------- */
+.motion { margin-top: clamp(112px, 24vw, 240px); padding: clamp(64px, 12vw, 120px) 0; text-align: center; background: var(--ink); color: var(--paper); position: relative; isolation: isolate; } /* the page's one bold moment: the deep season colour (Ahmed, option D) */
+.motion::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url(../img/grain.png) 0 0 / 128px 128px repeat; opacity: calc(var(--grain) * 1.6); }
+.mt-list { list-style: none; margin: 28px auto 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; gap: 18px 24px; }
+.mt { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 6vw, 1.875rem); line-height: 1.2; white-space: nowrap; }
+.mt { display: flex; flex-direction: column; align-items: center; }
+.mt-list { gap: 26px 20px; }
+.mt-rule { width: min(150px, 36vw); margin-top: 6px; gap: 10px; }
+/* line icons in the season colour, the three atelier ones plus three in the same thin line */
+.mt-ic { display: block; flex: none; width: 28px; height: 28px; fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.mt-ic[viewBox="0 0 24 24"] { stroke-width: 1; }
+/* in the motion section the app link follows the six names closely, not after the long atelier wait */
+.js .motion .at-app.rv { transition-delay: 0.25s; }
+@media (prefers-reduced-motion: reduce) { .js .motion .at-app.rv { transition: none; } }
+/* on the tinted band the label and link sit a touch darker than the page's muted text, so they keep 4.5:1 */
+.motion .at-h, .motion .at-app .link { color: color-mix(in srgb, var(--paper) 86%, transparent); }
+.motion .mt-ic { stroke: var(--paper); }
+.motion .at-rule::before, .motion .at-rule::after { background: color-mix(in srgb, var(--paper) 35%, transparent); }
+.motion :focus-visible { outline-color: var(--paper); }
+/* Find them in the app: under a finger the word dips a little and its line draws in from both ends, then eases back */
+.motion .at-app .link { position: relative; border-bottom: 0; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1); -webkit-tap-highlight-color: transparent; }
+.motion .at-app .link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px; background: currentColor; transform-origin: 50% 50%; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.motion .at-app .link.press { transform: scale(0.96); opacity: 0.75; transition-duration: 0.35s; }
+.motion .at-app .link.press::after { transform: scaleX(0.35); transition-duration: 0.35s; }
+@media (hover: hover) and (pointer: fine) { .motion .at-app .link:hover::after { transform: scaleX(0.6); } }
+@media (prefers-reduced-motion: reduce) { .motion .at-app .link, .motion .at-app .link::after { transition: none; } }
+
+/* v3: Cannes and the app note */
+.mt-note { margin: 10px auto 0; max-width: 30ch; font-family: var(--font-body); font-size: 0.9375rem; line-height: 1.5; color: color-mix(in srgb, var(--paper) 78%, transparent); }
+.cannes { padding: clamp(96px, 18vw, 180px) 0 0; text-align: center; }
+.cannes .wrap { max-width: 40rem; display: flex; flex-direction: column; align-items: center; }
+.cannes .at-h { color: var(--h-muted); }
+.cannes .display { margin-top: 10px; color: var(--h-fg); }
+.cannes-tx { margin-top: 18px; max-width: 28ch; font-family: var(--font-display); font-size: clamp(1.25rem, 4.5vw, 1.625rem); line-height: 1.3; text-wrap: balance; }
+.cannes-act { margin-top: 28px; }
+.cannes .btn-line { color: var(--h-fg); border-color: var(--h-fg); }
+@media (hover: hover) and (pointer: fine) { .cannes .btn-line:hover { background: var(--h-fg); color: var(--h-bg); } }
