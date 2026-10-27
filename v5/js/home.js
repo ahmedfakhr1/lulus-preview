@@ -27,3 +27,13 @@
   window.addEventListener('resize', on);
   on();
 })();
+
+(function () {
+  var t = document.querySelector('.ticker'), b = document.querySelector('.tick-pause');
+  if (!t || !b) return;
+  b.addEventListener('click', function () {
+    var p = t.classList.toggle('paused');
+    b.setAttribute('aria-pressed', p ? 'true' : 'false');
+    b.textContent = p ? 'Play' : 'Pause';
+  });
+})();
