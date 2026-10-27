@@ -119,8 +119,8 @@
       for (var n = 0; n < 3; n++) {
         var im = document.getElementById('st' + (n + 1)), s3 = season.st[n];
         if (!im) continue;
-        if (s3) { im.src = 'img/' + s3[0]; im.alt = ''; var cp = document.getElementById('cap' + (n + 1)); if (cp) cp.textContent = s3[1]; }
-        else im.parentNode.innerHTML = '<div class="tile" aria-hidden="true"></div><figcaption></figcaption>';
+        if (s3) { im.src = 'img/' + s3[0]; im.alt = s3[1]; }
+        else im.parentNode.innerHTML = '<div class="tile" aria-hidden="true"></div>';
       }
       if (season.dish) {
         var d = document.getElementById('dish-extra');
@@ -130,7 +130,7 @@
   };
 })();
 </script>
-<link rel="stylesheet" href="css/home.css?v=6d">
+<link rel="stylesheet" href="css/home.css?v=6e">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -163,7 +163,7 @@
       <h2 class="h2" id="day-h">A day at <span translate="no">LÜLU’S</span></h2>
       <div class="cols">
         <article class="col">
-          <figure><img id="st1" src="img/hero-fall-tall.webp" alt="A guest with a table of LÜLU’S croissants and brioches" loading="lazy"><figcaption id="cap1"></figcaption></figure>
+          <figure><img id="st1" src="img/hero-fall-tall.webp" alt="A guest with a table of LÜLU’S croissants and brioches" loading="lazy"></figure>
           <h3>Morning</h3>
           <ul class="dishes">
             <li><a href="menu.html"><b>Les Oeufs Truffle</b><span>Golden, layered and quietly indulgent.</span></a></li>
@@ -172,7 +172,7 @@
           </ul>
         </article>
         <article class="col">
-          <figure><img id="st2" src="img/room-fall-3.webp" alt="A guest at the LÜLU’S shelves" loading="lazy"><figcaption id="cap2"></figcaption></figure>
+          <figure><img id="st2" src="img/room-fall-3.webp" alt="A guest at the LÜLU’S shelves" loading="lazy"></figure>
           <h3>Afternoon</h3>
           <ul class="dishes">
             <li><a href="menu.html"><b>Chicken Caesar Roll</b><span>Golden chicken, parmesan, creamy Caesar.</span></a></li>
@@ -181,7 +181,7 @@
           </ul>
         </article>
         <article class="col">
-          <figure><img id="st3" src="img/room-fall-1.webp" alt="Glazed pastries with vanilla ice cream and a caramel pour" loading="lazy"><figcaption id="cap3"></figcaption></figure>
+          <figure><img id="st3" src="img/room-fall-1.webp" alt="Glazed pastries with vanilla ice cream and a caramel pour" loading="lazy"></figure>
           <h3>Evening</h3>
           <ul class="dishes">
             <li><a href="menu.html"><b>Pasta Rosa</b><span>Our best seller. Rigatoni, secret-simmered sauce, parmesan.</span></a></li>

@@ -49,7 +49,6 @@ a{color:inherit;text-decoration:none}
 @media(min-width:900px){.cols{grid-template-columns:repeat(3,1fr);gap:clamp(24px,3vw,44px)}}
 .col figure{margin:0}
 .col img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:4px;background:var(--line)}
-.col figcaption{margin-top:8px;font-size:.9375rem;color:var(--mute)}
 .col h3{font-family:var(--font-d);font-style:italic;font-weight:400;font-size:1.5rem;margin:22px 0 4px}
 .dishes{list-style:none;border-top:1px solid var(--line)}
 .dishes li{border-bottom:1px solid var(--line)}
@@ -93,7 +92,6 @@ a{color:inherit;text-decoration:none}
 .tile{aspect-ratio:4/5;border-radius:4px;background:var(--tile)}
 .hero-plain{display:grid;place-items:center;height:calc(100svh - 150px);min-height:340px;max-height:780px;background:var(--band);color:var(--band-fg)}
 .hero-plain .wm{width:min(560px,60vw)}
-@media(min-width:900px){.col figcaption{min-height:3.4em}}
 html{color-scheme:light}
 html[data-mode="night"]{color-scheme:dark}
 body{transition:background-color .6s,color .6s}
