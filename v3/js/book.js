@@ -16,6 +16,33 @@
   var svcBtns = Array.prototype.slice.call(document.querySelectorAll('#bnav [data-svc]'));
   var liveEl = document.getElementById('live');
   var DATA = JSON.parse(document.getElementById('menu-data').textContent);
+
+  /* her printed menu's colours follow the season: each season (Fall too) puts its palette in the PDF's roles: colour 1 for the text and the cover wordmark, colour 2 for the headings and
+     the season's dishes (deepened until it reads on the paper), her paper tinted a little toward colour 1 */
+  (function seasonPaper() {
+    var se = (window.LULUS && window.LULUS.season) || {};
+    var id = se.id || '';
+    /* Fall is her printed Fall menu itself, so it keeps the PDF's own colours (set in menu.css) */
+    if (!se.colours || id === 'default' || id.indexOf('fall') === 0) return;
+    function rgb(h) { h = h.replace('#', ''); return [0, 2, 4].map(function (i) { return parseInt(h.slice(i, i + 2), 16); }); }
+    function hex(c) { return '#' + c.map(function (v) { v = Math.round(Math.max(0, Math.min(255, v))).toString(16); return v.length < 2 ? '0' + v : v; }).join(''); }
+    function mix(a, b, p) { return [0, 1, 2].map(function (i) { return a[i] * p + b[i] * (1 - p); }); }
+    function lum(c) { var l = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2]; }
+    function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+    function deepen(c, bg, need) { var k = 0; while (ratio(c, bg) < need && k++ < 60) c = mix(c, [0, 0, 0], 0.96); return c; }
+    var c = se.colours, ink = rgb(c.ink), second = rgb(c.accent);
+    var paper = mix([241, 239, 235], ink, 0.96);
+    var root = document.documentElement.style;
+    var text = deepen(ink, paper, 7);
+    root.setProperty('--pg-bg', hex(paper));
+    root.setProperty('--pg-ink', hex(text));
+    root.setProperty('--pg-muted', hex(text));
+    root.setProperty('--pg-hair', hex(mix(text, paper, 0.18)));
+    /* headings are large and bold, so they keep more of the colour (3:1); the season's dishes are small text (4.5:1) */
+    root.setProperty('--mp-orange', hex(deepen(second, paper, 3)));
+    root.setProperty('--mp-season', hex(deepen(second, paper, 4.5)));
+    root.setProperty('--mp-cover', hex(deepen(ink, paper, 4.5)));
+  })();
   var LU = window.LULUS || { season: { id: 'default', name: '' }, today: '' };
   var SEASON = LU.season;
   var LOGO = document.body.getAttribute('data-logo') || 'img/logo.png';
@@ -110,11 +137,28 @@
   }
 
   /* ------------------------------------------------------------ block markup */
+  /* items are set like her printed menu: name, then the description, then the price on its own line;
+     a drink shows its price with her hot / iced / blended icons on the same row */
+  var KINDS = { Hot: 'hot', Iced: 'iced', Blended: 'blend' };
+  function iconsHTML(desc) {
+    var parts = String(desc || '').split(/\s*·\s*/);
+    if (!parts.length || !parts.every(function (p) { return KINDS[p]; })) return '';
+    return '<span class="it-ics">' + ['Hot', 'Iced', 'Blended'].map(function (k) {
+      return '<i class="ic">' + (parts.indexOf(k) >= 0 ? '<img src="img/menu-' + KINDS[k] + '.png" alt="' + k + '" width="20" height="18">' : '') + '</i>';
+    }).join('') + '</span>';
+  }
   function itemHTML(it) {
-    return '<div class="it"><div class="it-top"><span class="it-name">' + esc(it.name) +
-      (it.season ? '<span class="it-tag">Seasonal</span>' : '') + '</span>' +
-      (it.price != null ? '<span class="it-price">' + money(it.price) + '</span>' : '') + '</div>' +
-      (it.desc ? '<div class="it-desc">' + esc(it.desc) + '</div>' : '') + '</div>';
+    var cls = 'it' + (it.color ? ' it-' + esc(it.color) : '');
+    var price = it.price != null ? money(it.price) + ' EGP' : '';
+    var ics = iconsHTML(it.desc);
+    if (ics || (!it.desc && it.price != null && it.service === 'both')) {
+      return '<div class="' + cls + ' it-row"><span class="it-name">' + esc(it.name) + '</span>' +
+        '<span class="it-price">' + price + '</span>' + ics + '</div>';
+    }
+    return '<div class="' + cls + '"><div class="it-name">' + esc(it.name) +
+      (it.season ? '<span class="it-tag">Seasonal</span>' : '') + '</div>' +
+      (it.desc ? '<div class="it-desc">' + esc(it.desc) + '</div>' : '') +
+      (price ? '<div class="it-price">' + price + '</div>' : '') + '</div>';
   }
   /* a section may open with one photo, a plate across the top of its first page; its box has a fixed shape,
      so pagination never waits for the file */
@@ -133,11 +177,11 @@
       (p.width ? ' width="' + p.width + '" height="' + p.height + '"' : '') + ' decoding="async"></figure>' : '';
   }
   function headHTML(sec) {
-    return '<div class="sec-head">' + photoHTML(sec) + '<h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
+    return '<div class="sec-head h-' + esc(sec.id) + (sec.pack === 'drinks' ? ' h-drinks' : '') + '">' + photoHTML(sec) + '<h2>' + esc(sec.title) + '</h2><i class="rule"></i>' +
       (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
   }
   function subHTML(sec) {
-    return '<div class="sub-head"><h3>' + esc(sec.title) + '</h3>' + (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
+    return '<div class="sub-head h-' + esc(sec.id) + (sec.pack === 'drinks' ? ' h-drinks' : '') + '"><h3>' + esc(sec.title) + '</h3>' + (sec.note ? '<p class="note">' + esc(sec.note) + '</p>' : '') + '</div>';
   }
   /* a page that carries on a section shows only the section's name, small, above the items */
   function runHTML(title) { return '<div class="run">' + esc(title) + '</div>'; }
@@ -370,7 +414,6 @@
     if (p.kind === 'cover') {
       el.setAttribute('aria-label', 'Cover');
       el.innerHTML = '<div class="cover-in">' + logoImg('cover-logo', 150) +
-        '<p class="cover-t">Menu</p>' +
         '<button class="cover-tap" type="button" data-act="next" aria-label="Open the menu"></button></div>';
     } else if (p.kind === 'back') {
       el.setAttribute('aria-label', 'Back cover');

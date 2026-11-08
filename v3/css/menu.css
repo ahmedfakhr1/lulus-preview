@@ -509,3 +509,56 @@ html[data-mood='morning'] { --pg-grain: 0.2; }
 /* the covers are walnut in both moods, so they keep the light grain */
 .pg-cover::before, .pg-back::before, .pg-verso::before, .pg-verso::after { opacity: 0.03; }
 html[data-mood='evening'] .mbar .bar-logo { color: var(--accent); }
+
+/* ---------- her printed menu's look on the book's pages (Morning and Evening PDFs) ----------
+   her paper, her browns and orange; Lovelo Black names, Julius Sans One descriptions, Livvic headings.
+   The pages stay her paper in both moods; the desk around the book still follows Morning / Evening. */
+@font-face { font-family: 'Lovelo'; font-weight: 900; font-display: swap; src: url(../fonts/lovelo-black.woff2) format('woff2'); }
+@font-face { font-family: 'Julius Sans One'; font-weight: 400; font-display: swap; src: url(../fonts/juliussansone-400-latin.woff2) format('woff2'); }
+@font-face { font-family: 'Livvic'; font-weight: 600; font-display: swap; src: url(../fonts/livvic-600-latin.woff2) format('woff2'); }
+@font-face { font-family: 'Livvic'; font-weight: 700; font-display: swap; src: url(../fonts/livvic-700-latin.woff2) format('woff2'); }
+html, html[data-mood='morning'] {
+  --pg-bg: #f1efeb; --pg-ink: #592302; --pg-muted: #592302; --pg-hair: #d9cfc4;
+  --mp-orange: #cd5810; --mp-cover: #8a4f25; --mp-pink: #d62d93;
+  --mp-name: 'Lovelo', 'Livvic', 'Futura', 'Century Gothic', sans-serif;
+  --mp-desc: 'Julius Sans One', 'Jost', sans-serif;
+  --mp-head: 'Livvic', 'Lovelo', sans-serif;
+}
+html[data-mood='morning'] { --c-bg: #e4ddd3; --c-fg: #592302; }
+.pg .sec-head, .pg .sub-head, .pg .toc-head { text-align: left; }
+.pg .sec-head .rule, .pg .toc-head .rule, .pg .run::after { display: none; }
+.pg .sec-head { padding-bottom: 0.9em; }
+.pg .sec-head h2, .pg .toc-head h2 { font-family: var(--mp-head); font-weight: 700; font-size: 1.6em; letter-spacing: 0.05em; line-height: 1.1; text-transform: uppercase; color: var(--mp-orange); }
+/* drinks: dark Lovelo headings, as on her drinks page; the season's drinks in her orange */
+.pg .sub-head h3 { font-family: var(--mp-head); font-weight: 700; color: var(--mp-orange); }
+.pg .h-drinks h2, .pg .h-drinks h3 { font-family: var(--mp-name); font-weight: 900; color: var(--pg-ink); }
+.pg .sub-head { padding: 1.1em 0 0.5em; }
+.pg .sub-head h3 { font-size: 1.35em; letter-spacing: 0.05em; line-height: 1.15; text-transform: uppercase; }
+.pg .h-d-seasonal h2, .pg .h-d-seasonal h3 { color: var(--mp-orange); }
+.pg .sec-head .note, .pg .sub-head .note { font-family: var(--mp-name); font-weight: 900; font-size: 0.62em; letter-spacing: 0.05em; color: var(--pg-ink); margin-top: 0.3em; }
+.pg .run { text-align: left; font-family: var(--mp-head); font-weight: 700; font-size: 0.78em; letter-spacing: 0.1em; color: var(--mp-orange); padding-bottom: 1em; }
+.pg .it { padding-bottom: 1em; }
+.pg .it-name { display: block; font-family: var(--mp-name); font-weight: 900; font-size: 0.92em; letter-spacing: 0.05em; line-height: 1.25; text-transform: uppercase; }
+.pg .it-desc { margin-top: 0.2em; max-width: none; font-family: var(--mp-desc); font-size: 0.7em; letter-spacing: 0.1em; line-height: 1.55; text-transform: uppercase; color: var(--pg-ink); }
+.pg .it-price { display: block; margin-top: 0.15em; font-family: var(--mp-desc); font-size: 0.7em; letter-spacing: 0.1em; line-height: 1.5; color: var(--pg-ink); }
+.pg .it-orange, .pg .it-orange .it-desc, .pg .it-orange .it-price { color: var(--mp-season, var(--mp-orange)); }
+.pg .it-pink, .pg .it-pink .it-desc, .pg .it-pink .it-price { color: var(--mp-pink); }
+.pg .it-tag { font-family: var(--mp-name); color: var(--mp-orange); background: none; border-color: var(--mp-orange); }
+.pg .it-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: baseline; gap: 0 0.7em; padding-bottom: 0.35em; }
+.pg .it-row .it-price { margin: 0; font-size: 0.82em; letter-spacing: 0.06em; white-space: nowrap; text-align: right; }
+.it-ics { display: grid; grid-template-columns: repeat(3, 1.15em); gap: 0.3em; align-self: center; }
+.it-ics .ic { display: block; width: 1.15em; height: 1em; }
+.it-ics img { width: 100%; height: 100%; object-fit: contain; }
+.pg-fn { font-family: var(--mp-head); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--pg-ink); }
+.pg-no { font-family: var(--mp-desc); color: var(--pg-ink); }
+.toc-row { color: var(--pg-ink); }
+.toc-row .t { font-family: var(--mp-name); font-weight: 900; font-size: 0.92em; letter-spacing: 0.05em; text-transform: uppercase; }
+.toc-row .n { font-family: var(--mp-desc); color: var(--pg-ink); }
+/* the cover and back: her paper, her wordmark standing on its side in her cover brown */
+.pg-cover, .pg-back { background: var(--pg-bg); color: var(--mp-cover); }
+.pg-cover .cover-in, .pg-cover .cover-in::before { border: 0; }
+.pg-cover .cover-logo { position: absolute; width: calc(var(--ph, 600px) * 0.84); left: calc(var(--pw, 400px) * 0.29 - var(--ph, 600px) * 0.42); top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: 50% 50%; }
+.pg-back .back-in, .pg-back .back-in::before { border-color: color-mix(in srgb, var(--mp-cover) 40%, transparent); }
+.pg-back .back-in p { font-family: var(--mp-head); font-weight: 600; font-size: 0.7em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pg-ink); }
+.pg-back .back-btn { color: var(--pg-ink); border-color: var(--pg-ink); font-family: var(--mp-head); font-weight: 700; }
+.pg-end { background: var(--pg-bg); color: var(--mp-cover); }
