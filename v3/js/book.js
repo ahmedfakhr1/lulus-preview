@@ -158,7 +158,8 @@
     return '<div class="' + cls + '"><div class="it-name">' + esc(it.name) +
       (it.season ? '<span class="it-tag">Seasonal</span>' : '') + '</div>' +
       (it.desc ? '<div class="it-desc">' + esc(it.desc) + '</div>' : '') +
-      (price ? '<div class="it-price">' + price + '</div>' : '') + '</div>';
+      (price ? '<div class="it-price">' + price + '</div>' : '') +
+      (it.note ? '<div class="it-desc it-note">' + esc(it.note) + '</div>' : '') + '</div>';
   }
   /* a section may open with one photo, a plate across the top of its first page; its box has a fixed shape,
      so pagination never waits for the file */
