@@ -564,3 +564,4 @@ html[data-mood='morning'] { --c-bg: #e4ddd3; --c-fg: #592302; }
 .pg-back .back-in p { font-family: var(--mp-head); font-weight: 600; font-size: 0.7em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pg-ink); }
 .pg-back .back-btn { color: var(--pg-ink); border-color: var(--pg-ink); font-family: var(--mp-head); font-weight: 700; }
 .pg-end { background: var(--pg-bg); color: var(--mp-cover); }
+.pg .it-note { margin-top: 0.6em; }
