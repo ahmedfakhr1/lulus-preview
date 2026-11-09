@@ -317,7 +317,34 @@
     return pages;
   }
 
+  /* ------------------------------------------------------------ her printed menu, page for page */
+  /* When js/menu-pdf.js is on the page, the book is her four printed pages exactly: the cover, two pages of
+     food and the drinks page, each line of real text set where the PDF sets it (positions in cqw of the page). */
+  var PDF = window.LULUS_PDF || null;
+  function pdfHTML(pg) {
+    var art = '';
+    if (pg.art) art = pg.cover ? '<i class="pdf-mask" aria-hidden="true" style="-webkit-mask-image:url(img/menu-pdf/' + pg.art + ');mask-image:url(img/menu-pdf/' + pg.art + ')"></i>'
+      : '<img class="pdf-art" src="img/menu-pdf/' + pg.art + '" alt="" aria-hidden="true">';
+    return '<div class="pdfp">' + art + pg.runs.map(function (r) {
+      return '<span class="pr ' + r[3] + ' ' + r[4] + '" style="left:' + r[0] + 'cqw;top:' + r[1] + 'cqw;font-size:' + r[2] + 'cqw;letter-spacing:' + r[6] + 'em">' + esc(r[5]) + '</span>';
+    }).join('') + '</div>';
+  }
+  function paginatePDF() {
+    var src = PDF[S.service] || PDF.evening;
+    var pages = [{ kind: 'cover', pdf: src[0] }];
+    var names = ['', 'Food', 'Food', 'Drinks'];
+    for (var i = 1; i < src.length; i++) pages.push({ kind: 'sec', sec: 'page-' + (i + 1), has: [], pack: '', title: names[i] || 'Menu', no: i, first: true, from: 0, to: 0, pdf: src[i] });
+    pages.push({ kind: 'back' });
+    pages.forEach(function (p, i) { p.i = i; });
+    S.pages = pages;
+    S.secs = [];
+    S.seq = pages.slice();
+    S.seq.forEach(function (p, i) { p.s = i; });
+    return pages;
+  }
+
   function paginate() {
+    if (PDF) return paginatePDF();
     var cap = capacity();
     var secs = sectionsFor(S.service);
     var pages = [];
@@ -412,7 +439,11 @@
     if (p.el) return p.el;
     var el = document.createElement('section');
     el.className = 'pg pg-' + p.kind;
-    if (p.kind === 'cover') {
+    if (p.pdf) {
+      el.className += ' pg-pdf';
+      el.setAttribute('aria-label', p.kind === 'cover' ? 'Cover' : S.service + ' menu, ' + p.title + ', page ' + p.no);
+      el.innerHTML = pdfHTML(p.pdf) + (p.kind === 'cover' ? '<button class="cover-tap" type="button" data-act="next" aria-label="Open the menu"></button>' : '');
+    } else if (p.kind === 'cover') {
       el.setAttribute('aria-label', 'Cover');
       el.innerHTML = '<div class="cover-in">' + logoImg('cover-logo', 150) +
         '<button class="cover-tap" type="button" data-act="next" aria-label="Open the menu"></button></div>';
@@ -420,7 +451,7 @@
       el.setAttribute('aria-label', 'Back cover');
       el.innerHTML = '<div class="back-in">' + logoImg('back-wm', 56) +
         '<p>' + esc(FOOT) + '</p>' +
-        '<div class="back-links"><button class="back-btn" type="button" data-goto="contents">Contents</button>' +
+        '<div class="back-links">' + (PDF ? '' : '<button class="back-btn" type="button" data-goto="contents">Contents</button>') +
         '<a class="back-btn" href="' + esc(RESERVE_URL) + '" data-reserve>Reserve a table</a></div></div>';
     } else if (p.kind === 'end') {
       el.setAttribute('aria-hidden', 'true');
@@ -936,7 +967,40 @@
     var zone = Math.max(60, S.W * 0.28);
     if (e.clientX < vb.left + zone) step(-1);
     else if (e.clientX > vb.right - zone) step(1);
+    else if (PDF) openLens(e);
   });
+
+  /* the lens: the page under the tap, shown large in a panel that scrolls both ways */
+  var lens = null;
+  function openLens(e) {
+    var hit = document.elementsFromPoint(e.clientX, e.clientY).filter(function (n) { return n.classList && n.classList.contains('pdfp'); })[0];
+    if (!hit || hit.closest('.pg-cover')) return;
+    var r = hit.getBoundingClientRect();
+    var fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+    lens = document.createElement('div');
+    lens.className = 'lens';
+    lens.setAttribute('role', 'dialog');
+    lens.setAttribute('aria-modal', 'true');
+    lens.setAttribute('aria-label', 'Page, large');
+    lens.innerHTML = '<div class="lens-sheet"></div><button class="lens-x" type="button" aria-label="Close">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+    var copy = hit.cloneNode(true);
+    lens.querySelector('.lens-sheet').appendChild(copy);
+    document.body.appendChild(lens);
+    document.documentElement.classList.add('lens-on');
+    var sheet = lens.querySelector('.lens-sheet');
+    lens.scrollLeft = Math.max(0, fx * sheet.offsetWidth - lens.clientWidth / 2);
+    lens.scrollTop = Math.max(0, fy * sheet.offsetHeight - lens.clientHeight / 2);
+    lens.querySelector('.lens-x').addEventListener('click', closeLens);
+    lens.addEventListener('click', function (ev) { if (ev.target === lens) closeLens(); });
+    lens.querySelector('.lens-x').focus({ preventScroll: true });
+  }
+  function closeLens() {
+    if (!lens) return;
+    lens.remove(); lens = null;
+    document.documentElement.classList.remove('lens-on');
+  }
+  document.addEventListener('keydown', function (e) { if (lens && e.key === 'Escape') { e.stopPropagation(); closeLens(); } }, true);
 
   function act(b, e) {
     var g = b.getAttribute('data-goto');
@@ -957,7 +1021,7 @@
     if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     var tag = e.target && e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    if (document.querySelector('dialog[open]')) return;
+    if (document.querySelector('dialog[open]') || lens) return;
     var k = e.key;
     if (k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); step(1); }
     else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); step(-1); }
@@ -969,7 +1033,7 @@
   /* ------------------------------------------------------------ navigation by name */
   function targetPage(id) {
     if (id === 'cover') return S.pages[0];
-    if (id === 'contents') return firstOf(function (p) { return p.kind === 'toc'; });
+    if (id === 'contents') return firstOf(function (p) { return p.kind === 'toc'; }) || firstOf(function (p) { return p.kind === 'sec'; });
     return firstOf(function (p) { return p.kind === 'sec' && (p.sec === id || p.has.indexOf(id) >= 0); });
   }
   function goSection(id) {
@@ -1175,7 +1239,9 @@
 
   var fontJobs = [];
   if (document.fonts && document.fonts.load) {
-    ['400 24px "Bodoni Moda"', 'italic 400 24px "Bodoni Moda"', '400 16px Jost', '500 16px Jost'].forEach(function (f) {
+    /* her own menu's faces are fetched up front too, so the first turn does not wait on them */
+    ['400 24px "Bodoni Moda"', 'italic 400 24px "Bodoni Moda"', '400 16px Jost', '500 16px Jost']
+      .concat(PDF ? ['900 16px Lovelo', '400 16px "Julius Sans One"', '600 16px Livvic', '700 16px Livvic'] : []).forEach(function (f) {
       fontJobs.push(document.fonts.load(f).catch(function () {}));
     });
   }
@@ -1184,7 +1250,8 @@
   Promise.all(fontJobs).then(go);
   setTimeout(go, 1600);
   if (document.fonts && document.fonts.addEventListener) {
-    document.fonts.addEventListener('loadingdone', function () { if (ready) relayout(true); });
+    /* her pages are placed by position, so a late font needs no new layout (and must not stop a turn) */
+    document.fonts.addEventListener('loadingdone', function () { if (ready && !PDF) relayout(true); });
   }
 
   /* small hook for automated checks */
