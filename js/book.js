@@ -334,11 +334,13 @@
     var pages = [{ kind: 'cover', pdf: src[0] }];
     var names = ['', 'Food', 'Food', 'Drinks'];
     for (var i = 1; i < src.length; i++) pages.push({ kind: 'sec', sec: 'page-' + (i + 1), has: [], pack: '', title: names[i] || 'Menu', no: i, first: true, from: 0, to: 0, pdf: src[i] });
+    /* like a real book: the inside of the back cover faces the last page, and the back cover closes alone */
+    if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
     pages.push({ kind: 'back' });
     pages.forEach(function (p, i) { p.i = i; });
     S.pages = pages;
     S.secs = [];
-    S.seq = pages.slice();
+    S.seq = pages.filter(function (p) { return p.kind !== 'blank'; });
     S.seq.forEach(function (p, i) { p.s = i; });
     return pages;
   }
