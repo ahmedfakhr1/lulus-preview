@@ -524,7 +524,8 @@ html, html[data-mood='morning'] {
   --mp-desc: 'Julius Sans One', 'Jost', sans-serif;
   --mp-head: 'Livvic', 'Lovelo', sans-serif;
 }
-html[data-mood='morning'] { --c-bg: #e4ddd3; --c-fg: #592302; }
+/* her printed desk colour belongs to Fall; the other seasons keep their own desk (--desk-day, --ink) */
+html[data-mood='morning']:is([data-season^='fall'], [data-season='default']) { --c-bg: #e4ddd3; --c-fg: #592302; }
 .pg .sec-head, .pg .sub-head, .pg .toc-head { text-align: left; }
 .pg .sec-head .rule, .pg .toc-head .rule, .pg .run::after { display: none; }
 .pg .sec-head { padding-bottom: 0.9em; }

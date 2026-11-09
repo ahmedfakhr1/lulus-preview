@@ -31,7 +31,8 @@
     function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
     function deepen(c, bg, need) { var k = 0; while (ratio(c, bg) < need && k++ < 60) c = mix(c, [0, 0, 0], 0.96); return c; }
     var c = se.colours, ink = rgb(c.ink), second = rgb(c.accent);
-    var paper = mix([241, 239, 235], ink, 0.96);
+    /* the page is the season's own paper (summer's is a pale blue), not Fall's cream */
+    var paper = rgb(c.bg || c.paper);
     var root = document.documentElement.style;
     var text = deepen(ink, paper, 7);
     root.setProperty('--pg-bg', hex(paper));
