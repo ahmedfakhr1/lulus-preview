@@ -581,7 +581,7 @@ html[data-mood='morning'] { --c-bg: #e4ddd3; --c-fg: #592302; }
 .pdfp .c-pk { color: var(--mp-pink); }
 .pdfp .c-cv { color: var(--mp-cover); }
 .pdf-art { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.pdf-mask { position: absolute; inset: 0; background: var(--mp-cover); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-mode: alpha; mask-mode: luminance; }
+.pdf-mask { position: absolute; inset: 0; background: var(--mp-cover); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-mode: alpha; mask-mode: alpha; }
 .pg-pdf .cover-tap { position: absolute; inset: 0; background: none; border: 0; }
 .pg-pdf:not(.pg-cover) { cursor: zoom-in; }
 #toc { display: none; }
