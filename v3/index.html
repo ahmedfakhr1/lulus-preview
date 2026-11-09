@@ -90,7 +90,7 @@
   var cover = season.cover || (ratio(paper, acc) >= 3 ? c.accent : ratio(paper, acc2) >= 3 ? c.accent2 : c.ink);
   /* the wordmark drawn in the home headline wears the first palette colour that reads on the page (3:1), by day and by night */
   function pick(list, ground, fallback) { for (var q = 0; q < list.length; q++) if (list[q] && ratio(rgb(list[q]), ground) >= 3) return list[q]; return fallback; }
-  var popDay = pick([season.cover, c.accent, c.accent2], bg, hex(mix(acc, ink, 0.36)));
+  var popDay = pick([season.cover, c.accent], bg, hex(mix(acc, ink, 0.36)));  /* her browns, never the second colour, on the home page by day */
   var popNight = pick([c.accent, c.accent2, season.cover], deskNight, c.accent);
   var vars = {
     '--cover': cover,
@@ -228,7 +228,7 @@
   <section class="story" id="about" aria-labelledby="story-h">
     <div class="wrap">
       <h2 class="story-h rv" id="story-h">Our story</h2>
-      <div class="story-tx tx-plate rv" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="story-tx rv">The name “<span translate="no">LÜLU</span>” comes from my mother’s cherished nickname. The second “U” carries an umlaut, symbolizing happiness; a reflection of her always spreading joy and love to everyone around her. “Lulu” was a special name her father used for her, light and affectionate, just like the spirit of our place.</p>
     </div>
   </section>
 
