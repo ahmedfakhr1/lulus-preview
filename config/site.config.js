@@ -4,6 +4,9 @@ window.SITE_CONFIG = {
   // Public address of the site, no trailing slash. Placeholder until the Worker or the domain is live.
   siteUrl: 'https://lulus.workers.dev',
 
+  // The Google Sheet staff edit: the Menu tab (words and prices on her menu pages). Share it "Anyone with the link: Viewer".
+  sheet: { id: '', tabs: { menu: 'Menu' } },
+
   contact: {
     phone: '+201210514222',          // for "Call us", written with country code
     whatsapp: '201210514222',        // digits only, country code first

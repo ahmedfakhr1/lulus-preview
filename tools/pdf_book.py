@@ -46,7 +46,7 @@ data = {}
 for svc, pdf in SRC.items():
     doc = fitz.open(pdf); pages = []
     for pn in range(4):
-        pg = doc[pn]; runs = []
+        pg = doc[pn]; runs = []; spans = []
         for b in pg.get_text('rawdict')['blocks']:
             for l in b.get('lines', []):
                 for s in l['spans']:
@@ -55,6 +55,7 @@ for svc, pdf in SRC.items():
                     if not txt.strip(): continue
                     ch = ch[:len(txt)]
                     fk = s['font']; size = s['size']
+                    r0 = len(runs)
                     nat = sum(adv(fk, c['c']) for c in ch[:-1]) * size
                     span = ch[-1]['origin'][0] - ch[0]['origin'][0]
                     ls = (span - nat) / (len(ch) - 1) if len(ch) > 1 else 0
@@ -67,6 +68,10 @@ for svc, pdf in SRC.items():
                         x, y = pc[0]['origin']
                         runs.append([round(x / W * 100, 3), round((y - met[fk]['base'] * size) / W * 100, 3), round(size / W * 100, 4),
                                      met[fk]['cls'], COL.get(s['color'], 'c-ink'), t, round(ls / size, 4) if len(pc) > 1 else 0])
+                    lead = len(txt) - len(txt.lstrip())
+                    spans.append(dict(x=round(ch[lead]['origin'][0], 2), y=round(ch[0]['origin'][1], 2), end=round(ch[-1]['origin'][0] + adv(fk, ch[-1]['c']) * size, 2),
+                                      size=round(size, 3), font=fk, cls=met[fk]['cls'], col=COL.get(s['color'], 'c-ink'), text=txt.strip(), ls=round(ls / size, 4),
+                                      runs=[r0, len(runs)]))
         # the marks that are not text: drink icons, rules; the cover's wordmark separately as a mask
         tmp = fitz.open(); tmp.insert_pdf(doc, from_page=pn, to_page=pn); tp = tmp[0]
         cover = any(s['font'] == 'BrownSugar' for b in pg.get_text('rawdict')['blocks'] for l in b.get('lines', []) for s in l['spans'])
@@ -85,10 +90,15 @@ for svc, pdf in SRC.items():
             else:
                 Image.fromarray(arr, 'RGBA').save(out_dir / name, optimize=True)
             art = name
-        pages.append(dict(runs=runs, art=art, cover=cover))
+        pages.append(dict(runs=runs, art=art, cover=cover, spans=spans))
     data[svc] = pages
 import shutil
 final = ROOT / 'img' / 'menu-pdf'
 shutil.rmtree(final, ignore_errors=True); tmp_dir.rename(final)
-(ROOT / 'js' / 'menu-pdf.js').write_text('/* her printed Morning and Evening menus, page by page (built by tools/pdf_book.py from her PDFs) */\nwindow.LULUS_PDF = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + ';\n')
+# the page layout: every text run, and the spans (one per run of text in one font) that the Sheet's menu rows are matched to
+(ROOT / 'data').mkdir(exist_ok=True)
+(ROOT / 'data' / 'menu-layout.json').write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')) + '\n')
+# a fresh PDF is the new starting point: write the Sheet's rows from it, then the pages
+import subprocess
+subprocess.run([sys.executable, str(ROOT / 'tools' / 'menu_sheet.py'), '--seed'], check=True)
 for svc in data: print(svc, [(len(p['runs']), p['art']) for p in data[svc]])
