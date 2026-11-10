@@ -15,7 +15,7 @@ try:
     body = urllib.request.urlopen(url, timeout=30).read().decode('utf-8')
 except Exception as e:
     sys.exit(f'Could not read the Sheet ({e}). Is it shared "Anyone with the link: Viewer"?')
-rows = list(csv.DictReader(io.StringIO(body)))
+rows = [{(k or '').strip().lower(): v for k, v in r.items()} for r in csv.DictReader(io.StringIO(body))]
 need = ['id', 'name', 'description', 'price', 'note']
 if not rows or any(k not in rows[0] for k in need):
     sys.exit(f'The {tab} tab must have the columns {", ".join(need)} in its first row.')
