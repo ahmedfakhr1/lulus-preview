@@ -14,7 +14,7 @@ import { createRequire } from 'node:module';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'dist');
 const SKIP = new Set(['.git', '.github', '.gitignore', '.wrangler', 'node_modules', 'dist', 'tools', 'wrangler.jsonc',
-  'README.md', 'package.json', 'package-lock.json', 'menu-source', 'data']);
+  'README.md', 'src', 'package.json', 'package-lock.json', 'menu-source', 'data']);
 
 fs.rmSync(OUT, { recursive: true, force: true });
 for (const name of fs.readdirSync(ROOT)) if (!SKIP.has(name)) fs.cpSync(path.join(ROOT, name), path.join(OUT, name), { recursive: true });

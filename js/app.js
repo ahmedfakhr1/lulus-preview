@@ -417,6 +417,7 @@
         'Time: ' + fmtTime(fTime.value) + '\n' +
         'Guests: ' + guests;
       var url = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+      if (window.LULUS_TRACK) window.LULUS_TRACK('booking_sent', String(guests));
       var w = window.open(url, '_blank');
       if (w) { try { w.opener = null; } catch (err) {} } else { location.href = url; }
       dlg.close();

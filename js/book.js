@@ -975,9 +975,13 @@
 
   /* the lens: the page under the tap, shown large in a panel that scrolls both ways */
   var lens = null;
+  /* how far into the menu a visitor read, sent once as they leave */
+  var maxPos = 0, sentDepth = false;
+  window.addEventListener('pagehide', function () { if (!sentDepth && window.LULUS_TRACK) { sentDepth = true; window.LULUS_TRACK('depth', String(maxPos)); } });
   function openLens(e) {
     var hit = document.elementsFromPoint(e.clientX, e.clientY).filter(function (n) { return n.classList && n.classList.contains('pdfp'); })[0];
     if (!hit || hit.closest('.pg-cover')) return;
+    if (window.LULUS_TRACK) window.LULUS_TRACK('zoom', String(S.pos));
     var r = hit.getBoundingClientRect();
     var fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
     lens = document.createElement('div');
@@ -1053,6 +1057,7 @@
 
   /* the change itself: new menu, new colours, back to the contents page */
   function applyService(svc) {
+    if (ready && window.LULUS_TRACK) window.LULUS_TRACK('switch', svc);
     S.keep = null;
     S.service = svc;
     store('lulus-svc', svc);
@@ -1156,6 +1161,7 @@
 
   /* ------------------------------------------------------------ interface state */
   function afterChange() {
+    maxPos = Math.max(maxPos, S.pos);
     prevBtn.disabled = S.pos <= 0;
     nextBtn.disabled = S.pos >= lastPos();
     var vp = visiblePages();
