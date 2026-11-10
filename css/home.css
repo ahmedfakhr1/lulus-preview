@@ -438,6 +438,7 @@ html[data-mood='morning'] .room-head .wm-draw { color: var(--pop-day, var(--h-ac
 .foot-col a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; font-size: 0.9375rem; }
 .foot-col a:hover, .foot-col a:focus-visible { color: var(--paper); text-decoration: underline; text-underline-offset: 4px; }
 .credit { font-size: 0.75rem; letter-spacing: 0.02em; font-weight: 400; color: color-mix(in srgb, var(--paper) 90%, transparent); width: 100%; padding-top: var(--s4); border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent); }
+.credit a { color: inherit; text-underline-offset: 3px; }
 @media (min-width: 900px) {
   /* the seal on the left, Follow and Get the app spread out across the width, each reading from the left */
   .foot { text-align: left; }

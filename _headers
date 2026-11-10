@@ -1,0 +1,16 @@
+# Scripts and styles are linked with a ?v= code made from their content (tools/build.mjs), so they can be kept for a year.
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+# photos, icons and sounds keep their names when replaced: keep the saved copy a week, refresh in the background
+/img/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+/audio/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+/sw.js
+  Cache-Control: no-cache
+/config/*
+  Cache-Control: no-cache

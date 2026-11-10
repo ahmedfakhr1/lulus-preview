@@ -1,0 +1,15 @@
+{
+  "name": "LÜLU’S",
+  "short_name": "LÜLU’S",
+  "description": "LÜLU’S, EDNC by SODIC, New Cairo. The menu and table requests.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fdf9f3",
+  "theme_color": "#fdf9f3",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

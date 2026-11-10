@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // the Cloudflare Worker's name (its address becomes lulus.<account>.workers.dev)
+  "name": "lulus",
+  "compatibility_date": "2026-10-12",
+  // runs before every deploy: copies the site into dist/ and fills in config/site.config.js
+  "build": { "command": "node tools/build.mjs" },
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}

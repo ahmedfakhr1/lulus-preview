@@ -423,3 +423,10 @@
     });
   }
 })();
+
+/* offline: after one visit the menu opens with no signal (sw.js). Only on the live https site. */
+(function () {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext || location.hostname === 'localhost') return;
+  var me = document.currentScript && document.currentScript.src;
+  if (me) window.addEventListener('load', function () { navigator.serviceWorker.register(me.replace(/js\/app\.js.*$/, 'sw.js')).catch(function () {}); });
+})();
