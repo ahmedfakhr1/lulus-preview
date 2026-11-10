@@ -1,21 +1,25 @@
 """Puts the Seasons and Content tabs of her Google Sheet into the pages.
 
 Seasons: one row per season and year (Summer, Fall, Winter, Valentine, Ramadan or Spring), its dates, its colours,
-its mood word and its photo. The site picks the row whose dates hold today's date in Cairo.
+its mood word. The site picks the row whose dates hold today's date in Cairo.
 Content: the words on the home page, one row per text block, matched to the page by the Key column.
 
-Usage: python3 tools/site_sheet.py [seasons.csv content.csv]   (defaults: data/seasons.csv data/content.csv)
-       python3 tools/site_sheet.py --seed                       (writes the two CSVs from the pages as they are)
+Photos: the hero photo and the gallery photos of each season, from Google Drive (see tools/photos.py).
+
+Usage: python3 tools/site_sheet.py [seasons.csv content.csv photos.csv]   (defaults: the three CSVs in data/)
+       python3 tools/site_sheet.py --seed                                 (writes the CSVs from the pages as they are)
 Nothing changes when a row is wrong: the reasons are printed and the pages keep their last good version."""
 import csv, html, json, re, sys
 from datetime import date
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import photos as ph
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = [ROOT / 'index.html', ROOT / 'menu.html']
 KINDS = ['Summer', 'Fall', 'Winter', 'Valentine', 'Ramadan', 'Spring']
 S_FIELDS = ['Season', 'Year', 'Starts', 'Ends', 'Background', 'Page', 'Text', 'Colour 1', 'Colour 2',
-            'Mood word', 'Mood word colour', 'Mood word colour, evening', 'Headline colour', 'Menu cover colour', 'Photo', 'Photo description']
+            'Mood word', 'Mood word colour', 'Mood word colour, evening', 'Headline colour', 'Menu cover colour']
 C_FIELDS = ['Where', 'Text', 'Key']
 WHERE = {'address': 'Address (top of the page and Visit card)', 'story.title': 'Our story: title', 'story.text': 'Our story: text',
          'gallery.title': 'Photos: title (the brand name follows it)', 'mood.1': 'Mood line, after the mood word',
@@ -69,8 +73,7 @@ def seed():
             auto = {**s, 'colorHex': c['accent']}
             w.writerow({'Season': kind, 'Year': year, 'Starts': s['start'], 'Ends': s['end'], 'Background': c['bg'], 'Page': c.get('paper', ''),
                         'Text': c['ink'], 'Colour 1': c['accent'], 'Colour 2': c['accent2'], 'Mood word': words[s['id']],
-                        'Mood word colour': '' if day == word_colour(auto) else day, 'Mood word colour, evening': '' if night == word_colour_night(auto) else night, 'Headline colour': s.get('pop', ''), 'Menu cover colour': s.get('cover', ''),
-                        'Photo': s.get('heroImage', ''), 'Photo description': s.get('heroAlt', '')})
+                        'Mood word colour': '' if day == word_colour(auto) else day, 'Mood word colour, evening': '' if night == word_colour_night(auto) else night, 'Headline colour': s.get('pop', ''), 'Menu cover colour': s.get('cover', '')})
     with (ROOT / 'data' / 'content.csv').open('w', newline='') as fh:
         w = csv.DictWriter(fh, C_FIELDS); w.writeheader(); seen = set()
         for _, k, inner in re.findall(r'<(p|h2|span|a)\b[^>]*data-k="([^"]+)"[^>]*>(.*?)</\1>', home, re.S):
@@ -78,7 +81,15 @@ def seed():
             seen.add(k)
             txt = html.unescape(re.sub(r'<[^>]+>', '', inner)).replace('\xa0', ' ')
             w.writerow({'Where': WHERE.get(k, k), 'Text': txt, 'Key': k})
-    print('Wrote data/seasons.csv and data/content.csv from the pages.')
+    with (ROOT / 'data' / 'photos.csv').open('w', newline='') as fh:
+        w = csv.DictWriter(fh, ph.P_FIELDS); w.writeheader(); seen = set()
+        for s in d['seasons']:
+            kind = s['name'].rsplit(' ', 1)[0]
+            if s.get('heroImage') and kind not in seen:
+                seen.add(kind); w.writerow({'Season': kind, 'Place': 'Hero', 'Photo': s['heroImage'], 'Description': s.get('heroAlt', '')})
+        for kind, src, alt in re.findall(r'<figure class="fr f\d+ rv s-([a-z]+)-[^"]*"[^>]*><div class="fr-in"><img src="img/([^"]+)" alt="([^"]*)"', home):
+            w.writerow({'Season': kind.title(), 'Place': 'Gallery', 'Photo': src, 'Description': html.unescape(alt)})
+    print('Wrote data/seasons.csv, data/content.csv and data/photos.csv from the pages.')
 
 
 # ---------- the pages from the CSVs ----------
@@ -88,11 +99,10 @@ def text_html(t):
     return re.sub(r'(LÜLU(?:’S)?|Lülu’s)', r'<span translate="no">\1</span>', t)
 
 
-def build(seasons_csv, content_csv):
+def build(seasons_csv, content_csv, photos_csv):
     problems = []
     rows = [{k.strip(): (v or '').strip() for k, v in r.items() if k} for r in csv.DictReader(open(seasons_csv, newline=''))]
     rows = [r for r in rows if any(r.values())]
-    imgs = {p.name for p in (ROOT / 'img').glob('hero-*.webp') if not p.stem.endswith('-tall')}
     seasons, ids = [], set()
     for n, r in enumerate(rows, 2):
         at = f'Seasons row {n}'
@@ -110,8 +120,6 @@ def build(seasons_csv, content_csv):
         for f in need + ['Page', 'Mood word colour', 'Mood word colour, evening', 'Headline colour', 'Menu cover colour']:
             v = r.get(f, '')
             if (v or f in need) and not HEX.match(v): problems.append(f'{at}: {f} must be a colour code like #db983e')
-        photo = r.get('Photo', '')
-        if photo and photo not in imgs: problems.append(f'{at}: there is no photo called {photo} on the site (photos: {", ".join(sorted(imgs))})')
         if not r.get('Mood word'): problems.append(f'{at}: Mood word is empty')
         seasons.append((a, b, kind, year, sid, r))
     seasons.sort()
@@ -127,9 +135,10 @@ def build(seasons_csv, content_csv):
         content[k] = r.get('Text', '')
     for k in WHERE:
         if k not in content: problems.append(f'Content: the row with Key {k} ({WHERE[k]}) is missing')
+    prow = [{k.strip(): (v or '').strip() for k, v in r.items() if k} for r in csv.DictReader(open(photos_csv, newline=''))]
+    heroes, gallery, pp, keep = ph.process(prow, KINDS)
+    problems += pp
     if problems: sys.exit('Site not updated:\n- ' + '\n- '.join(dict.fromkeys(problems)))
-
-    from PIL import Image
     out = []
     for a, b, kind, year, sid, r in seasons:
         c = {'bg': r['Background'].lower()}
@@ -138,12 +147,11 @@ def build(seasons_csv, content_csv):
         s = {'id': sid, 'name': f'{kind} {year}'}
         if r.get('Headline colour'): s['pop'] = r['Headline colour'].lower()
         if r.get('Menu cover colour'): s['cover'] = r['Menu cover colour'].lower()
-        s.update(start=a.isoformat(), end=b.isoformat(), colours=c, heroImage=r.get('Photo', ''))
-        if s['heroImage']:
-            tall = s['heroImage'].replace('.webp', '-tall.webp')
-            if (ROOT / 'img' / tall).exists(): s['heroTall'] = tall
-            s['heroAlt'] = r.get('Photo description', '')
-            s['heroW'], s['heroH'] = Image.open(ROOT / 'img' / s['heroImage']).size
+        hero = heroes.get(kind)
+        s.update(start=a.isoformat(), end=b.isoformat(), colours=c, heroImage=hero['src'] if hero else '')
+        if hero:
+            if hero.get('tall'): s['heroTall'] = hero['tall']
+            s.update(heroAlt=hero['alt'], heroW=hero['w'], heroH=hero['h'])
         else:
             s['heroAlt'] = ''
         s['_word'], s['colorHex'] = r['Mood word'], c['accent']
@@ -166,23 +174,25 @@ def build(seasons_csv, content_csv):
         t = page.read_text()
         _, m = data_of(t)
         t = t[:m.start(1)] + DATA + t[m.end(1):]
-        if page.name == 'index.html': t = home(t, out, every, content)
+        if page.name == 'index.html': t = home(t, out, every, content, gallery)
         page.write_text(t)
+    ph.tidy(keep)
     print('Site updated from the Sheet:', ', '.join(s['name'] for s in out))
 
 
-def home(t, out, every, content):
+def home(t, out, every, content, gallery):
     kind = lambda sid: sid.split('-')[0]
     # the photo frames belong to a kind of season (her Fall photos show every Fall); placeholders fill each season's grid to four
-    room = t.split('<section class="room" id="room"')[1].split('</section>')[0]
-    frames = [l for l in room.split('\n') if 'class="fr f' in l]
-    count, real = {}, []
-    for l in frames:
-        k = kind(re.search(r' s-([a-z]+)-\d{4}', l).group(1) + '-')
+    count, real, i = {}, [], 0
+    for kname, items in gallery.items():
+        k = kname.lower()
         sids = [s['id'] for s in out if kind(s['id']) == k] + (['default'] if k == 'fall' else [])
-        l = re.sub(r'((?: s-[a-z]+(?:-\d{4})?)+)" style', ''.join(f' s-{x}' for x in sids) + '" style', l, count=1)
-        real.append(l)
-        for x in sids: count[x] = count.get(x, 0) + 1
+        if not sids: continue
+        for d, f in enumerate(items):
+            i += 1
+            real.append(f'    <figure class="fr f{i} rv' + ''.join(f' s-{x}' for x in sids) + f'" style="--w:{f["w"] // 2}px;--r:{f["w"] / f["h"]:.4f};--z:0;--d:{d % 3}">'
+                        f'<div class="fr-in"><img src="img/{f["src"]}" alt="{html.escape(f["alt"])}" width="{f["w"]}" height="{f["h"]}" loading="lazy" decoding="async"></div></figure>')
+        for x in sids: count[x] = count.get(x, 0) + len(items)
     ph = []
     for s in out:
         n = count.get(s['id'], 0)
@@ -217,5 +227,5 @@ def home(t, out, every, content):
 if __name__ == '__main__':
     if sys.argv[1:] == ['--seed']: seed()
     else:
-        a = sys.argv[1:] or [ROOT / 'data' / 'seasons.csv', ROOT / 'data' / 'content.csv']
+        a = sys.argv[1:] or [ROOT / 'data' / f for f in ('seasons.csv', 'content.csv', 'photos.csv')]
         build(*a)

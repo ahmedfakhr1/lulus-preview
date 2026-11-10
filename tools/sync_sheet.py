@@ -1,5 +1,6 @@
 """Copies the Google Sheet into the site: the Menu tab into data/menu-sheet.csv (and the menu pages are redrawn from it),
-the Seasons and Content tabs into data/seasons.csv and data/content.csv (and the home page and menu page take them).
+the Seasons, Content and Photos tabs into data/seasons.csv, data/content.csv and data/photos.csv (and the pages take them,
+with new Drive photos downloaded and prepared).
 Run by the "Publish menu" GitHub Action. Each part changes nothing when the Sheet cannot be read or a row is wrong:
 the reason is printed and the site keeps its last good version of that part.
 Usage: python3 tools/sync_sheet.py"""
@@ -50,10 +51,11 @@ except Exception as e:
 try:
     import site_sheet
     parts = []
-    for k, d, fields, file in (('seasons', 'Seasons', site_sheet.S_FIELDS, 'seasons.csv'), ('content', 'Content', site_sheet.C_FIELDS, 'content.csv')):
+    for k, d, fields, file in (('seasons', 'Seasons', site_sheet.S_FIELDS, 'seasons.csv'), ('content', 'Content', site_sheet.C_FIELDS, 'content.csv'),
+                               ('photos', 'Photos', site_sheet.ph.P_FIELDS, 'photos.csv')):
         name = tab(k, d)
         rows = [{(k2 or '').strip(): v for k2, v in r.items()} for r in read(name)]
-        if not rows or any(f not in rows[0] for f in fields if f != 'Where'):
+        if not rows or any(f not in rows[0] for f in fields if f not in ('Where', 'Preview', 'Focus')):
             raise ValueError(f'the {name} tab must have the columns {", ".join(fields)} in its first row')
         tmp = ROOT / 'data' / file.replace('.csv', '.new.csv')
         write(tmp, fields, rows); parts.append((tmp, ROOT / 'data' / file))
@@ -63,6 +65,6 @@ try:
         raise ValueError('see above')
     for t, f in parts: t.replace(f)
 except Exception as e:
-    failed.append(f'Seasons and page words not updated: {e}')
+    failed.append(f'Seasons, page words and photos not updated: {e}')
 
 if failed: sys.exit('\n'.join(failed))

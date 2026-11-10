@@ -1,6 +1,6 @@
 name: Publish menu
 # Redraws the menu pages from the Google Sheet (words and prices) or from new PDFs pushed to menu-source/,
-# and puts the Sheet's Seasons and Content tabs into the pages.
+# and puts the Sheet's Seasons, Content and Photos tabs into the pages (new photos come from Google Drive).
 on:
   workflow_dispatch:
   schedule:
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install --quiet fonttools brotli pymupdf pillow numpy
+      - run: pip install --quiet fonttools brotli pymupdf pillow pillow-heif numpy
       - name: New PDFs
         if: github.event_name == 'push'
         run: python3 tools/pdf_book.py
@@ -28,5 +28,5 @@ jobs:
         run: |
           git config user.name "Ahmed Fakhreldin"
           git config user.email "ahmedfakhr59@gmail.com"
-          git add -A js/menu-pdf.js data img/menu-pdf index.html menu.html
+          git add -A js/menu-pdf.js data img index.html menu.html
           git diff --cached --quiet || (git commit -m "Menu updated" && git push)
