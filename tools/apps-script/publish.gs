@@ -1,5 +1,5 @@
 /**
- * Puts a Menu tab edit on the website about a minute later, by starting the repo's "Publish menu" GitHub Action.
+ * Puts a Menu, Seasons or Content tab edit on the website about a minute later, by starting the repo's "Publish menu" GitHub Action.
  * Paste into the Sheet: Extensions > Apps Script. In Project settings > Script properties add:
  *   GITHUB_TOKEN  a fine-grained GitHub token for this repository only, with "Actions: Read and write"
  *   GITHUB_REPO   owner/name of the website repository
@@ -12,7 +12,7 @@ function setupPublish() {
 }
 
 function onSheetEdit_(e) {
-  if (e && e.range && e.range.getSheet().getName() !== 'Menu') return;
+  if (e && e.range && ['Menu', 'Seasons', 'Content'].indexOf(e.range.getSheet().getName()) < 0) return;
   // one publish a minute after the last edit, not one per cell
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'publishMenu') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('publishMenu').timeBased().after(60 * 1000).create();

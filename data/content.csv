@@ -1,0 +1,20 @@
+Where,Text,Key
+Address (top of the page and Visit card),"EDNC by SODIC, New Cairo",address
+Our story: title,Our story,story.title
+Our story: text,"The name “LÜLU” comes from my mother’s cherished nickname. The second “U” carries an umlaut, symbolizing happiness; a reflection of her always spreading joy and love to everyone around her. “Lulu” was a special name her father used for her, light and affectionate, just like the spirit of our place.",story.text
+Photos: title (the brand name follows it),"New Season, New",gallery.title
+"Mood line, after the mood word","sets the mood,",mood.1
+"Mood line, second half",the food takes it from there.,mood.2
+In motion: title,Lülu’s in motion,motion.title
+In motion: item 1,Games,motion.1
+In motion: item 2,Workshops,motion.2
+In motion: item 3,Talks,motion.3
+In motion: item 4,Pilates,motion.4
+In motion: item 5,Retail corner,motion.5
+In motion: item 6,Nail studio,motion.6
+In motion: app link,Find them in the app,motion.app
+In motion: line under the list,"Book a class, order for pickup and earn LÜCOINS in the LÜLU’S app.",motion.note
+Cannes: title,On se voit à Cannes,cannes.title
+Cannes: line,"Bijoux by LÜLU’S, now on the French Riviera.",cannes.text
+Visit card: opening hours,"Daily, 9 am to midnight",visit.hours
+Visit card: second line,"Drinks, pastries and bakery picks are also on Talabat.",visit.note

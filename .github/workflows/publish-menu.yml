@@ -1,5 +1,6 @@
 name: Publish menu
-# Redraws the menu pages: from the Google Sheet (words and prices), or from new PDFs pushed to menu-source/.
+# Redraws the menu pages from the Google Sheet (words and prices) or from new PDFs pushed to menu-source/,
+# and puts the Sheet's Seasons and Content tabs into the pages.
 on:
   workflow_dispatch:
   schedule:
@@ -27,5 +28,5 @@ jobs:
         run: |
           git config user.name "Ahmed Fakhreldin"
           git config user.email "ahmedfakhr59@gmail.com"
-          git add -A js/menu-pdf.js data img/menu-pdf
+          git add -A js/menu-pdf.js data img/menu-pdf index.html menu.html
           git diff --cached --quiet || (git commit -m "Menu updated" && git push)
