@@ -201,6 +201,8 @@
     var maxW = spread ? (cw - 2 * mx) / 2 : (cw - 2 * mx);
     /* on its side a phone has width to spare, so the pages get a squarer shape and fit more lines across */
     var W = Math.floor(Math.min(maxW, H * (compact ? 1.04 : 0.74)));
+    /* her printed pages are A4: the paper takes that exact shape on every screen, so a tall phone shows no empty paper above or below */
+    if (PDF) { W = Math.floor(Math.min(maxW, H * 0.70703)); H = Math.floor(W / 0.70703); }
     S.compact = compact;
     S.mode = spread ? 'spread' : 'single';
     S.W = Math.max(200, W);
