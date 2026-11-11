@@ -2,7 +2,8 @@
 
 Each row names a season (Summer, Fall, ...), where the photo goes (Hero: the big photo at the top of the home page,
 one per season; Gallery: the photo grid, up to four per season, in the order of the rows), and the photo itself:
-a Google Drive link (the file must be viewable by anyone with the link) or the name of a photo already on the site.
+the name of a photo in her Drive folder (picked from a list the Sheet keeps up to date), a Google Drive link, or the name
+of a photo already on the site. The folder must be viewable by anyone with the link.
 Drive photos are downloaded once, turned upright, cropped to the site's shapes around the row's Focus, resized,
 saved as WebP without any camera data, and named after their Drive id, so a photo is only fetched again when it changes.
 
@@ -48,13 +49,13 @@ def save(im, size, focus, path):
     return w, h
 
 
-def process(rows, kinds):
-    """rows: dicts with the P_FIELDS. Returns (heroes {kind: dict}, gallery {kind: [dict]}, problems, files kept)."""
+def process(rows, kinds, drive=None):
+    """rows: dicts with the P_FIELDS; drive: {file name: Drive id} of the photos folder (the Sheet's Drive files tab). Returns (heroes {kind: dict}, gallery {kind: [dict]}, problems, files kept)."""
     from PIL import Image, ImageOps
     heroes, gallery, problems, keep = {}, {}, [], set()
     for n, r in enumerate(rows, 2):
         at = f'Photos row {n}'
-        if not any(r.get(f) for f in ('Season', 'Place', 'Photo')): continue
+        if not r.get('Photo', '').strip(): continue  # a row without a photo (not filled in yet, or the photo taken out) shows nothing
         kind = r.get('Season', '').title()
         place = r.get('Place', '').title()
         photo = r.get('Photo', '').strip()
@@ -62,13 +63,16 @@ def process(rows, kinds):
         if kind not in kinds: problems.append(f'{at}: Season must be one of {", ".join(kinds)}'); continue
         if place not in ('Hero', 'Gallery'): problems.append(f'{at}: Place must be Hero or Gallery'); continue
         if focus not in FOCUS: problems.append(f'{at}: Focus must be empty or one of Center, Top, Bottom, Left, Right'); continue
-        if not photo: problems.append(f'{at}: the Photo cell is empty'); continue
         if place == 'Hero' and kind in heroes: problems.append(f'{at}: {kind} already has a Hero photo (one per season)'); continue
         if place == 'Gallery' and len(gallery.get(kind, [])) >= 4: problems.append(f'{at}: {kind} already has four Gallery photos'); continue
         alt = r.get('Description', '').strip()
         if not alt: problems.append(f'{at}: Description is empty (it is read aloud to blind visitors and shown if the photo cannot load)'); continue
+        # a Drive link, a photo the site already has (her photos from before keep their exact files), or a file name from the Drive folder
         fid = drive_id(photo) if photo.startswith('http') else None
         if photo.startswith('http') and not fid: problems.append(f'{at}: this is not a Google Drive file link'); continue
+        if not fid and not (IMG / photo).exists():
+            fid = (drive or {}).get(photo)
+            if not fid: problems.append(f'{at}: there is no photo called {photo} in the Drive folder'); continue
         if fid:
             tag = f'd-{fid[:12]}' + (f'-{focus}' if focus not in ('', 'center') else '')
             names = [f'hero-{tag}.webp', f'hero-{tag}-tall.webp'] if place == 'Hero' else [f'room-{tag}.webp']
@@ -86,7 +90,6 @@ def process(rows, kinds):
                     save(im, FRAME, FOCUS[focus], IMG / names[0])
         else:
             names = [photo] + ([photo.replace('.webp', '-tall.webp')] if place == 'Hero' else [])
-            if not (IMG / photo).exists(): problems.append(f'{at}: there is no photo called {photo} on the site'); continue
         keep.update(x for x in names if (IMG / x).exists())
         w, h = Image.open(IMG / names[0]).size
         item = {'src': names[0], 'alt': alt, 'w': w, 'h': h}

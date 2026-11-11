@@ -99,7 +99,7 @@ def text_html(t):
     return re.sub(r'(LÜLU(?:’S)?|Lülu’s)', r'<span translate="no">\1</span>', t)
 
 
-def build(seasons_csv, content_csv, photos_csv):
+def build(seasons_csv, content_csv, photos_csv, drive_csv=None):
     problems = []
     rows = [{k.strip(): (v or '').strip() for k, v in r.items() if k} for r in csv.DictReader(open(seasons_csv, newline=''))]
     rows = [r for r in rows if any(r.values())]
@@ -136,7 +136,11 @@ def build(seasons_csv, content_csv, photos_csv):
     for k in WHERE:
         if k not in content: problems.append(f'Content: the row with Key {k} ({WHERE[k]}) is missing')
     prow = [{k.strip(): (v or '').strip() for k, v in r.items() if k} for r in csv.DictReader(open(photos_csv, newline=''))]
-    heroes, gallery, pp, keep = ph.process(prow, KINDS)
+    drive = {}
+    if drive_csv and Path(drive_csv).exists():
+        for r in csv.DictReader(open(drive_csv, newline='')):
+            if (r.get('Photo') or '').strip() and (r.get('Photo ID') or '').strip(): drive[r['Photo'].strip()] = r['Photo ID'].strip()
+    heroes, gallery, pp, keep = ph.process(prow, KINDS, drive)
     problems += pp
     if problems: sys.exit('Site not updated:\n- ' + '\n- '.join(dict.fromkeys(problems)))
     out = []
@@ -227,5 +231,5 @@ def home(t, out, every, content, gallery):
 if __name__ == '__main__':
     if sys.argv[1:] == ['--seed']: seed()
     else:
-        a = sys.argv[1:] or [ROOT / 'data' / f for f in ('seasons.csv', 'content.csv', 'photos.csv')]
+        a = sys.argv[1:] or [ROOT / 'data' / f for f in ('seasons.csv', 'content.csv', 'photos.csv', 'drive-files.csv')]
         build(*a)

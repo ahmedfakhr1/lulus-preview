@@ -5,7 +5,7 @@ window.SITE_CONFIG = {
   siteUrl: 'https://lulus.workers.dev',
 
   // The Google Sheet staff edit: the Menu tab (words and prices on her menu pages). Share it "Anyone with the link: Viewer".
-  sheet: { id: '1qMwnRKBo9ORgpeMHTR9n0tCyKOelcgHmOjswjqdq0hU', tabs: { menu: 'Menu', seasons: 'Seasons', content: 'Content', photos: 'Photos' } },
+  sheet: { id: '1qMwnRKBo9ORgpeMHTR9n0tCyKOelcgHmOjswjqdq0hU', tabs: { menu: 'Menu', seasons: 'Seasons', content: 'Content', photos: 'Photos', settings: 'Settings', drive: 'Drive files' } },
 
   contact: {
     phone: '+201210514222',          // for "Call us", written with country code
