@@ -1,0 +1,11 @@
+# GitHub only lets the Sheet start "Publish menu" when a workflow of that name is on the default branch.
+# The Sheet starts it on the production branch, which runs production's own copy of this file.
+name: Publish menu
+on:
+  workflow_dispatch:
+jobs:
+  noop:
+    if: github.ref_name == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Runs from the production branch"
