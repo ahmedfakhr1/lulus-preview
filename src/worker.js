@@ -1,7 +1,7 @@
 /* The site's Worker. Pages, scripts and photos are served straight from dist/ (wrangler.jsonc).
    Only /api/hit runs here: it records one row per visit or tap in Workers Analytics Engine (free, no cookies,
    no IP address kept): what happened, on which page, Morning/Evening, season, phone type, system, browser,
-   country, city and where the visitor came from. tools/apps-script/visits.gs reads it once a week into the Sheet. */
+   country, city and where the visitor came from. tools/apps-script/lulus-sheet.gs reads it once a week into the Sheet. */
 const EVENTS = new Set(['view', 'reserve', 'booking_sent', 'phone', 'maps', 'whatsapp', 'instagram', 'tiktok', 'cannes',
   'appStore', 'playStore', 'credit', 'switch', 'zoom', 'depth']);
 const clip = (v, n = 40) => String(v || '').slice(0, n);
@@ -27,7 +27,7 @@ export default {
         if (/bot|crawl|spider|preview|lighthouse/i.test(ua)) return new Response(null, { status: 204 });
         const d = device(ua), cf = request.cf || {};
         env.HITS && env.HITS.writeDataPoint({
-          // blob1..blob13, read by visits.gs in this order
+          // blob1..blob13, read by lulus-sheet.gs in this order
           blobs: [e, clip(body.d), clip(body.p, 10), clip(body.mood, 10), clip(body.season, 20), d.type, d.os, d.browser, d.model,
             clip(cf.country, 4), clip(cf.city), clip(body.ref, 60), clip(cf.region)],
           doubles: [1],

@@ -14,6 +14,6 @@
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
   },
-  // visits and taps, free on the Workers free plan (src/worker.js writes, visits.gs reads)
+  // visits and taps, free on the Workers free plan (src/worker.js writes, tools/apps-script/lulus-sheet.gs reads)
   "analytics_engine_datasets": [{ "binding": "HITS", "dataset": "lulus_hits" }]
 }
